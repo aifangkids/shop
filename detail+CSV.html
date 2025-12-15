@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">商品詳情載入中...</title>
+    
+    <style>
+        /* ------------------------------------
+           通用樣式（與 index.html 保持一致）
+        ------------------------------------ */
+        @import url('https://fonts.googleapis.com/css2?family=Huninn&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Huninn', 'Noto Sans TC', Arial, sans-serif; 
+            color: #333;
+            background-color: #fff;
+            line-height: 1.5;
+            font-size: 14px; 
+        }
+        
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        ul {
+            list-style: none;
+        }
+        
+        button {
+            border: none;
+            background: none;
+            cursor: pointer;
+            padding: 0;
+            color: inherit;
+            font-family: inherit;
+        }
+
+        .wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* ------------------------------------
+           頁首
+        ------------------------------------ */
+        #header {
+            border-bottom: 1px solid #f0f0f0;
+            padding: 15px 0;
+            background: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .header-icons span {
+            font-size: 18px;
+            margin-left: 15px;
+            cursor: pointer;
+        }
+
+        /* ------------------------------------
+           詳情佈局 (Desktop)
+        ------------------------------------ */
+        #detail-main {
+            display: flex;
+            padding: 40px 20px;
+            gap: 50px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .image-gallery {
+            width: 50%;
+            flex-shrink: 0;
+        }
+
+        .main-img {
+            width: 100%;
+            aspect-ratio: 3 / 4;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .thumb-list {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            /* 讓滑動更順暢 */
+            padding-bottom: 10px;
+            -webkit-overflow-scrolling: touch; 
+        }
+
+        .thumb-item {
+            width: 70px;
+            height: 90px;
+            object-fit: cover;
+            cursor: pointer;
+            border-radius: 4px;
+            border: 1px solid #eee;
+            transition: border-color 0.2s;
+        }
+
+        .thumb-item.active, .thumb-item:hover {
+            border-color: #333;
+        }
+
+        .info-area {
+            width: 50%;
+            position: sticky;
+            top: 100px; /* 貼在 Header 下方 */
+            align-self: flex-start;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+            padding-bottom: 40px;
+        }
+
+        .brand {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .title {
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        .price-group {
+            margin-bottom: 25px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+
+        .current-price {
+            font-size: 24px;
+            font-weight: 700;
+            color: #e74c3c;
+        }
+
+        .original-price {
+            text-decoration: line-through;
+            color: #aaa;
+            margin-left: 10px;
+        }
+
+        /* 選項 */
+        .selector {
+            margin-bottom: 25px;
+        }
+
+        .selector label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        .option-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        /* 顏色選擇器 */
+        .color-option input[type="radio"] {
+            display: none;
+        }
+
+        .color-option label {
+            /* 顏色方塊樣式 */
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            margin: 0; /* 重設 label margin */
+            transition: transform 0.2s, border-color 0.2s;
+            display: inline-block;
+            box-shadow: 0 0 0 1px #eee;
+        }
+
+        .color-option input[type="radio"]:checked + label {
+            border-color: #333;
+            transform: scale(1.1);
+        }
+
+        /* 尺寸/規格按鈕 */
+        .spec-btn {
+            padding: 8px 18px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .spec-btn.active {
+            border-color: #333;
+            background: #333;
+            color: #fff;
+        }
+
+        /* 購買區塊 */
+        .buy-actions {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 15px;
+            border-radius: 6px;
+            font-weight: 700;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 16px;
+        }
+
+        .btn-cart {
+            background: #333;
+            color: #fff;
+        }
+
+        .btn-now {
+            background: #fff;
+            border: 1px solid #333;
+            color: #333;
+        }
+        
+        /* Tabs 內容 */
+        .tabs {
+            margin-top: 50px;
+        }
+
+        .tab-nav {
+            display: flex;
+            border-bottom: 2px solid #eee;
+        }
+
+        .tab-link {
+            padding: 15px 25px;
+            cursor: pointer;
+            font-weight: 700;
+            color: #888;
+            transition: color 0.2s;
+        }
+
+        .tab-link.active {
+            color: #333;
+            border-bottom: 2px solid #333;
+            margin-bottom: -2px; /* 讓 active tab 蓋住 border */
+        }
+
+        .tab-content {
+            padding: 30px 0;
+        }
+        
+        .tab-content h4 {
+             font-size: 16px;
+             margin-top: 20px;
+             margin-bottom: 10px;
+             color: #555;
+        }
+
+        /* ------------------------------------
+           響應式優化 (手機版)
+        ------------------------------------ */
+        @media (max-width: 850px) {
+            #detail-main { 
+                flex-direction: column; 
+                padding: 0; 
+                gap: 20px; 
+            }
+            .image-gallery, .info-area { 
+                width: 100%; 
+                position: static;
+                max-height: none;
+                overflow-y: visible;
+                padding: 0;
+            }
+            .main-img { 
+                border-radius: 0; 
+            }
+            .info-area { 
+                padding: 0 15px 40px; 
+            }
+            .title { 
+                font-size: 24px; 
+            }
+            .tab-link { 
+                padding: 10px 15px; 
+                font-size: 14px;
+            }
+        }
+    </style>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+</head>
+<body>
+    <header id="header">
+        <div class="header-inner wrapper">
+            <a href="index.html" class="logo">AiFangKids 選品</a>
+            <div class="header-icons">
+                <span onclick="location.href='cart.html'">🛒</span>
+            </div>
+        </div>
+    </header>
+
+    <main id="detail-main">
+        <div class="image-gallery">
+            <img id="main-product-img" src="https://via.placeholder.com/600x750?text=Image+Loading" class="main-img" alt="商品主圖">
+            <div class="thumb-list" id="thumbnail-list">
+                </div>
+        </div>
+
+        <div class="info-area">
+            <p class="brand" id="product-brand">品牌載入中</p>
+            <h1 class="title" id="product-title">商品名稱載入中</h1>
+            
+            <div class="price-group">
+                <span class="current-price" id="discount-price-display">0 TWD</span>
+                <span class="original-price" id="original-price-display">0 TWD</span>
+            </div>
+
+            <div class="selector" id="color-selector">
+                <label>選擇顏色 (<span id="selected-color-name">請選擇</span>)</label>
+                <div class="option-grid" id="color-options-grid">
+                    </div>
+            </div>
+
+            <div class="selector" id="size-selector">
+                <label>選擇尺寸</label>
+                <div class="option-grid" id="size-options-grid">
+                    </div>
+            </div>
+
+            <div class="buy-actions">
+                <button class="btn btn-cart" id="btn-add-cart">加入購物車</button>
+                <button class="btn btn-now">立即購買</button>
+            </div>
+
+            <div class="tabs">
+                <div class="tab-nav">
+                    <div class="tab-link active" onclick="showTab('info')">商品資訊</div>
+                    <div class="tab-link" onclick="showTab('size')">尺寸表</div>
+                </div>
+                
+                <div class="tab-content" id="tab-info">
+                    <p id="product-description">商品說明載入中...</p>
+                    <h4 id="product-material"></h4>
+                    <h4 id="product-suggestions"></h4>
+                </div>
+                
+                <div class="tab-content" id="tab-size" style="display: none;">
+                    <img id="size-chart-img" src="" alt="尺寸表圖片" style="max-width: 100%; height: auto;">
+                    <p id="size-chart-note">尺寸表載入中...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script>
+        // 設定 CSV 檔案路徑
+        const PRODUCT_DATA_CSV = 'SHOP 後端及時更新商品資訊 - 商品資料.csv';
+        const DETAIL_DATA_CSV = 'SHOP 後端及時更新商品資訊 - 詳細介紹.csv';
+
+        // 確保路徑是網路可存取的相對路徑
+        function cleanPath(path) {
+             // 替換 Windows 絕對路徑的開頭，並將反斜線替換為斜線
+             if (!path) return '';
+             let cleaned = path.replace(/C:\\Users\\DCT\\OneDrive\\桌面\\flask_shop/i, '');
+             cleaned = cleaned.replace(/\\/g, '/');
+             
+             // 確保以 / 開頭，並移除可能存在的 static/images 重複
+             if (!cleaned.startsWith('/')) {
+                 cleaned = '/' + cleaned;
+             }
+             return cleaned.replace(/\/\/+/g, '/').replace('/static/images', '/static/images'); // 假設 /static/images 是根目錄
+        }
+
+        // 顯示 Tab 內容
+        window.showTab = function(tabId) {
+            document.getElementById('tab-info').style.display = 'none';
+            document.getElementById('tab-size').style.display = 'none';
+            
+            document.querySelector('.tab-nav .active').classList.remove('active');
+            
+            document.getElementById('tab-' + tabId).style.display = 'block';
+            document.querySelector(`[onclick="showTab('${tabId}')"]`).classList.add('active');
+        }
+
+
+        // 主要載入函數
+        function loadProductDetails() {
+            // 1. 從 URL 獲取貨號
+            const urlParams = new URLSearchParams(window.location.search);
+            const itemCode = urlParams.get('item_code');
+
+            if (!itemCode) {
+                document.getElementById('product-title').textContent = '錯誤：缺少商品貨號。';
+                return;
+            }
+            
+            let productData = null;
+            let detailData = null;
+
+            // 輔助函數：解析 CSV
+            const parseCSV = (url) => new Promise((resolve, reject) => {
+                Papa.parse(url, {
+                    download: true,
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: (results) => resolve(results.data),
+                    error: (error) => reject(error)
+                });
+            });
+
+            // 2. 同時載入兩個 CSV
+            Promise.all([
+                parseCSV(PRODUCT_DATA_CSV),
+                parseCSV(DETAIL_DATA_CSV)
+            ]).then(([products, details]) => {
+                
+                // 3. 根據貨號查找資料
+                productData = products.find(item => item['貨號'] === itemCode);
+                detailData = details.find(item => item['貨號'] === itemCode);
+
+                if (!productData) {
+                    document.getElementById('product-title').textContent = `錯誤：找不到貨號為 ${itemCode} 的商品資訊。`;
+                    return;
+                }
+
+                // 4. 渲染主要資訊
+                document.getElementById('page-title').textContent = `${productData['商品名稱']} - ${productData['品牌']} 詳細資訊`;
+                document.getElementById('product-brand').textContent = productData['品牌'];
+                document.getElementById('product-title').textContent = productData['商品名稱'];
+                document.getElementById('original-price-display').textContent = `${productData['價格']} TWD`;
+                // 使用 20%OFF 價格
+                document.getElementById('discount-price-display').textContent = `${productData['價格-20%OFF']} TWD`;
+                
+                // 5. 渲染圖片
+                renderImages(productData);
+
+                // 6. 渲染顏色與尺寸選項
+                renderOptions(productData);
+                
+                // 7. 渲染詳細介紹 Tab
+                renderDetailTabs(detailData);
+
+            }).catch(error => {
+                console.error("載入 CSV 檔案失敗:", error);
+                document.getElementById('product-title').textContent = '錯誤：商品資料載入失敗，請檢查 CSV 檔案路徑。';
+            });
+        }
+        
+        // 圖片渲染函數
+        function renderImages(data) {
+            const mainImgEl = document.getElementById('main-product-img');
+            const thumbListEl = document.getElementById('thumbnail-list');
+            
+            // a. 主圖
+            mainImgEl.src = cleanPath(data['主圖連結']);
+            mainImgEl.classList.add('active'); // 預設為主圖
+            
+            // b. 縮圖 (多色圖片連結)
+            thumbListEl.innerHTML = '';
+            
+            // 清理並分割多色圖片連結
+            // 格式: 顏色名稱#圖片路徑；顏色名稱#圖片路徑；...
+            const multiColorImagesString = data['多色圖片連結'] || '';
+            const colorImages = multiColorImagesString.split('；').filter(s => s.trim() !== '');
+            
+            // 加上主圖縮圖
+            const mainThumb = document.createElement('img');
+            mainThumb.src = cleanPath(data['主圖連結']);
+            mainThumb.className = 'thumb-item active';
+            mainThumb.onclick = () => {
+                mainImgEl.src = cleanPath(data['主圖連結']);
+                document.querySelectorAll('.thumb-item').forEach(el => el.classList.remove('active'));
+                mainThumb.classList.add('active');
+            };
+            thumbListEl.appendChild(mainThumb);
+            
+            colorImages.forEach(colorImageStr => {
+                const parts = colorImageStr.split('#');
+                if (parts.length < 2) return;
+                
+                const imgPath = parts[1].trim();
+                const thumbImgEl = document.createElement('img');
+                thumbImgEl.src = cleanPath(imgPath);
+                thumbImgEl.className = 'thumb-item';
+                
+                thumbImgEl.onclick = () => {
+                    mainImgEl.src = cleanPath(imgPath);
+                    document.querySelectorAll('.thumb-item').forEach(el => el.classList.remove('active'));
+                    thumbImgEl.classList.add('active');
+                };
+                thumbListEl.appendChild(thumbImgEl);
+            });
+        }
+        
+        // 選項渲染函數
+        function renderOptions(data) {
+            const colorGrid = document.getElementById('color-options-grid');
+            const sizeGrid = document.getElementById('size-options-grid');
+            const selectedColorName = document.getElementById('selected-color-name');
+            
+            // A. 顏色 (假設 CSV 中的 '顏色' 欄位是 '顏色名稱#路徑；顏色名稱#路徑' 的格式，我們只取名稱)
+            colorGrid.innerHTML = '';
+            const colorString = data['顏色'] || '';
+            const colors = colorString.split('；').map(c => c.split('#')[0].trim()).filter(c => c !== '');
+            
+            colors.forEach((colorName, index) => {
+                const inputId = `color-${index}`;
+                // 這裡我們沒有色碼，所以暫時用一個通用背景色
+                const colorHtml = `
+                    <div class="color-option">
+                        <input type="radio" id="${inputId}" name="color" value="${colorName}">
+                        <label for="${inputId}" data-color-name="${colorName}" 
+                               style="background-color: #f7f7f7;" title="${colorName}"></label>
+                    </div>
+                `;
+                colorGrid.innerHTML += colorHtml;
+            });
+            
+            // 顏色選擇邏輯 (點擊顯示名稱)
+            colorGrid.querySelectorAll('input[name="color"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.checked) {
+                        const name = this.nextElementSibling.getAttribute('data-color-name');
+                        selectedColorName.textContent = name;
+                    }
+                });
+            });
+
+
+            // B. 尺寸 (CSV 尺寸格式: S | 2~3y 100~110cm, JS | 7~8y 135~cm ( TWD 630 ))
+            sizeGrid.innerHTML = '';
+            const sizeString = data['尺寸'] || '';
+            const sizes = sizeString.split(',').map(s => s.trim()).filter(s => s !== '');
+
+            sizes.forEach((sizeDetail, index) => {
+                const sizeNameMatch = sizeDetail.match(/^([^|\s]+)/); // 提取 S, JS
+                const sizeName = sizeNameMatch ? sizeNameMatch[1] : `尺寸${index+1}`;
+                
+                const sizeBtn = document.createElement('div');
+                sizeBtn.className = 'spec-btn';
+                sizeBtn.textContent = sizeDetail.trim().replace(/\(.*\)/, '').trim(); // 移除括號內的加價資訊
+                sizeBtn.setAttribute('data-size', sizeName);
+
+                sizeBtn.onclick = () => {
+                    sizeGrid.querySelectorAll('.spec-btn').forEach(btn => btn.classList.remove('active'));
+                    sizeBtn.classList.add('active');
+                };
+                sizeGrid.appendChild(sizeBtn);
+            });
+        }
+        
+        // 詳細介紹 Tab 渲染函數
+        function renderDetailTabs(data) {
+            if (!data) return;
+
+            // 商品資訊 Tab
+            document.getElementById('product-description').innerHTML = data['商品說明'].replace(/\n/g, '<br>'); // 換行符號轉 <br>
+            document.getElementById('product-material').innerHTML = `<h4>材質：${data['材質']}</h4>`;
+            document.getElementById('product-suggestions').innerHTML = `<h4>穿搭建議：${data['穿搭建議']}</h4>`;
+            
+            // 尺寸表 Tab
+            const sizeChartImg = document.getElementById('size-chart-img');
+            const sizeChartNote = document.getElementById('size-chart-note');
+            
+            if (data['尺寸表']) {
+                sizeChartImg.src = cleanPath(data['尺寸表']);
+                sizeChartNote.style.display = 'none';
+            } else {
+                sizeChartImg.style.display = 'none';
+                sizeChartNote.textContent = '未提供詳細尺寸表圖片。';
+            }
+        }
+
+
+        window.onload = loadProductDetails;
+
+// **新增：購物車相關的全局變數和函數**
+let currentSelectedProduct = {}; // 用於儲存當前頁面商品的完整數據
+
+function getCart() {
+    // 從瀏覽器儲存空間讀取購物車資料
+    const cart = localStorage.getItem('shoppingCart');
+    return cart ? JSON.parse(cart) : [];
+}
+
+function saveCart(cart) {
+    // 儲存購物車資料到瀏覽器
+    localStorage.setItem('shoppingCart', JSON.stringify(cart));
+}
+
+// **修改：選項渲染函數 (增加追蹤選中狀態)**
+function renderOptions(data) {
+    // 將當前商品資料存入全局變數
+    currentSelectedProduct = data;
+
+    const colorGrid = document.getElementById('color-options-grid');
+    const sizeGrid = document.getElementById('size-options-grid');
+    const selectedColorName = document.getElementById('selected-color-name');
+    
+    // A. 顏色
+    colorGrid.innerHTML = '';
+    const colorString = data['顏色'] || '';
+    const colors = colorString.split('；').map(c => c.split('#')[0].trim()).filter(c => c !== '');
+    
+    colors.forEach((colorName, index) => {
+        const inputId = `color-${index}`;
+        const colorHtml = `
+            <div class="color-option">
+                <input type="radio" id="${inputId}" name="color" value="${colorName}">
+                <label for="${inputId}" data-color-name="${colorName}" 
+                       style="background-color: #f7f7f7;" title="${colorName}"></label>
+            </div>
+        `;
+        colorGrid.innerHTML += colorHtml;
+    });
+    
+    // 顏色選擇邏輯 (點擊時記錄並顯示名稱)
+    colorGrid.querySelectorAll('input[name="color"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.checked) {
+                const name = this.nextElementSibling.getAttribute('data-color-name');
+                selectedColorName.textContent = name;
+                // 記錄選中的顏色
+                currentSelectedProduct.selectedColor = name; 
+            }
+        });
+    });
+
+
+    // B. 尺寸 (CSV 尺寸格式: S | 2~3y 100~110cm, JS | 7~8y 135~cm ( TWD 630 ))
+    sizeGrid.innerHTML = '';
+    const sizeString = data['尺寸'] || '';
+    const sizes = sizeString.split(',').map(s => s.trim()).filter(s => s !== '');
+
+    sizes.forEach((sizeDetail, index) => {
+        const sizeNameMatch = sizeDetail.match(/^([^|\s]+)/); // 提取 S, JS
+        const sizeName = sizeNameMatch ? sizeNameMatch[1] : `尺寸${index+1}`;
+        
+        const sizeBtn = document.createElement('div');
+        sizeBtn.className = 'spec-btn';
+        // 顯示尺寸代號和說明，但不顯示括號內的加價資訊
+        sizeBtn.textContent = sizeDetail.trim().replace(/\(.*\)/, '').trim(); 
+        sizeBtn.setAttribute('data-size', sizeDetail.trim()); // 儲存完整的尺寸字串
+        sizeBtn.setAttribute('data-size-name', sizeName); // 儲存尺寸代號 (S, JS)
+
+        sizeBtn.onclick = () => {
+            sizeGrid.querySelectorAll('.spec-btn').forEach(btn => btn.classList.remove('active'));
+            sizeBtn.classList.add('active');
+            // 記錄選中的尺寸 (完整的尺寸字串，包含價格資訊)
+            currentSelectedProduct.selectedSizeDetail = sizeDetail.trim(); 
+        };
+        sizeGrid.appendChild(sizeBtn);
+    });
+}
+
+// **新增：加入購物車函數**
+function addToCart() {
+    const color = currentSelectedProduct.selectedColor;
+    const sizeDetail = currentSelectedProduct.selectedSizeDetail;
+
+    if (!color || !sizeDetail) {
+        alert('請先選擇顏色和尺寸！');
+        return;
+    }
+    
+    let cart = getCart();
+
+    // 購物車項目 ID (用於辨識同一商品的 SKU)
+    const itemId = `${currentSelectedProduct['貨號']}-${color}-${sizeDetail}`;
+
+    // 檢查購物車中是否已有此 SKU
+    const existingItem = cart.find(item => item.id === itemId);
+
+    if (existingItem) {
+        // 如果已存在，數量 +1
+        existingItem.qty += 1;
+    } else {
+        // 如果是新項目
+        const newItem = {
+            id: itemId, // 唯一的 SKU 識別碼
+            code: currentSelectedProduct['貨號'],
+            name: currentSelectedProduct['商品名稱'],
+            color: color,
+            // 由於 CSV 中價格在尺寸欄位，這裡需要從尺寸字串中提取最終價格
+            price: currentSelectedProduct['價格-20%OFF'], // 預設使用 20% OFF 價格
+            sizeDetail: sizeDetail, // 儲存完整的尺寸字串 (含加價資訊)
+            qty: 1,
+            selected: true,
+            imageUrl: cleanPath(currentSelectedProduct['主圖連結']),
+        };
+        
+        // 檢查尺寸欄位是否有加價 ( TWD 630 )，並覆蓋價格
+        const priceMatch = sizeDetail.match(/\( TWD (\d+)\s*\)/);
+        if (priceMatch) {
+            newItem.price = parseInt(priceMatch[1], 10);
+        }
+
+        cart.push(newItem);
+    }
+    
+    saveCart(cart);
+    alert(`已將 ${color} / ${sizeDetail.split('|')[0].trim()} 加入購物車！`);
+    // 可以選擇導航到購物車頁面
+    // window.location.href = 'cart.html'; 
+}
+
+// **新增：綁定按鈕事件**
+document.addEventListener('DOMContentLoaded', () => {
+    // 確保 loadProductDetails 在 DOM 內容載入後執行
+    loadProductDetails(); 
+    
+    // 綁定「加入購物車」按鈕
+    const addToCartButton = document.getElementById('btn-add-cart');
+    if (addToCartButton) {
+        addToCartButton.addEventListener('click', addToCart);
+    }
+});
+    </script>
+</body>
+</html>

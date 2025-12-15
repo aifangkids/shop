@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AiFangKids 選品 - All</title>
+    
+    <style>
+        /* ------------------------------------
+           通用重置與字體設定 (粉圓體)
+        ------------------------------------ */
+        @import url('https://fonts.googleapis.com/css2?family=Huninn&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Huninn', 'Noto Sans TC', Arial, sans-serif; 
+            color: #333;
+            background-color: #fff;
+            line-height: 1.5;
+            font-size: 14px; 
+        }
+        
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        ul {
+            list-style: none;
+        }
+        
+        button {
+            border: none;
+            background: none;
+            cursor: pointer;
+            padding: 0;
+            color: inherit;
+            font-family: inherit;
+        }
+
+        .wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* ------------------------------------
+           頁首 (Header)
+        ------------------------------------ */
+        #header {
+            border-bottom: 1px solid #f0f0f0;
+            padding: 15px 0;
+            background: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .header-icons span {
+            font-size: 18px;
+            margin-left: 15px;
+            cursor: pointer;
+        }
+
+        /* ------------------------------------
+           主內容佈局 (Main Layout)
+        ------------------------------------ */
+        #main-layout {
+            display: flex;
+            padding: 40px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 40px;
+        }
+
+        /* ------------------------------------
+           側邊欄 (Sidebar) - 電腦版
+        ------------------------------------ */
+        #sidebar-filter {
+            width: 220px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 100px;
+            align-self: flex-start;
+            /* 讓篩選器可以捲動 */
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+            scrollbar-width: none; /* Firefox */
+        }
+
+        #sidebar-filter::-webkit-scrollbar {
+            display: none; /* Chrome, Safari */
+        }
+
+        .filter-section {
+            margin-bottom: 30px;
+        }
+
+        .filter-section h4 {
+            font-size: 15px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            color: #888;
+        }
+
+        .filter-list li {
+            margin-bottom: 8px;
+        }
+
+        .filter-btn {
+            display: block;
+            width: 100%;
+            text-align: left;
+            font-size: 14px;
+            padding: 6px 0;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            color: #000;
+            font-weight: 700;
+        }
+
+        /* ------------------------------------
+           商品展示區 (Product Grid)
+        ------------------------------------ */
+        #content-area {
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        .category-title {
+            font-size: 22px;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .product-grid {
+            /* Desktop: 4 欄佈局 */
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 30px;
+        }
+
+        .product-item {
+            transition: transform 0.3s;
+        }
+
+        .product-image-box {
+            position: relative;
+            margin-bottom: 12px;
+            overflow: hidden;
+            border-radius: 4px;
+            background: #f9f9f9;
+        }
+
+        .product-image {
+            width: 100%;
+            /* 圖片比例 3:4 */
+            aspect-ratio: 3 / 4; 
+            object-fit: cover;
+            display: block;
+        }
+
+        .brand-tag {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            color: #fff;
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 2px;
+            z-index: 10;
+        }
+
+        .product-name {
+            font-size: 14px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .price-box .original-price {
+            color: #aaa;
+            text-decoration: line-through;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+
+        .price-box .discount-price {
+            font-weight: 700;
+            font-size: 15px;
+            color: #e74c3c; /* 優惠價使用紅色 */
+        }
+        
+        /* ------------------------------------
+           Footer (頁尾)
+        ------------------------------------ */
+        #footer {
+            margin-top: 60px;
+            padding: 40px 0;
+            border-top: 1px solid #f0f0f0;
+            background-color: #f7f7f7;
+        }
+
+        .footer-cols {
+            display: flex;
+            justify-content: space-around;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+
+        .customer-center, .company-info {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .footer-cols h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #555;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+        }
+
+        .footer-cols p {
+            margin-bottom: 8px;
+            line-height: 1.8;
+            color: #777;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #999;
+            font-size: 12px;
+        }
+
+        /* ------------------------------------
+           響應式設計 (手機隱藏側邊欄，調整佈局)
+        ------------------------------------ */
+        @media (max-width: 768px) {
+            #main-layout { flex-direction: column; padding: 20px 15px; gap: 0; }
+            /* 手機版隱藏整個側邊欄 */
+            #sidebar-filter { display: none; }
+            .product-grid { 
+                grid-template-columns: repeat(2, 1fr); 
+                gap: 15px; 
+            }
+            .category-title { font-size: 18px; margin-bottom: 20px; }
+            .logo { font-size: 20px; }
+            
+            .footer-cols { flex-direction: column; gap: 20px; }
+            .customer-center, .company-info { min-width: auto; }
+        }
+    </style>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+</head>
+<body>
+    <header id="header">
+        <div class="header-inner wrapper">
+            <a href="index.html" class="logo">AiFangKids 選品</a>
+            <div class="header-icons">
+                <span onclick="location.href='cart.html'">🛒</span>
+            </div>
+        </div>
+    </header>
+
+    <div id="main-layout">
+        <nav id="sidebar-filter">
+            <div class="filter-section">
+                <h4>熱門分類</h4>
+                <ul class="filter-list">
+                    <li><button class="filter-btn active" data-filter="all">全部商品</button></li>
+                    <li><button class="filter-btn" data-filter="new">本週新品</button></li>
+                    <li><button class="filter-btn" data-filter="sale">限時特價</button></li>
+                </ul>
+            </div>
+            <div class="filter-section">
+                <h4>商品分類</h4>
+                <ul class="filter-list category-filter-list">
+                    <li><button class="filter-btn" data-filter="上着">上衣</button></li>
+                    <li><button class="filter-btn" data-filter="下着">下著</button></li>
+                    <li><button class="filter-btn" data-filter="配件">配件</button></li>
+                </ul>
+            </div>
+        </nav>
+
+        <main id="content-area">
+            <h2 class="category-title">所有商品</h2>
+            <ul class="product-grid">
+                <p>商品載入中...</p>
+            </ul>
+        </main>
+    </div>
+    
+    <footer id="footer">
+        <div class="wrapper footer-cols">
+            <div class="customer-center">
+                <h3>CUSTOMER CENTER</h3>
+                <p>MAIL: aifangkids@gmail.com</p>
+                <p>服務時間: AM 10:00 - PM 21:00</p>
+                <p>週末與國定假日休息，訂單及出貨將於工作日為您處理</p>
+            </div>
+            <div class="company-info">
+                <h3>COMPANY INFO</h3>
+                <p>公司名稱: 璦坊童裝</p>
+                <p>統一編號: 95294390</p>
+            </div>
+        </div>
+        <div class="copyright wrapper">
+            <p>Copyright © **Aifang Kids Studio** All rights reserved.</p>
+        </div>
+    </footer>
+
+
+    <script>
+        // 設定 CSV 檔案路徑
+        const CSV_URL = 'SHOP 後端及時更新商品資訊 - 商品資料.csv';
+
+        function loadProducts() {
+            Papa.parse(CSV_URL, {
+                download: true, // 允許從遠端路徑下載
+                header: true,   // 將第一行作為物件的鍵值 (key)
+                skipEmptyLines: true, // 跳過空白行
+                complete: function(results) {
+                    const data = results.data;
+                    const grid = document.querySelector('.product-grid');
+                    grid.innerHTML = ''; // 清空載入中的提示
+
+                    // 儲存所有分類，用於動態生成側邊欄按鈕 (進階優化)
+                    // const categories = new Set(); 
+                    
+                    data.forEach(item => {
+                        // 檢查是否有必要欄位，並確保有價格，避免讀到無效的資料
+                        if (item['商品名稱'] && item['主圖連結'] && item['價格-20%OFF']) {
+                            
+                            // 修正 CSV 中的路徑問題：將本機路徑轉為相對路徑
+                            // 假設 'C:\\Users\\DCT\\OneDrive\\桌面\\flask_shop\\static\\images\\vividi_01.jpg' 應該是 '/static/images/vividi_01.jpg'
+                            // 這裡我們直接使用主圖連結的內容，但建議您在 CSV 中使用可供網頁存取的 URL
+                            const imageUrl = item['主圖連結']; // 保持 CSV 中的內容，若無法顯示請修正 CSV
+
+                            const productHTML = `
+                                <li class="product-item" data-category="${item['分類']}">
+                                    <a href="detail.html?item_code=${item['貨號']}">
+                                        <div class="product-image-box">
+                                            <div class="brand-tag">${item['品牌']}</div>
+                                            <img src="${imageUrl}" class="product-image" alt="${item['商品名稱']}">
+                                        </div>
+                                        <span class="product-name">${item['商品名稱']}</span>
+                                        <div class="price-box">
+                                            <span class="original-price">${item['價格']} TWD</span>
+                                            <span class="discount-price">${item['價格-20%OFF']} TWD</span>
+                                        </div>
+                                    </a>
+                                </li>
+                            `;
+                            grid.innerHTML += productHTML;
+                            // categories.add(item['分類']);
+                        }
+                    });
+                    
+                    // console.log("所有商品資料已載入:", data);
+                }
+            });
+        }
+
+        // 頁面載入後執行
+        window.onload = loadProducts;
+    </script>
+</body>
+</html>
