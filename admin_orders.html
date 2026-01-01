@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AiFang Kids 後台訂單管理</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+<style>
+body { font-family: 'Noto Sans KR', sans-serif; margin:0; padding:20px; background:#f8f8f8; color:#333; }
+h1 { text-align:center; margin-bottom:20px; }
+table { width:100%; border-collapse:collapse; background:#fff; }
+th, td { border:1px solid #ddd; padding:8px; font-size:13px; text-align:center; }
+th { background:#222; color:#fff; }
+tr:nth-child(even) { background:#f9f9f9; }
+.search-bar { margin-bottom:15px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+input[type=text], select { padding:6px 10px; font-size:13px; border:1px solid #ccc; border-radius:4px; }
+button { padding:6px 12px; font-size:13px; cursor:pointer; border:none; border-radius:4px; background:#222; color:#fff; transition:0.3s; }
+button:hover { background:#444; }
+#exportBtn { background:#06C755; }
+#exportBtn:hover { background:#04a047; }
+</style>
+</head>
+<body>
+
+<h1>AiFang Kids 後台訂單管理</h1>
+
+<div class="search-bar">
+    <input type="text" id="searchInput" placeholder="搜尋訂單號 / 客戶姓名 / 狀態...">
+    <select id="statusFilter">
+        <option value="">全部狀態</option>
+        <option value="NEW">NEW</option>
+        <option value="PAID">PAID</option>
+        <option value="SHIPPED">SHIPPED</option>
+        <option value="CANCELLED">CANCELLED</option>
+        <option value="REFUNDED">REFUNDED</option>
+    </select>
+    <button id="exportBtn">匯出 CSV</button>
+</div>
+
+<table id="ordersTable">
+    <thead>
+        <tr>
+            <th>訂單號</th>
+            <th>日期</th>
+            <th>狀態</th>
+            <th>客戶姓名</th>
+            <th>電話</th>
+            <th>Email</th>
+            <th>LINE</th>
+            <th>付款方式</th>
+            <th>運送方式</th>
+            <th>總金額</th>
+            <th>商品明細</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td colspan="11">載入中...</td></tr>
+    </tbody>
+</table>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbxGx5-DLVsOyEgFsCnASkCbikJk9qBNTWcO3hWNdWqYiYcyv9QS2eg4ugFEEZ_IFiHWEA/exec?mode=orders&api_key=300689";
+let ordersData = [];
+
+// 取得訂單資料
+async function fetchOrders() {
+    const res = await fetch(API_URL);
+    const json = await res.json();
+    ordersData = json.orders || [];
+    renderTable(ordersData);
+}
+
+// 渲染表格
+function renderTable(data) {
+    const tbody = document.querySelector("#ordersTable tbody");
+    if(!data.length) {
+        tbody.innerHTML = "<tr><td colspan='11'>沒有資料</td></tr>";
+        return;
+    }
+
+    tbody.innerHTML = data.map(order => {
+        const items = order.items.map(i=>`${i.product_name} x${i.quantity}`).join("<br>");
+        return `<tr>
+            <td>${order.order_id}</td>
+            <td>${order.order_date}</td>
+            <td>${order.order_status}</td>
+            <td>${order.customer_name}</td>
+            <td>${order.customer_phone}</td>
+            <td>${order.customer_email}</td>
+            <td>${order.customer_line}</td>
+            <td>${order.payment_method}</td>
+            <td>${order.shipping_method}</td>
+            <td>${order.total_amount}</td>
+            <td>${items}</td>
+        </tr>`;
+    }).join("");
+}
+
+// 搜尋與篩選
+function applyFilter() {
+    const keyword = document.getElementById("searchInput").value.toLowerCase();
+    const status = document.getElementById("statusFilter").value;
+    const filtered = ordersData.filter(o => {
+        const matchKeyword = o.order_id.toLowerCase().includes(keyword) || o.customer_name.toLowerCase().includes(keyword) || o.customer_email.toLowerCase().includes(keyword);
+        const matchStatus = status ? o.order_status===status : true;
+        return matchKeyword && matchStatus;
+    });
+    renderTable(filtered);
+}
+
+// 匯出 CSV
+function exportCSV() {
+    if(!ordersData.length) return alert("目前沒有資料可匯出");
+
+    const headers = ["order_id","order_date","order_status","customer_name","customer_phone","customer_email","customer_line","payment_method","shipping_method","shipping_fee","discount_total","subtotal","total_amount","note","internal_note"];
+    const csvRows = [
+        headers.join(","),
+        ...ordersData.map(order => {
+            const values = headers.map(h => `"${order[h]}"`);
+            return values.join(",");
+        })
+    ];
+
+    const blob = new Blob([csvRows.join("\n")], {type:"text/csv"});
