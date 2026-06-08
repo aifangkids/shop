@@ -1,0 +1,122 @@
+/* ==========================================================================
+   1. 字體與基礎設定
+   ========================================================================== */
+@font-face {
+    font-family: 'NotoSansKR';
+    src: url('../fonts/notosanskr-light.ttf') format('truetype');
+    font-weight: 300;
+}
+@font-face {
+    font-family: 'NotoSansKR';
+    src: url('../fonts/notosanskr-regular.ttf') format('truetype');
+    font-weight: 400;
+}
+
+:root {
+    /* 品牌配色與視覺地基底色 */
+    --bg-main: #FFF9EF;        
+    --baby-pink: #f2a6b2;
+    --kids-blue: #8da9c4;
+    --accent-red: #d9534f;
+    --text-main: #333;
+    --text-gray: #888;
+    --font-main: 'NotoSansKR', sans-serif;
+}
+
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+    -webkit-tap-highlight-color: transparent; /* 去除手機點擊陰影 */
+}
+
+body { 
+    font-family: var(--font-main);
+    color: var(--text-main);
+    background-color: var(--bg-main);
+    line-height: 1.6;
+    overflow-x: hidden; /* 防止動態粒子造成的水平捲軸 */
+}
+
+/* ==========================================================================
+   2. 通用元件 - 按鈕
+   ========================================================================== */
+.btn-common {
+    padding: 12px 20px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    transition: opacity 0.3s ease;
+}
+
+.btn-common:hover {
+    opacity: 0.8;
+}
+
+/* ==========================================================================
+   3. 動態粒子飄落系統 
+   ========================================================================== */
+#falling-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none; 
+    z-index: -1;          
+}
+
+.particle {
+    position: absolute;
+    top: -60px; /* 從視窗上方外面開始掉落 */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    pointer-events: none;
+    opacity: 0;
+    animation: slowFall linear forwards;
+}
+
+@keyframes slowFall {
+    0% {
+        transform: translateY(0) translateX(0) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.65; /* 漸漸浮現，避免太突兀，維持背景柔和感 */
+    }
+    90% {
+        opacity: 0.65;
+    }
+    100% {
+        /* 掉落到視窗下方，並帶有隨機的左右物理飄移與旋轉 */
+        transform: translateY(108vh) translateX(var(--drift-x)) rotate(var(--drift-rotate));
+        opacity: 0;
+    }
+}
+
+/* ==========================================================================
+   4. 手機響應式通用微調 (RWD)
+   ========================================================================== */
+@media (max-width: 480px) {
+    body { padding: 15px 10px; }
+    
+    /* 預設的卡片樣式容器 (若其他頁面有 .main-card 可直接繼承) */
+    .main-card { 
+        padding: 25px 15px; 
+        border-radius: 8px; 
+    }
+    
+    /* 各種 UI 元件的字體與間距縮小 */
+    .flow-container { padding: 20px 15px; }
+    .flow-title { font-size: 13px; margin-bottom: 15px; }
+    .flow-item { font-size: 13px; padding-bottom: 10px; gap: 10px; }
+    .flow-step { font-size: 14px; }
+    .flow-warn { font-size: 12px; padding: 10px; }
+    
+    .acc-trigger { font-size: 14px; padding: 16px 0; }
+    .acc-list { padding-left: 30px; }
+    .acc-list li { font-size: 12.5px; margin-bottom: 8px; }
+}
