@@ -122,7 +122,7 @@ function renderProducts(products) {
         card.onclick = (e) => navigateToDetail(e, code); /* [cite: 67] */
 
         // 隨機卡片頂部間距，打造手工拼貼錯落美感
-        card.style.marginTop = `${Math.floor(Math.random() * 35)}px`;
+        card.style.marginTop = `${Math.floor(Math.random() * 10)}px`;
 
         card.innerHTML = `
             <div class="product-img-wrap">

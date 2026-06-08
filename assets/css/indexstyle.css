@@ -157,12 +157,17 @@ a, button, .category-btn {
 .product-name { font-size: 0.95rem; color: #5a4b41; margin: 0 0 4px; font-weight: 600; }
 .product-price { font-size: 0.95rem; color: #f2a6b2; font-weight: bold; }
 
-/* 貼紙小塗鴉 */
+/* 貼紙小塗鴉（壓縮版：徹底拔除虛無的留白空間） */
 .sticker-doodle {
-    text-align: center; font-size: 2.5rem; padding: 10px 0;
-    margin: 0; opacity: 0.85; break-inside: avoid;
-    filter: drop-shadow(2px 3px 0px rgba(0,0,0,0.04));
-    display: inline-block; width: 100%;
+    text-align: center; 
+    font-size: 2rem;          /* 稍微縮小圖標，視覺上更精緻 */
+    padding: 0 !important;    /* 【關鍵】徹底拔除上下的內邊距 */
+    margin: 4px 0 !important; /* 【關鍵】縮減為極小的上下外邊距 */
+    line-height: 1 !important;/* 【關鍵】強制行高為 1，防止瀏覽器自動撐開隱形高度 */
+    opacity: 0.85; 
+    break-inside: avoid;
+    display: inline-block; 
+    width: 100%;
 }
 
 /* --- 5. Popup 視窗 --- */
