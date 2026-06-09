@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail</title>
+    
+    <link rel="stylesheet" href="./assets/css/global.css">
+    <link rel="stylesheet" href="./assets/css/detail.css">
+</head>
+<body>
+
+    <div id="falling-container"></div>
+
+    <header class="top-bar">
+        <div class="nav-left">
+            <a href="index.html" class="cloud-logo">
+                <span class="cloud-icon">☁️</span>
+                <span class="logo-text">璦坊童裝</span>
+            </a>
+        </div>
+        <div class="nav-right">
+            <div id="cart-icon" class="cart-box">
+                <span class="cart-emoji">🛒</span>
+                <span id="cart-count" class="cart-badge">0</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="detail-main-container">
+        <section class="left-panel">
+            <div id="polaroid-frame" class="polaroid-card">
+                <div class="polaroid-window">
+                    <img id="product-extra-img" src="" alt="商品細節長圖">
+                </div>
+            </div>
+        </section>
+
+        <section class="right-panel">
+            <div class="memo-container" style="background-image: url('images/ui/detail_memo_main.png');">
+                <div class="product-header">
+                    <span id="product-brand" class="brand-name"></span>
+                    <h1 id="product-name" class="product-title">商品載入中</h1>
+                    <span id="product-code" class="product-sku"></span>
+                </div>
+
+                <div class="spec-section">
+                    <h3 class="spec-label">顏色</h3>
+                    <div id="color-options" class="option-pill-group"></div>
+                </div>
+
+                <div class="spec-section">
+                    <h3 class="spec-label">尺寸</h3>
+                    <div id="size-options" class="option-pill-group"></div>
+                    
+                    <div id="size-guide-btn" class="size-guide-trigger">
+                        <img src="images/ui/detail_sizeguide_btn.png" alt="查看尺寸表">
+                        <span class="size-guide-text">查看尺寸表</span>
+                    </div>
+                </div>
+
+                <div class="spec-section">
+                    <h3 class="spec-label">Note</h3>
+                    <p id="product-note" class="styling-note-text"></p>
+                </div>
+
+                <div id="buy-zone" class="buy-action-zone">
+                    <button id="buy-now-btn" class="buy-capsule-button">BUY NOW</button>
+                </div>
+            </div>
+
+            <div class="price-sticker" style="background-image: url('images/ui/detail_price_tag.png');">
+                <span class="price-currency">NT$</span>
+                <span id="product-price" class="price-number">0</span>
+            </div>
+        </section>
+    </main>
+
+    <div id="size-popup-overlay" class="popup-shadow-overlay">
+        <div class="popup-window">
+            <button id="close-size-popup" class="popup-close-x">✕</button>
+            <div class="popup-scroll-box">
+                <img id="popup-size-img" src="" alt="尺寸規格說明">
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/api.js"></script>    
+    <script src="./js/detail.js"></script>
+</body>
+</html>
