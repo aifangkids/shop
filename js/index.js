@@ -1,15 +1,24 @@
 document.addEventListener("DOMContentLoaded", async () => {
     
+    // 【最上方加入】0. 接收自詳情頁點擊分類跳轉回來的網址參數 (例如: index.html?category=TOP)
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetCategory = urlParams.get('category') ? urlParams.get('category').toUpperCase() : null;
+
     // 1. 初始化載入商品資料
     const grid = document.getElementById("product-grid");
     try {
-        const products = await AiFangAPI.getProducts(); /* [cite: 52] */
+        const products = await AiFangAPI.getProducts(); 
         window.cachedProducts = products; 
 
         if (products.length > 0) {
-            renderProducts(products);
+            // 🌟 核心邏輯：如果網址有帶分類參數，一載入就直接進行過濾渲染；否則展示全部
+            if (targetCategory) {
+                filterAndRenderProducts(targetCategory);
+            } else {
+                renderProducts(products);
+            }
         } else {
-            grid.innerHTML = '<div class="loading-text">目前還沒有上架商品唷！</div>'; /* [cite: 52] */
+            grid.innerHTML = '<div class="loading-text">目前還擺進任何寶貝商品唷！</div>'; 
         }
     } catch (error) {
         grid.innerHTML = '<div class="loading-text">載入商品失敗，請稍後再試。</div>';
@@ -17,13 +26,25 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // 2. 導覽列分類切換邏輯
     const navLinks = document.querySelectorAll(".nav-menu a");
+
+    // 🌟 核心邏輯：如果網址有帶分類參數，初始化時自動把粉色膠囊 (active) 移到該分類上
+    if (targetCategory) {
+        navLinks.forEach(l => {
+            if (l.dataset.category === targetCategory) {
+                l.classList.add("active");
+            } else {
+                l.classList.remove("active");
+            }
+        });
+    }
+
     navLinks.forEach(link => {
         link.addEventListener("click", (e) => {
             e.preventDefault();
             navLinks.forEach(l => l.classList.remove("active"));
             e.target.classList.add("active");
 
-            const category = e.target.dataset.category; /* [cite: 54] */
+            const category = e.target.dataset.category; 
             filterAndRenderProducts(category);
         });
     });
@@ -31,49 +52,49 @@ document.addEventListener("DOMContentLoaded", async () => {
     // 3. 雲朵彈性跟隨滑鼠
     const cloudNav = document.getElementById('cloud-nav');
     document.addEventListener('mousemove', (e) => {
-        if(!cloudNav) return; /* [cite: 56] */
-        if (cloudNav.classList.contains('scrolled-icon')) return; /* [cite: 56] */
+        if(!cloudNav) return; 
+        if (cloudNav.classList.contains('scrolled-icon')) return; 
 
         const xAxis = (e.clientX / window.innerWidth) - 0.5;
         const yAxis = (e.clientY / window.innerHeight) - 0.5;
-        cloudNav.style.transform = `translateX(calc(-50% + ${xAxis * 20}px)) translateY(${yAxis * 10}px)`; /* [cite: 56] */
+        cloudNav.style.transform = `translateX(calc(-50% + ${xAxis * 20}px)) translateY(${yAxis * 10}px)`; 
     });
 
     // 4. 滾動摺疊導覽列與 Logo 切換
     const nav = document.getElementById('cloud-nav');
     const logoBtn = document.getElementById('nav-logo-btn');
     window.addEventListener('scroll', () => {
-        if(!nav) return; /* [cite: 58] */
+        if(!nav) return; 
         
         const flyer = document.getElementById("scroll-decorator");
-        if(flyer) flyer.style.transform = `translateY(${window.scrollY * 0.2}px) rotate(${window.scrollY * 0.5}deg)`; /* [cite: 58] */
+        if(flyer) flyer.style.transform = `translateY(${window.scrollY * 0.2}px) rotate(${window.scrollY * 0.5}deg)`; 
 
         if (window.scrollY > 100) {
-            nav.classList.add('scrolled-icon'); /* [cite: 58] */
+            nav.classList.add('scrolled-icon'); 
         } else {
-            nav.classList.remove('scrolled-icon'); /* [cite: 59] */
+            nav.classList.remove('scrolled-icon'); 
             if (!nav.classList.contains('scrolled-icon')) {
-                nav.style.transform = 'translateX(-50%)'; /* [cite: 59] */
+                nav.style.transform = 'translateX(-50%)'; 
             }
         }
     });
 
     if(logoBtn) {
         logoBtn.addEventListener('click', () => {
-            nav.classList.remove('scrolled-icon'); /* [cite: 60] */
-            nav.style.transform = 'translateX(-50%)'; /* [cite: 60] */
+            nav.classList.remove('scrolled-icon'); 
+            nav.style.transform = 'translateX(-50%)'; 
         });
     }
 
-    initPopup(); /* [cite: 61] */
+    initPopup(); 
 });
 
 function filterAndRenderProducts(category) {
-    const allProducts = window.cachedProducts || []; /* [cite: 62] */
+    const allProducts = window.cachedProducts || []; 
     if (category === "ALL") {
-        renderProducts(allProducts); /* [cite: 63] */
+        renderProducts(allProducts); 
     } else {
-        const filtered = allProducts.filter(p => String(p.category).toUpperCase() === category); /* [cite: 64] */
+        const filtered = allProducts.filter(p => String(p.category).toUpperCase() === category); 
         renderProducts(filtered);
     }
 }
@@ -81,7 +102,7 @@ function filterAndRenderProducts(category) {
 // 核心渲染：徹底解放紙膠帶位置
 function renderProducts(products) {
     const grid = document.getElementById("product-grid");
-    grid.innerHTML = ""; /* [cite: 65] */
+    grid.innerHTML = ""; 
     
     const doodlePool = ['✨', '🥨', '🧸', '🎶', '🍒', '☁️', '🎈', '🐾'];
     const tapeImages = [
@@ -112,14 +133,16 @@ function renderProducts(products) {
             grid.appendChild(doodleDiv);
         }
 
-        const code = item.code || "K000"; /* [cite: 66] */
-        const name = item.name || "質感童裝"; /* [cite: 66] */
-        const price = item.price || "0"; /* [cite: 66] */
-        const mainImgUrl = item.imagemain || "./images/products/momoann01.jpg"; /* [cite: 66] */
+        const code = item.code || "K000"; 
+        const name = item.name || "質感童裝"; 
+        const price = item.price || "0"; 
+        
+        // ⚙️ 修正點：防呆機制，若主圖不存在，改用 logo.png 代替，防止已下架圖片噴 404 錯誤
+        const mainImgUrl = item.imagemain || "images/ui/subplot.png"; 
 
         const card = document.createElement("div");
         card.className = "product-card";
-        card.onclick = (e) => navigateToDetail(e, code); /* [cite: 67] */
+        card.onclick = (e) => navigateToDetail(e, code); 
 
         // 隨機卡片頂部間距，打造手工拼貼錯落美感
         card.style.marginTop = `${Math.floor(Math.random() * 10)}px`;
@@ -134,7 +157,7 @@ function renderProducts(products) {
             </div>
         `;
 
-        // 🌟 【核心修復：紙膠帶全卡片任意漂浮】🌟
+        // 🌟 紙膠帶全卡片任意漂浮
         const tape = document.createElement("div");
         tape.className = "washi-tape";
         
@@ -148,10 +171,10 @@ function renderProducts(products) {
 
         tape.style.top = `${randomTop}%`;
         tape.style.left = `${randomLeft}%`;
-        tape.style.transform = `translate(-50%, -50%) rotate(${randomRotate}deg)`; // 改用雙向居中對齊
+        tape.style.transform = `translate(-50%, -50%) rotate(${randomRotate}deg)`; 
 
         card.appendChild(tape);
-        grid.appendChild(card); /* [cite: 69] */
+        grid.appendChild(card); 
     });
 }
 
@@ -159,20 +182,20 @@ function initPopup() {
     const popupOverlay = document.getElementById('home-popup');
     const popupImg = document.getElementById('popup-image');
     const closeBtn = document.getElementById('close-popup');
-    if (!popupOverlay || !popupImg) return; /* [cite: 70] */
+    if (!popupOverlay || !popupImg) return; 
 
     const popupImages = ['images/popup/popup1.jpg', 'images/popup/popup2.jpg', 'images/popup/popup3.jpg'];
     popupImg.src = popupImages[Math.floor(Math.random() * popupImages.length)];
-    setTimeout(() => popupOverlay.classList.add('show'), 1200); /* [cite: 70] */
+    setTimeout(() => popupOverlay.classList.add('show'), 1200); 
 
-    closeBtn.addEventListener('click', () => popupOverlay.classList.remove('show')); /* [cite: 71] */
+    closeBtn.addEventListener('click', () => popupOverlay.classList.remove('show')); 
     popupOverlay.addEventListener('click', (e) => {
-        if (e.target === popupOverlay) popupOverlay.classList.remove('show'); /* [cite: 71] */
+        if (e.target === popupOverlay) popupOverlay.classList.remove('show'); 
     });
 }
 
 function navigateToDetail(event, productCode) {
-    event.preventDefault(); /* [cite: 72] */
-    document.body.classList.add("page-leaving"); /* [cite: 72] */
-    setTimeout(() => { window.location.href = `detail.html?id=${productCode}`; }, 600); /* [cite: 72] */
+    event.preventDefault(); 
+    document.body.classList.add("page-leaving"); 
+    setTimeout(() => { window.location.href = `detail.html?id=${productCode}`; }, 600); 
 }

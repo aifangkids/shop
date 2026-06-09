@@ -10,77 +10,92 @@
 </head>
 <body>
 
+    <div id="page-transition" class="transition-overlay"></div>
     <div id="falling-container"></div>
 
     <header class="top-bar">
         <div class="nav-left">
-            <a href="index.html" class="cloud-logo">
-                <span class="cloud-icon">☁️</span>
-                <span class="logo-text">璦坊童裝</span>
+            <a href="index.html" class="logo-link" id="back-home">
+                <img src="images/ui/logo.png" alt="AiFang" class="logo-img">
             </a>
         </div>
         <div class="nav-right">
             <div id="cart-icon" class="cart-box">
-                <span class="cart-emoji">🛒</span>
+                <img src="images/ui/icon_tcart.png" alt="購物車" class="cart-icon-img">
                 <span id="cart-count" class="cart-badge">0</span>
             </div>
         </div>
     </header>
 
-    <main class="detail-main-container">
-        <section class="left-panel">
-            <div id="polaroid-frame" class="polaroid-card">
-                <div class="polaroid-window">
-                    <img id="product-extra-img" src="" alt="商品細節長圖">
-                </div>
+    <main class="scrapbook-wrapper">
+        <div class="scrapbook-container" id="detail-container">
+            
+            <div class="left-panel" id="left-panel">
+                <div class="detail-loading">正在翻開故事書下一頁...</div>
             </div>
-        </section>
 
-        <section class="right-panel">
-            <div class="memo-container" style="background-image: url('images/ui/detail_memo_main.png');">
-                <div class="product-header">
-                    <span id="product-brand" class="brand-name"></span>
-                    <h1 id="product-name" class="product-title">商品載入中</h1>
-                    <span id="product-code" class="product-sku"></span>
-                </div>
-
-                <div class="spec-section">
-                    <h3 class="spec-label">顏色</h3>
-                    <div id="color-options" class="option-pill-group"></div>
-                </div>
-
-                <div class="spec-section">
-                    <h3 class="spec-label">尺寸</h3>
-                    <div id="size-options" class="option-pill-group"></div>
-                    
-                    <div id="size-guide-btn" class="size-guide-trigger">
-                        <img src="images/ui/detail_sizeguide_btn.png" alt="查看尺寸表">
-                        <span class="size-guide-text">查看尺寸表</span>
+            <div class="detail-main-container">
+                
+                <section class="left-panel">
+                    <div id="polaroid-frame" class="polaroid-card">
+                        <div class="polaroid-window">
+                            <img id="product-extra-img" src="" alt="商品細節長圖">
+                        </div>
                     </div>
-                </div>
+                </section>
 
-                <div class="spec-section">
-                    <h3 class="spec-label">Note</h3>
-                    <p id="product-note" class="styling-note-text"></p>
-                </div>
+                <section class="right-panel">
+                    <div class="memo-container">
+                        <div class="product-header">
+                            <span id="product-brand" class="brand-name"></span>
+                            <h1 id="product-name" class="product-title">商品載入中</h1>
+                        </div>
 
-                <div id="buy-zone" class="buy-action-zone">
-                    <button id="buy-now-btn" class="buy-capsule-button">BUY NOW</button>
-                </div>
+                        <div class="spec-section">
+                            <h3 class="spec-label">顏色</h3>
+                            <div id="color-options" class="option-pill-group"></div>
+                        </div>
+
+                        <div class="spec-section">
+                            <div class="spec-label">尺寸</div>
+    
+                            <div class="size-row-container">
+                                <div class="option-pill-group" id="size-options">
+                                  </div>
+
+                                <div class="size-guide-trigger" id="size-guide-btn">
+                                    <img src="./images/ui/detail_sizeguide_btn.png" alt="查看尺寸表">
+                                    <div class="size-guide-text">點擊對照魔法尺寸表 📏</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="spec-section">
+                            <h3 class="spec-label"></h3>
+                            <p id="product-note" class="styling-note-text"></p>
+                        </div>
+
+                        <div id="buy-zone" class="buy-action-zone">
+                            <button id="buy-now-btn" class="buy-capsule-button">BUY NOW</button>
+                        </div>
+                    </div>
+
+                    <div class="price-sticker" style="background-image: url('images/ui/detail_price_tag.png');">
+                        <span class="price-currency">NT$</span>
+                        <span id="product-price" class="price-number">0</span>
+                    </div>
+                </section>
+                
             </div>
 
-            <div class="price-sticker" style="background-image: url('images/ui/detail_price_tag.png');">
-                <span class="price-currency">NT$</span>
-                <span id="product-price" class="price-number">0</span>
-            </div>
-        </section>
+        </div>
     </main>
 
     <div id="size-popup-overlay" class="popup-shadow-overlay">
         <div class="popup-window">
             <button id="close-size-popup" class="popup-close-x">✕</button>
             <div class="popup-scroll-box">
-                <img id="popup-size-img" src="" alt="尺寸規格說明">
+                <img id="popup-size-img" src="" alt="尺寸說明">
             </div>
         </div>
     </div>

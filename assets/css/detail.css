@@ -1,357 +1,301 @@
-/* --- 1. 上方導覽列 --- */
+@font-face {
+    font-family: 'StarPandaKids';
+    src: url('../fonts/StarPandaKidsBeta2.1.ttf') format('truetype');
+}
+
+* { box-sizing: border-box; }
+
+a, button, .option-pill {
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background-color: #fff9f2;
+    margin: 0;
+    padding: 0;
+}
+
+/* 輕微規律擺動動畫（暗示可互動） */
+@keyframes cuteWiggle {
+    0% { transform: rotate(var(--base-rotate, 0deg)) scale(1); }
+    25% { transform: rotate(calc(var(--base-rotate, 0deg) - 3deg)) scale(1.02); }
+    50% { transform: rotate(calc(var(--base-rotate, 0deg) + 3deg)) scale(1.02); }
+    75% { transform: rotate(calc(var(--base-rotate, 0deg) - 1deg)) scale(1); }
+    100% { transform: rotate(var(--base-rotate, 0deg)) scale(1); }
+}
+
+/* 快速激進搖晃（滑鼠懸停時） */
+@keyframes intenseShake {
+    0% { transform: rotate(var(--base-rotate, 0deg)) scale(1.05); }
+    20% { transform: rotate(calc(var(--base-rotate, 0deg) - 5deg)) scale(1.05); }
+    40% { transform: rotate(calc(var(--base-rotate, 0deg) + 5deg)) scale(1.05); }
+    60% { transform: rotate(calc(var(--base-rotate, 0deg) - 4deg)) scale(1.05); }
+    80% { transform: rotate(calc(var(--base-rotate, 0deg) + 4deg)) scale(1.05); }
+    100% { transform: rotate(var(--base-rotate, 0deg)) scale(1.05); }
+}
+
+/* ==========================================================================
+   1. 頂部導覽列
+   ========================================================================== */
 .top-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 25px;
-    background: transparent;
+    padding: 20px 30px;
     position: relative;
-    z-index: 10;
+    z-index: 100;
 }
-
-.cloud-logo {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    color: var(--text-main); /* 繼承全域深色 */
-    font-size: 1.2rem;
-}
-
-.cloud-icon {
-    font-size: 1.5rem;
-    margin-right: 5px;
-}
-
-.cart-box {
-    position: relative;
-    cursor: pointer;
-    font-size: 1.6rem;
-    user-select: none;
-}
-
+.logo-link:hover { transform: scale(1.08) rotate(-2deg); transition: transform 0.3s; }
+.logo-img { height: 48px; width: auto; }
+.cart-box { position: relative; cursor: pointer; }
+.cart-icon-img { width: 42px; height: auto; }
 .cart-badge {
-    position: absolute;
-    top: -5px;
-    right: -8px;
-    background-color: var(--baby-pink); /* 使用全域粉紅色變數 */
-    color: white;
-    font-size: 0.75rem;
-    padding: 2px 6px;
-    border-radius: 20px;
-    font-weight: bold;
+    position: absolute; top: -2px; right: -5px;
+    background-color: #f2a6b2; color: white;
+    font-size: 0.75rem; padding: 2px 7px; border-radius: 20px; font-weight: bold;
 }
-
-/* 購物車歡樂晃動動畫 */
 @keyframes cartShake {
-    0% { transform: scale(1) rotate(0deg); }
-    20% { transform: scale(1.1) rotate(-8deg); }
-    40% { transform: scale(1.1) rotate(8deg); }
-    60% { transform: scale(1.1) rotate(-6deg); }
-    80% { transform: scale(1.1) rotate(6deg); }
-    100% { transform: scale(1) rotate(0deg); }
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    20%, 60% { transform: scale(1.1) rotate(-8deg); }
+    40%, 80% { transform: scale(1.1) rotate(8deg); }
 }
+.cart-shake-active { animation: cartShake 0.5s ease-in-out infinite; }
 
-.cart-shake-active {
-    animation: cartShake 0.5s ease-in-out infinite;
-}
+/* ==========================================================================
+   2. 主版面外殼
+   ========================================================================== */
+.scrapbook-wrapper { max-width: 1150px; margin: 20px auto 60px; padding: 0 20px; }
+.detail-main-container { display: flex; gap: 50px; align-items: flex-start; width: 100%; }
+.left-panel { flex: 1; width: 50%; display: flex; flex-direction: column; gap: 40px; }
+.right-panel { flex: 1; width: 50%; min-width: 0; position: relative; }
 
-/* --- 2. 主版面雙欄佈局 --- */
-.detail-main-container {
-    display: flex;
-    max-width: 1100px;
-    margin: 20px auto;
-    padding: 0 20px;
-    gap: 40px;
-    align-items: flex-start;
-}
-
-.left-panel, .right-panel {
-    flex: 1;
-    width: 50%;
-}
-
-.right-panel {
-    position: relative; /* 方便價格標籤貼紙做絕對定位重疊 */
-}
-
-/* --- 3. 左側：盲盒拍立得外框 --- */
+/* ==========================================================================
+   3. 左側：多圖原生比例拍立得（修復第2點 & 第6點）
+   ========================================================================== */
 .polaroid-card {
     width: 100%;
-    max-width: 450px;
+    max-width: 480px;
     margin: 0 auto;
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
-    background-position: center;
-    padding: 40px 40px 75px 40px; /* 依照拍立得手帳風格預留的相框白邊 */
-    filter: drop-shadow(4px 6px 12px rgba(0,0,0,0.06));
+    background: white;
+    padding: 18px 18px 55px 18px; /* 拍立得下寬底特色 */
+    border: 3px solid #5a4b41;
+    border-radius: 16px;
+    position: relative;
+    filter: drop-shadow(8px 12px 0px rgba(90, 75, 65, 0.08));
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.2);
 }
 
-.polaroid-window {
+/* 左右交錯排版角度定義 */
+.polaroid-card.tilt-left { --base-rotate: -3deg; transform: rotate(-3deg); }
+.polaroid-card.tilt-right { --base-rotate: 3deg; transform: rotate(3deg); }
+
+.polaroid-card:hover {
+    transform: scale(1.03) rotate(0deg) !important;
+    z-index: 50;
+}
+
+/* 頂部裝飾小膠帶 */
+.polaroid-card::before {
+    content: ''; position: absolute; top: -18px; left: 50%;
+    transform: translateX(-50%) rotate(-4deg);
+    width: 100px; height: 32px;
+    background: url('../../images/ui/seal1.png') no-repeat center/contain;
+    z-index: 10; pointer-events: none;
+}
+
+/* 【修復第2點】不設死方形，高度隨照片比例自動完整延伸 */
+.polaroid-photo-wrapper {
+    position: relative;
     width: 100%;
-    aspect-ratio: 1 / 1; /* 中間保持正方形挖空 */
+    height: auto;
     overflow: hidden;
-    background-color: #f7f7f7;
-    border-radius: 4px;
+    background-color: #fcfcfc;
+    border: 2px solid #f0f0f0;
+    border-radius: 6px;
 }
 
-.polaroid-window img {
+.polaroid-photo-wrapper img {
     width: 100%;
-    height: 100%;
-    object-fit: cover; /* 讓試算表的 imageextra 自動填滿不拉扯變形 */
+    height: auto;
+    display: block; /* 保持原圖比例，絕不裁切壓扁 */
 }
 
-/* --- 4. 右側：便條紙與資訊排版 --- */
+/* 【修復第2點】蓋在照片最上層的拍立得框線與材質質感 */
+.polaroid-frame-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image: url('../../images/ui/detail_polaroid1.png'), url('../../images/ui/detail_polaroid1_1.png');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    pointer-events: none; /* 允許滑鼠穿透點擊圖片 */
+    z-index: 5;
+}
+
+/* ==========================================================================
+   4. 右側：手繪便簽資訊區（修復第5點）
+   ========================================================================== */
 .memo-container {
     width: 100%;
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
-    padding: 50px 45px;
-    filter: drop-shadow(4px 6px 15px rgba(0,0,0,0.05));
+    background: 
+        url('../../images/ui/detail_memo_main1.png') no-repeat top center,
+        url('../../images/ui/detail_memo_main2.png') no-repeat bottom center;
+    background-size: 100% 50%, 100% 50%;
+    padding: 85px 55px 95px 55px;
+    filter: drop-shadow(6px 10px 0px rgba(90, 75, 65, 0.04));
+    position: relative;
+    /* 【修復第5點】右邊區塊加入溫暖的滑動反饋 */
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.2), filter 0.3s;
 }
 
-.brand-name {
-    display: inline-block;
-    background-color: #fff0f0;
-    color: #de8888;
-    padding: 3px 10px;
-    border-radius: 12px;
-    font-size: 0.85rem;
-    margin-bottom: 8px;
+.memo-container:hover {
+    transform: scale(1.01) rotate(0.5deg);
+    filter: drop-shadow(10px 14px 0px rgba(90, 75, 65, 0.06));
 }
 
-.product-title {
-    font-size: 1.5rem;
-    color: var(--text-main);
-    line-height: 1.4;
+.memo-container::after {
+    content: ''; position: absolute; top: -15px; right: 30px; transform: rotate(15deg);
+    width: 90px; height: 30px; background: url('../../images/ui/seal3.png') no-repeat center/contain;
+    z-index: 5;
 }
 
-.product-sku {
-    font-size: 0.8rem;
-    color: var(--text-gray); /* 使用全域灰色變數 */
-    display: block;
-    margin-top: 4px;
-}
+.product-header { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 25px; }
+.brand-name { background-color: #fff0f0; color: #de8888; padding: 5px 16px; border-radius: 15px; font-size: 0.95rem; font-weight: bold; }
+.product-title { font-family: 'StarPandaKids', sans-serif; font-size: 2.3rem; color: #4a4a4a; margin: 5px 0 0 0; }
 
-.spec-section {
-    margin-top: 25px;
-}
+/* 規格組合列（修復第3點並排排版） */
+.spec-section { margin-top: 25px; }
+.spec-label { font-size: 1rem; color: #5a4b41; margin-bottom: 12px; font-weight: bold; }
 
-.spec-label {
-    font-size: 0.95rem;
-    color: #7a7a7a;
-    margin-bottom: 10px;
-}
-
-/* 規格選項按鈕 */
-.option-pill-group {
+.size-row-container {
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    width: 100%;
 }
 
+.option-pill-group { display: flex; flex-wrap: wrap; gap: 10px; flex: 1; }
 .option-pill {
-    padding: 6px 16px;
-    border: 1.5px solid #d1d1d1;
-    border-radius: 30px;
-    background-color: white;
-    font-size: 0.9rem;
-    cursor: pointer;
-    color: var(--text-main);
-    transition: all 0.2s;
+    padding: 8px 16px; border: 2px dashed #f2a6b2; border-radius: 20px;
+    background-color: white; font-size: 0.95rem; cursor: pointer; color: #5a4b41;
+    transition: all 0.2s ease;
+}
+.option-pill:hover, .option-pill.active {
+    border-style: solid; border-color: #f2a6b2; background-color: #f2a6b2; color: white;
+    transform: scale(1.06) rotate(-2deg);
 }
 
-.option-pill:hover, .option-pill.selected {
-    border-color: var(--text-main);
-    background-color: var(--text-main);
-    color: white;
-}
-
-/* --- 5. 查看尺寸表互動區塊 --- */
+/* 【修復第3點】SIZE 按鈕放大、移到右側、規律震動 */
 .size-guide-trigger {
     display: inline-flex;
     align-items: center;
-    margin-top: 12px;
     cursor: pointer;
-    transition: transform 0.2s;
-}
-
-.size-guide-trigger:hover {
-    transform: scale(1.03);
+    position: relative;
+    flex-shrink: 0;
+    --base-rotate: -5deg;
+    animation: cuteWiggle 3s ease-in-out infinite;
 }
 
 .size-guide-trigger img {
-    width: 32px;
+    width: 135px; /* 由 105px 放大 */
     height: auto;
-    margin-right: 6px;
+    display: block;
+}
+
+.size-guide-trigger:hover {
+    animation: intenseShake 0.6s ease-in-out infinite;
 }
 
 .size-guide-text {
-    font-size: 0.85rem;
-    color: var(--text-gray);
-    text-decoration: underline;
-    text-underline-offset: 3px;
+    position: absolute; right: 145px; top: 50%; transform: translateY(-50%);
+    white-space: nowrap; background-color: #5a4b41; color: white;
+    padding: 6px 12px; border-radius: 8px; font-size: 0.85rem;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.size-guide-trigger:hover .size-guide-text { opacity: 1; }
+
+.styling-note-text { font-size: 1rem; color: #666; line-height: 1.6; white-space: pre-line; background: rgba(255, 249, 235, 0.6); border-radius: 16px; padding: 15px; border-left: 4px solid #f2a6b2; }
+
+/* ==========================================================================
+   5. BUY NOW 按鈕與趣味蓋章區
+   ========================================================================== */
+.buy-action-zone { margin-top: 35px; position: relative; width: 100%; }
+.buy-capsule-button {
+    width: 100%; padding: 15px 0; background-color: white; border: 3px solid #5a4b41;
+    border-radius: 50px; font-size: 1.3rem; font-weight: bold; letter-spacing: 2px;
+    color: #5a4b41; cursor: pointer; box-shadow: 0 6px 0 #5a4b41; transition: all 0.1s;
+}
+.buy-capsule-button:hover { background-color: #fff9f2; transform: translateY(1px); box-shadow: 0 5px 0 #5a4b41; }
+.buy-capsule-button:active { transform: translateY(6px); box-shadow: 0 0px 0 #5a4b41; }
+
+.dynamic-stamp-icon {
+    position: absolute; top: 50%; left: 50%; width: 170px; height: auto;
+    pointer-events: none; z-index: 20;
+    animation: stampSlam 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+@keyframes stampSlam {
+    0% { transform: translate(-50%, -50%) scale(3) rotate(30deg); opacity: 0; }
+    100% { transform: translate(-50%, -50%) scale(1) rotate(var(--random-rotate, -10deg)); opacity: 0.95; }
 }
 
-.styling-note-text {
-    font-size: 0.95rem;
-    color: #555;
-    line-height: 1.6;
-    white-space: pre-line; /* 保留試算表中的儲存格換行 */
-}
-
-/* --- 6. 獨立覆蓋的價格貼紙 --- */
+/* ==========================================================================
+   6. 【修復第4點】PRICE 獨立價格大標籤（放大加晃動）
+   ========================================================================== */
 .price-sticker {
     position: absolute;
-    top: -15px;
-    right: -10px;
-    width: 110px;
-    height: 110px;
-    background-repeat: no-repeat;
-    background-size: contain;
+    top: -45px; /* 稍微外調防擋字 */
+    right: -35px;
+    width: 215px; /* 由 175px 放大，更醒目 */
+    height: 215px;
+    background: url('../../images/ui/detail_price_tag.png') no-repeat center/contain; /* 請替換或確認此底圖路徑 */
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    transform: rotate(8deg);
-    z-index: 5;
-    filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.08));
+    z-index: 15;
+    filter: drop-shadow(4px 8px 12px rgba(90, 75, 65, 0.12));
+    padding: 10px;
+    --base-rotate: 12deg;
+    transform: rotate(12deg);
+    /* 價格預設微幅擺動，滑鼠移入時劇烈搖晃 */
+    animation: cuteWiggle 3.5s ease-in-out infinite alternate;
 }
 
-.price-currency {
-    font-size: 0.75rem;
-    color: var(--text-gray);
+.price-sticker:hover {
+    animation: intenseShake 0.5s ease-in-out infinite;
+    cursor: help;
 }
 
-.price-number {
-    font-size: 1.3rem;
-    font-weight: bold;
-    color: #e56363;
-}
+.price-currency { font-size: 0.9rem; color: #777; font-weight: bold; margin-bottom: -2px; }
+.price-number { font-family: 'StarPandaKids', sans-serif; font-size: 2.6rem; font-weight: bold; color: #e56363; line-height: 1.0; }
 
-/* --- 7. BUY NOW 原生按鈕與隨機蓋章定位 --- */
-.buy-action-zone {
-    margin-top: 35px;
-    position: relative; /* 給印章定位的絕對基準 */
-    width: 100%;
-}
-
-.buy-capsule-button {
-    width: 100%;
-    padding: 14px 0;
-    background-color: #ffffff;
-    border: 2px solid var(--text-main);
-    border-radius: 50px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    letter-spacing: 1px;
-    color: var(--text-main);
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
-    outline: none;
-}
-
-.buy-capsule-button:active {
-    transform: scale(0.98);
-}
-
-/* 動態蓋章戳記樣式 */
-.dynamic-stamp-icon {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 85px;
-    height: auto;
-    pointer-events: none; /* 防止擋住滑鼠再次點擊 */
-    z-index: 8;
-    transform-origin: center;
-    opacity: 0;
-    animation: stampSlam 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-}
-
-@keyframes stampSlam {
-    0% { transform: translate(-50%, -50%) scale(3) rotate(30deg); opacity: 0; }
-    100% { transform: translate(-50%, -50%) scale(1) rotate(var(--random-rotate, 0deg)); opacity: 0.9; }
-}
-
-/* --- 8. 尺寸表長圖彈出視窗 (Popup) --- */
+/* ==========================================================================
+   7. 尺寸說明彈窗
+   ========================================================================== */
 .popup-shadow-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(3px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 100;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background-color: rgba(90, 75, 65, 0.4); backdrop-filter: blur(3px);
+    display: flex; justify-content: center; align-items: center; z-index: 1000;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s;
 }
+.popup-shadow-overlay.open { opacity: 1; pointer-events: auto; }
+.popup-window { background: white; width: 90%; max-width: 500px; max-height: 80vh; border: 3px solid #5a4b41; border-radius: 24px; padding: 30px 15px 15px 15px; position: relative; }
+.popup-close-x { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.4rem; cursor: pointer; color: #5a4b41; font-weight: bold; }
+.popup-scroll-box { width: 100%; max-height: 70vh; overflow-y: auto; }
+.popup-scroll-box img { width: 100%; height: auto; display: block; border-radius: 12px; }
 
-.popup-shadow-overlay.open {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.popup-window {
-    background-color: white;
-    width: 90%;
-    max-width: 500px;
-    max-height: 80vh;
-    border-radius: 16px;
-    padding: 25px 15px 15px 15px;
-    position: relative;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-}
-
-.popup-close-x {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    background: none;
-    border: none;
-    font-size: 1.2rem;
-    cursor: pointer;
-    color: var(--text-gray);
-}
-
-.popup-scroll-box {
-    width: 100%;
-    max-height: 70vh;
-    overflow-y: auto;
-    text-align: center;
-}
-
-.popup-scroll-box img {
-    width: 100%;
-    height: auto;
-    display: block;
-    border-radius: 8px;
-}
-
-/* --- 9. 手機響應式斷點塌陷 (與 global.css 的最大 480px 互補) --- */
+/* ==========================================================================
+   8. RWD 斷點
+   ========================================================================== */
 @media (max-width: 768px) {
-    .detail-main-container {
-        flex-direction: column;
-        gap: 20px;
-        margin: 10px auto;
-    }
-    
-    .left-panel, .right-panel {
-        width: 100%;
-    }
-    
-    .price-sticker {
-        width: 90px;
-        height: 90px;
-        top: -10px;
-        right: 5px;
-    }
-    
-    .memo-container {
-        padding: 40px 25px;
-    }
+    .detail-main-container { flex-direction: column; gap: 30px; }
+    .left-panel, .right-panel { width: 100%; }
+    .polaroid-card { max-width: 100%; transform: rotate(0deg) !important; }
+    .memo-container { padding: 75px 25px 85px 25px; }
+    .size-row-container { flex-direction: column; align-items: flex-start; }
+    .size-guide-trigger { margin-top: 10px; align-self: flex-end; }
+    .price-sticker { width: 160px; height: 160px; top: -45px; right: -15px; }
+    .price-number { font-size: 2.1rem; }
+    .size-guide-text { display: none !important; }
 }
