@@ -9,25 +9,25 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    // 2. 向 Google Apps Script 撈取資料並篩選出此單品
+    // 2. 向 Google Apps Script 撈取資料
     try {
         const products = await AiFangAPI.getProducts();
         const product = products.find(p => String(p.code).toUpperCase() === productCode.toUpperCase());
 
         if (product) {
-            // 【修復第1點】資料成功載入後，移除 Loading 提示文字
+            // 移除 Loading 提示
             const loadingText = document.querySelector(".detail-loading");
             if (loadingText) loadingText.remove();
 
-            // 渲染所有內容
+            // 執行網頁渲染
             renderProductDetails(product);
             
-            // 綁定所有互動功能
+            // 初始化動態互動與【購物車跳轉】
             initSizeGuidePopup();
             initBuyButtonAction();
-            initDetailInteractions();
+            initCartPageTransition(); // 👈 啟動錯誤3的跳轉大限
         } else {
-            showErrorPage("🐻 這件魔法衣裳消失在森林裡了（商品已下架或不存在）。");
+            showErrorPage("🐻 這件魔法衣裳消失在森林裡了。");
         }
     } catch (error) {
         console.error("載入單品資料失敗：", error);
@@ -36,52 +36,47 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 /**
- * 動態多圖渲染與規格填入
+ * 核心渲染：雙層拍立得完美夾心結構
  */
 function renderProductDetails(item) {
-    // 【修復第2點 & 第6點】動態解析多張圖片，並呈現左右交錯往下放的視覺
     const leftPanel = document.getElementById("left-panel");
     if (leftPanel) {
-        leftPanel.innerHTML = ""; // 清空原本寫死的靜態相框
+        leftPanel.innerHTML = ""; // 清空舊區塊
 
-        // 清理後台可能帶有的大括號 {}
+        // 優先抓取多圖欄位 imageextra，沒有就抓 imagemain
         let rawImages = item.imageextra || item.imagemain || "./images/products/default.jpg";
-        rawImages = rawImages.replace(/[{}]/g, "");
-        
-        // 依照逗號或分號切開成陣列
+        rawImages = rawImages.replace(/[{}]/g, ""); // 清理可能夾帶的大括號
         const imageArray = rawImages.split(/[,，;]/).map(url => url.trim()).filter(url => url !== "");
 
-        // 循環生成拍立得相框
+        // 【修復錯誤 1 & 2】多圖循環生成完美的夾心拍立得
         imageArray.forEach((imgUrl, index) => {
-            const polaroidCard = document.createElement("div");
-            // 奇數張往左歪、偶數張往右歪，形成隨性拼貼
+            const polaroidContainer = document.createElement("div");
+            // 奇數張左斜、偶數張右斜
             const tiltClass = (index % 2 === 0) ? "tilt-left" : "tilt-right";
-            polaroidCard.className = `polaroid-card ${tiltClass}`;
+            polaroidContainer.className = `polaroid-container ${tiltClass}`;
 
-            polaroidCard.innerHTML = `
-                <div class="polaroid-photo-wrapper">
-                    <img src="${imgUrl}" alt="${item.name} - 圖片 ${index + 1}">
-                    <div class="polaroid-frame-overlay"></div>
+            polaroidContainer.innerHTML = `
+                <div class="polaroid-photo-layer">
+                    <img src="${imgUrl}" alt="${item.name} - 實穿細節 ${index + 1}">
                 </div>
+                <div class="frame-layer-top"></div>
+                <div class="frame-layer-bottom"></div>
             `;
-            leftPanel.appendChild(polaroidCard);
+            leftPanel.appendChild(polaroidContainer);
         });
     }
 
-    // 填入文字資料
+    // 填入右側文字資料
     if (document.getElementById("product-brand")) document.getElementById("product-brand").innerText = item.brand || "璦坊嚴選";
-    if (document.getElementById("product-name")) document.getElementById("product-name").innerText = item.name || "質感童裝";
+    if (document.getElementById("product-name")) document.getElementById("product-name").innerText = item.name || "經典童裝";
     if (document.getElementById("product-price")) document.getElementById("product-price").innerText = item.price || "0";
 
-    // 衣服故事防空值
-    const defaultStories = [
-        "這件衣裳帶著微風的祝福，精選最柔軟的純棉面料，親膚透氣，讓寶貝像在雲朵裡翻滾一樣自在。",
-        "嚴選韓國質感設計，版型帶著鬆軟的慵懶感。不管是搭配小短褲還是奔跑在草地上，都能襯托出寶貝最天然純真的可愛笑容。"
-    ];
-    const storyText = item.stylingnote || item.memo || defaultStories[Math.floor(Math.random() * defaultStories.length)];
-    if (document.getElementById("product-note")) document.getElementById("product-note").innerText = storyText;
+    const defaultStory = "這件衣裳帶著微風的祝福，精選最柔軟的面料，親膚透氣，讓寶貝自在翻滾。";
+    if (document.getElementById("product-note")) {
+        document.getElementById("product-note").innerText = item.stylingnote || item.memo || defaultStory;
+    }
 
-    // 處理顏色規格
+    // 動態生成顏色按鈕
     const colorGroup = document.getElementById("color-options");
     if (colorGroup) {
         colorGroup.innerHTML = "";
@@ -96,14 +91,14 @@ function renderProductDetails(item) {
         });
     }
 
-    // 處理尺寸規格
+    // 動態生成尺寸按鈕
     const sizeGroup = document.getElementById("size-options");
     if (sizeGroup) {
         sizeGroup.innerHTML = "";
         const sizes = item.size ? item.size.split(/[,/，、]/) : ["F"];
         sizes.forEach((s, index) => {
             const pill = document.createElement("button");
-            pill.className = "option-pill size-badge"; 
+            pill.className = "option-pill"; 
             pill.innerText = s.trim();
             if (index === 0) pill.classList.add("active");
             pill.onclick = () => selectPill(sizeGroup, pill);
@@ -111,7 +106,7 @@ function renderProductDetails(item) {
         });
     }
 
-    // 彈出視窗尺寸圖預載
+    // 尺寸圖預載
     const popupSizeImg = document.getElementById("popup-size-img");
     if (popupSizeImg) {
         popupSizeImg.src = item.sizeguide || "images/products/size.jpg";
@@ -119,15 +114,15 @@ function renderProductDetails(item) {
 }
 
 function selectPill(groupElement, targetPill) {
-    const pills = groupElement.querySelectorAll(".option-pill, .size-badge");
-    pills.forEach(p => p.classList.remove("selected", "active"));
+    const pills = groupElement.querySelectorAll(".option-pill");
+    pills.forEach(p => p.classList.remove("active"));
     targetPill.classList.add("active");
 }
 
 function showErrorPage(message) {
     const container = document.getElementById("detail-container");
     if (container) {
-        container.innerHTML = `<div class="detail-error" style="text-align:center; padding:100px; font-size:1.2rem; color:#5a4b41;">${message}</div>`;
+        container.innerHTML = `<div class="detail-error" style="text-align:center; padding:100px; color:#5a4b41;">${message}</div>`;
     }
 }
 
@@ -145,10 +140,8 @@ function initSizeGuidePopup() {
 function initBuyButtonAction() {
     const buyBtn = document.getElementById("buy-now-btn");
     const buyZone = document.getElementById("buy-zone");
-    const cartIcon = document.getElementById("cart-icon");
     const cartCount = document.getElementById("cart-count");
-
-    if (!buyBtn || !buyZone || !cartIcon) return;
+    if (!buyBtn || !buyZone) return;
 
     buyBtn.addEventListener("click", () => {
         if (buyZone.querySelector(".dynamic-stamp-icon")) return;
@@ -162,7 +155,6 @@ function initBuyButtonAction() {
         stamp.style.setProperty('--random-rotate', `${randomRotate}deg`);
         buyZone.appendChild(stamp);
         
-        cartIcon.classList.add("cart-shake-active");
         if (cartCount) {
             let currentCount = parseInt(cartCount.innerText) || 0;
             cartCount.innerText = currentCount + 1;
@@ -171,22 +163,38 @@ function initBuyButtonAction() {
         setTimeout(() => {
             stamp.style.transition = "opacity 0.4s ease";
             stamp.style.opacity = "0";
-            setTimeout(() => {
-                stamp.remove();
-                cartIcon.classList.remove("cart-shake-active");
-            }, 400);
+            setTimeout(() => { stamp.remove(); }, 400);
         }, 1500);
     });
 }
 
-function initDetailInteractions() {
+/**
+ * 【修復錯誤 3】精準綁定購物車按鈕與優雅網頁轉場
+ */
+function initCartPageTransition() {
+    // 尋找右上角購物車圖標區塊 (相容 .cart-box 或 #cart-icon)
+    const cartBtn = document.querySelector(".cart-box") || document.getElementById("cart-icon");
     const backBtn = document.getElementById("back-home");
-    if (backBtn && backBtn.dataset.bound !== "true") {
-        backBtn.dataset.bound = "true";
+
+    // 購物車跳轉 cart.html
+    if (cartBtn) {
+        cartBtn.addEventListener("click", (e) => {
+            e.preventDefault(); // 攔截直接跳轉
+            document.body.classList.add("page-leaving"); // 啟動淡出縮小動畫
+            setTimeout(() => {
+                window.location.href = "cart.html"; // 0.5秒後滑順切換網頁
+            }, 500);
+        });
+    }
+
+    // 返回首頁跳轉 index.html
+    if (backBtn) {
         backBtn.addEventListener("click", (e) => {
             e.preventDefault();
             document.body.classList.add("page-leaving");
-            setTimeout(() => { window.location.href = "index.html"; }, 600);
+            setTimeout(() => {
+                window.location.href = "index.html";
+            }, 500);
         });
     }
 }

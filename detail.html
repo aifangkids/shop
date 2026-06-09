@@ -13,27 +13,33 @@
     <div id="page-transition" class="transition-overlay"></div>
     <div id="falling-container"></div>
 
-    <header class="top-bar">
-        <div class="nav-left">
-            <a href="index.html" class="logo-link" id="back-home">
-                <img src="images/ui/logo.png" alt="AiFang" class="logo-img">
-            </a>
+<div class="top-bar">
+    <a href="index.html" class="logo-link" id="back-home">
+        <img src="images/ui/logo.png" alt="aifang" class="logo-img">
+    </a>
+    <div class="cart-box" id="cart-icon">
+        <img src="./images/ui/icon_tcart.png" alt="購物車" class="cart-icon-img">
+        <span class="cart-badge" id="cart-count">0</span>
+    </div>
+</div>
+
+<div class="scrapbook-wrapper" id="detail-container">
+    <div class="detail-main-container">
+        
+        <div class="left-panel" id="left-panel">
+            <div class="detail-loading">故事書翻頁中...</div>
         </div>
-        <div class="nav-right">
-            <div id="cart-icon" class="cart-box">
-                <img src="images/ui/icon_tcart.png" alt="購物車" class="cart-icon-img">
-                <span id="cart-count" class="cart-badge">0</span>
+
+        <div class="right-panel">
             </div>
-        </div>
+
+    </div>
+</div>
     </header>
 
     <main class="scrapbook-wrapper">
         <div class="scrapbook-container" id="detail-container">
             
-            <div class="left-panel" id="left-panel">
-                <div class="detail-loading">正在翻開故事書下一頁...</div>
-            </div>
-
             <div class="detail-main-container">
                 
                 <section class="left-panel">
