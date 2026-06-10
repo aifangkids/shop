@@ -1,3 +1,8 @@
+/**
+ * 璦坊童裝 AiFang Studio - 核心資料撈取與優雅轉場驅動器
+ */
+
+// 1. 固定對照您的 API 網址，絕不動更
 const API_URL = "https://script.google.com/macros/s/AKfycbwgwzu96gbL1s2b7ZPVOiPJZDaBRHrx2K0zXYT5fblENjKJBYDa6v9O2gnkBuIEuXcMyQ/exec";
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -97,9 +102,13 @@ function generatePills(containerId, dataString) {
     const items = dataString ? String(dataString).split(/[,/，、;]/) : ["F"];
     items.forEach((val, idx) => {
         const pill = document.createElement("button");
+        const cleanVal = val.trim();
         pill.className = "option-pill";
-        pill.innerText = val.trim();
+        pill.innerText = cleanVal;
+        
+        // 如果是第一個選項，自動激活
         if (idx === 0) pill.classList.add("active");
+        
         pill.onclick = () => {
             container.querySelectorAll(".option-pill").forEach(p => p.classList.remove("active"));
             pill.classList.add("active");
@@ -127,7 +136,7 @@ function initSizeGuidePopup() {
 }
 
 /**
- * 恢復您最愛的爽快感：印章重蓋特效與購物車數字累加
+ * ✨ 修正版：印章重蓋特效（日常 5 款隨機、12月聖誕 5 款隨機、取消春節章）
  */
 function initBuyButtonAction() {
     const buyBtn = document.getElementById("buy-now-btn");
@@ -138,24 +147,46 @@ function initBuyButtonAction() {
     if (!buyBtn || !buyZone || !cartIcon) return;
 
     buyBtn.addEventListener("click", () => {
+        // 如果前一個印章還在「砰」，先不重複蓋，維持完美視覺
         if (buyZone.querySelector(".dynamic-stamp-icon")) return;
 
-        const randomStampNum = Math.floor(Math.random() * 2) + 1;
+        // 📅 獲取今天日期
+        const today = new Date();
+        const month = today.getMonth(); // 💡 11 代表 12 月
+        
+        let stampSrc = "";
+
+        // 🎄 1. 聖誕節判定 (整整 12 月，每天隨機跳 1~5 號聖誕章)
+        if (month === 11) {
+            const randomXmasNum = Math.floor(Math.random() * 5) + 1; // 🚀 隨機 1 ~ 5
+            stampSrc = `images/ui/stamp_christmas${randomXmasNum}.png`;
+        } 
+        // 🧸 2. 平常日子 (其餘月份，每天隨機跳 1~5 號日常章)
+        else {
+            const randomStampNum = Math.floor(Math.random() * 5) + 1; // 🚀 隨機 1 ~ 5
+            stampSrc = `images/ui/stamp${randomStampNum}.png`;
+        }
+
+        // 建立印章圖片元素
         const stamp = document.createElement("img");
-        stamp.src = `images/ui/stamp${randomStampNum}.png`;
+        stamp.src = stampSrc;
         stamp.className = "dynamic-stamp-icon";
         
+        // 讓每一次蓋下去的角度稍微隨機歪斜（-15度 ~ +15度），更有手工蓋章的俏皮感！
         const randomRotate = Math.floor(Math.random() * 30) - 15;
         stamp.style.setProperty('--random-rotate', `${randomRotate}deg`);
         buyZone.appendChild(stamp);
         
+        // 右上角小購物車開始歡樂搖晃
         cartIcon.classList.add("cart-shake-active");
    
+        // 購物車數量 +1
         if (cartCount) {
             let currentCount = parseInt(cartCount.innerText) || 0;
             cartCount.innerText = currentCount + 1;
         }
 
+        // 1.5 秒後讓印章優雅淡出並移除，同時停止購物車搖晃
         setTimeout(() => {
             stamp.style.transition = "opacity 0.4s ease";
             stamp.style.opacity = "0";
