@@ -136,19 +136,26 @@ function initSizeGuidePopup() {
 }
 
 /**
- * ✨ 修正版：印章重蓋特效（日常 5 款隨機、12月聖誕 5 款隨機、取消春節章）
+ * ✨ 完美修正版：印章重蓋特效（日常 5 款隨機、12月聖誕 5 款隨機、取消春節章）
+ * 🚀 修正重點：將印章掛載到最外層大盒子，使其完美橫跨並覆蓋價格與按鈕！
  */
 function initBuyButtonAction() {
     const buyBtn = document.getElementById("buy-now-btn");
     const buyZone = document.getElementById("buy-zone");
     const cartIcon = document.getElementById("cart-icon");
     const cartCount = document.getElementById("cart-count");
+    
+    // 🚀 核心關鍵：抓取同時包裹「價格」與「按鈕」的最外層大盒子
+    const collageZone = document.querySelector(".bottom-collage-zone"); 
+    
+    // 安全機制：如果找不到外層大盒子，就退而求其次用原來的 buyZone，確保網頁絕不報錯
+    const appendTarget = collageZone || buyZone;
 
-    if (!buyBtn || !buyZone || !cartIcon) return;
+    if (!buyBtn || !appendTarget || !cartIcon) return;
 
     buyBtn.addEventListener("click", () => {
-        // 如果前一個印章還在「砰」，先不重複蓋，維持完美視覺
-        if (buyZone.querySelector(".dynamic-stamp-icon")) return;
+        // 🚀 修正點：改為檢查外層大盒子裡是否已有印章，防止重複點擊堆疊
+        if (appendTarget.querySelector(".dynamic-stamp-icon")) return;
 
         // 📅 獲取今天日期
         const today = new Date();
@@ -175,7 +182,9 @@ function initBuyButtonAction() {
         // 讓每一次蓋下去的角度稍微隨機歪斜（-15度 ~ +15度），更有手工蓋章的俏皮感！
         const randomRotate = Math.floor(Math.random() * 30) - 15;
         stamp.style.setProperty('--random-rotate', `${randomRotate}deg`);
-        buyZone.appendChild(stamp);
+        
+        // 🚀 核心修正：重重蓋在外層大盒子上，這樣就能瞬間把價格、按鈕通通踩在腳下！
+        appendTarget.appendChild(stamp);
         
         // 右上角小購物車開始歡樂搖晃
         cartIcon.classList.add("cart-shake-active");

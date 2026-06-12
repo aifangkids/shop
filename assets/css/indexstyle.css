@@ -45,67 +45,102 @@ a, button, .category-btn {
     clip-path: polygon(0 100%, 100% 100%, 100% 0, 85% 40%, 65% 0, 45% 40%, 25% 0, 10% 40%, 0 0); /* [cite: 10] */
 }
 
-/* --- 3. 雲朵漂浮導覽列 (修復外框與行動裝置遮擋) --- */
+/* --- 3. 雲朵漂浮導覽列 (修復外框、行動裝置遮擋與 Logo 橢圓網頁殘影) --- */
 .cloud-nav {
-    position: fixed; top: 20px; left: 50%; transform: translateX(-50%); /* [cite: 11] */
+    position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
     z-index: 1000; width: 90%; max-width: 600px;
     background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(10px);
     border-radius: 50px;
-    box-shadow: 0 8px 32px rgba(242, 166, 178, 0.15); /* [cite: 12] */
+    box-shadow: 0 8px 32px rgba(242, 166, 178, 0.15);
     padding: 6px 16px;
-    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.2); /* [cite: 13] */
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.15); /* 稍微調順動態調性 */
     display: flex; align-items: center; justify-content: center;
-    border: none !important;   /* 強制刪除外框 */
-    outline: none !important;  /* 強制刪除點選藍框 */
+    border: none !important;   
+    outline: none !important;  
+    box-sizing: border-box; /* 確保內邊距不撐開外殼 */
 }
 .cloud-nav ul {
     display: flex; justify-content: space-between; align-items: center;
-    list-style: none; margin: 0; padding: 0; width: 100%; /* [cite: 14] */
+    list-style: none; margin: 0; padding: 0; width: 100%;
 }
 .cloud-nav a {
-    text-decoration: none; font-family: 'StarPanda', sans-serif; /* [cite: 15] */
+    text-decoration: none; font-family: 'StarPanda', sans-serif;
     color: #888888; font-weight: 700; font-size: 1.05rem;
     padding: 6px 14px; border-radius: 30px; 
-    border: none !important; outline: none !important; /* [cite: 16] */
+    border: none !important; outline: none !important;
     background: transparent; transition: all 0.3s ease;
-    white-space: nowrap; display: inline-block; /* [cite: 17] */
+    white-space: nowrap; display: inline-block;
 }
 .cloud-nav a.active {
     color: #ffffff !important;
-    background: #f2a6b2 !important; /* 實心膠囊粉色 */
+    background: #f2a6b2 !important; 
     transform: scale(1.05);
 }
 
-/* ⚡ RWD 響應式核心：當螢幕寬度太小時，自動縮小字體與內邊距，防止分類被擋住 ⚡ */
+/* ⚡ RWD 響應式核心 ⚡ */
 @media (max-width: 480px) {
     .cloud-nav {
         width: 94% !important;
         padding: 5px 10px !important;
     }
     .cloud-nav a {
-        font-size: 0.85rem !important; /* 縮小文字 */
-        padding: 5px 8px !important;   /* 緊湊微調間距 */
+        font-size: 0.85rem !important; 
+        padding: 5px 8px !important;   
     }
 }
 @media (max-width: 365px) {
     .cloud-nav a {
-        font-size: 0.75rem !important; /* 極小螢幕極限縮小，確保全數顯現 */
+        font-size: 0.75rem !important; 
         padding: 4px 6px !important;
     }
 }
 
-/* 網頁下捲變成圓形 Logo */
+/* 🚀 終極修復：網頁下捲變成完美的「左上角正圓形 Logo」 */
 .cloud-nav.scrolled-icon {
-    left: 20px; top: 20px; transform: translateX(0) !important;
-    width: 55px; height: 55px; padding: 0; border-radius: 50%;
-    background: white; box-shadow: 0 6px 20px rgba(0,0,0,0.1); /* [cite: 19, 20] */
-    cursor: pointer; justify-content: center;
+    position: fixed !important;
+    left: 20px !important; 
+    top: 20px !important; 
+    transform: none !important; /* 強制擊碎原 JS 內聯樣式的置中偏移 */
+    width: 55px !important; 
+    height: 55px !important; 
+    padding: 0 !important; 
+    border-radius: 50% !important;
+    background: white; 
+    box-shadow: 0 6px 20px rgba(90, 75, 65, 0.15);
+    cursor: pointer; 
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    overflow: hidden !important; /* 確保內容超出圓圈時被乖乖切掉 */
 }
-.cloud-nav.scrolled-icon .nav-menu { display: none !important; } /* [cite: 21] */
-.cloud-nav.scrolled-icon .nav-logo-btn { display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; }
-.nav-logo-btn { display: none; width: 38px; height: 38px; }
-.nav-logo-btn img { width: 100%; height: 100%; object-fit: contain; }
+
+.cloud-nav.scrolled-icon .nav-menu { 
+    display: none !important; 
+} 
+
+.cloud-nav.scrolled-icon .nav-logo-btn { 
+    display: flex !important; 
+    justify-content: center !important; 
+    align-items: center !important; 
+    width: 100% !important; 
+    height: 100% !important; 
+}
+
+/* 預設隱藏的 Logo 按鈕結構 */
+.nav-logo-btn { 
+    display: none; 
+    width: 100%; 
+    height: 100%; 
+}
+
+/* 核心正圓守護神：限制圖片絕對等寬高，防拉伸 */
+.nav-logo-btn img { 
+    width: 100% !important; 
+    height: 100% !important; 
+    border-radius: 50% !important; /* 圖片本身也強制變圓形 */
+    object-fit: cover !important;  /* 縱橫比不對時自動裁切，絕對不變扁 */
+}
 
 /* --- 4. 商品卡片佈局 (完全透明防裁切) --- */
 .gallery-container { padding: 20px 15px 60px; max-width: 1200px; margin: 0 auto; /* [cite: 22] */ }

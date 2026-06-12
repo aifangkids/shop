@@ -62,23 +62,11 @@ body.page-leaving {
 
 .polaroid-container {
     position: relative;
-
     width: 100%;
-
     max-width: none;
-
     margin: 0;
-
-    filter: drop-shadow(
-        8px 12px 16px rgba(90,75,65,.08)
-    );
-
-    transition: transform .4s cubic-bezier(
-        0.175,
-        0.885,
-        0.32,
-        1.275
-    );
+    filter: drop-shadow(8px 12px 16px rgba(90,75,65,.08));
+    transition: transform .4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .polaroid-container.tilt-left { transform: rotate(-2.5deg); }
@@ -87,13 +75,10 @@ body.page-leaving {
 
 .polaroid-photo-layer {
     position:absolute;
-
     top:5%;
     left:5%;
-
     width:90%;
     height:80%;
-
     z-index:1;
 }
 .polaroid-photo-layer img {
@@ -121,23 +106,20 @@ body.page-leaving {
 
 .memo-container {
     width: 100%;
-    /* 🚀 修正錯誤一：完美更換下半部背景圖為 detail_memo_main.png */
     background: 
         url('../../images/ui/detail_memo_main1.png') no-repeat top center,
         url('../../images/ui/detail_memo_main2.png') no-repeat bottom center;
     background-size: 100% 50%, 100% 50%;
     background-repeat: no-repeat;
-    padding: 75px 55px 60px 55px; /* 🚀 調整內襯：加強左右與上方縮排，確保文字被牢牢包在背景便簽紙內 */
+    padding: 75px 55px 60px 55px; 
     min-height: 520px; 
 }
 
-/* 🚀 滿足需求：Brand 與 Name 區塊完全置中 */
 .product-header {
     text-align: center;
     margin-bottom: 25px;
 }
 
-/* 🚀 滿足需求：Brand 與 Name 使用指定手繪風字體 */
 .brand-tag {
     display: inline-block;
     font-family: 'StarPandaKids', sans-serif;
@@ -152,7 +134,6 @@ body.page-leaving {
     margin: 0;
 }
 
-/* 🚀 其餘所有內文皆強制使用 NotoSansKR-Light 字體 */
 .product-note {
     background: transparent !important;
     border: none !important;
@@ -184,7 +165,7 @@ body.page-leaving {
 
 
 /* ==========================================================================
-   ✨ 全新底部極致拼貼區 (完美復刻圖片：層疊、擁擠、隨性手帳感)
+   ✨ 全新底部極致拼貼區 (用百分比釘死刻度：電腦、手機永遠不變形、不換位)
    ========================================================================== */
 .bottom-collage-zone {
     position: relative;
@@ -195,12 +176,12 @@ body.page-leaving {
     padding-top: 20px;
 }
 
-/* 1️⃣ 查看尺寸 Icon (左上角：微微壓在愛心上面) */
+/* 1️⃣ 查看尺寸 Icon (鎖定在尺的左側刻度 -4% 處) */
 .size-guide-trigger {
     position: absolute; 
-    left: -20px; 
+    left: -4%; 
     top: -50px; 
-    z-index: 13; /* 層級：上 */
+    z-index: 13; /* 最上層 */
     display: inline-flex;
     align-items: center;
     cursor: pointer;
@@ -215,12 +196,12 @@ body.page-leaving {
 .size-guide-trigger:hover img { transform: scale(1.1) rotate(-10deg); }
 
 
-/* 2️⃣ BUY NOW 紅色愛心章 (置中偏底：作為拼貼的視覺核心) */
+/* 2️⃣ BUY NOW 紅色愛心章 (鎖定在尺的中央刻度 31% 處，作為最底層地基) */
 .buy-action-zone { 
     position: absolute; 
-    left: 135px; 
+    left: 31%; 
     bottom: -10px; 
-    z-index: 11; /* 層級：底層地基 */
+    z-index: 11; /* 最底層 */
     cursor: pointer;
 }
 .buy-now-icon {
@@ -235,12 +216,12 @@ body.page-leaving {
 }
 
 
-/* 3️⃣ 價格貼紙標籤 (右下角：稍微往左橫跨、疊在愛心右側) */
+/* 3️⃣ 價格貼紙標籤 (鎖定在尺的右側刻度 64% 處，永遠夾在愛心右邊) */
 .price-sticker-tag {
     position: absolute; 
-    right: -10px; 
+    left: 64%; 
     bottom: 5px; 
-    z-index: 12; /* 層級：夾在中間 */
+    z-index: 12; /* 夾在中間層 */
     width: 165px; 
     height: 145px;
     background: url('../../images/ui/detail_price_tag.png') no-repeat center / contain;
@@ -267,7 +248,7 @@ body.page-leaving {
 }
 
 .price-number { 
-    font-family: 'StarPandaKids', sans-serif; /* 價格保留可愛特粗體 */
+    font-family: 'StarPandaKids', sans-serif; 
     font-size: 2.6rem; 
     font-weight: bold; 
     color: #e56363; 
@@ -275,16 +256,15 @@ body.page-leaving {
     letter-spacing: -1px; 
 }
 
-
-/* 💥 🚀 滿足需求：點擊加入購物車的蓋章特效 (大幅度放大，徹底震撼蓋住 BUYNOW) */
+/* 點擊加入購物車的蓋章特效 */
 .dynamic-stamp-icon {
     position: absolute; 
     top: 50%; 
     left: 50%; 
-    width: 220px; /* 從 170px 暴力放大至 220px，完美覆蓋 165px 的愛心鈕 */
+    width: 300px; 
     height: auto;
     pointer-events: none; 
-    z-index: 30; /* 置頂於所有元件之上 */
+    z-index: 30; 
     animation: stampSlam 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
@@ -329,7 +309,9 @@ body.page-leaving {
 .popup-image-container img { width: 100%; height: auto; border-radius: 10px; }
 
 
-/* RWD 手機版自動適應 */
+/* ==========================================================================
+   📱 RWD 手機版自動適應 (徹底拿掉 flex，全絕對定位完美鎖死位置)
+   ========================================================================== */
 @media (max-width:768px){ 
     .detail-main-container { flex-direction: column; gap: 30px; }
     .left-panel, .right-panel { width: 100%; }
@@ -337,71 +319,58 @@ body.page-leaving {
     
     .memo-container { 
         padding: 65px 35px; 
-        /* 🚀 修正錯誤二：修正原本程式碼中寫錯的 "50__%" 語法錯誤為正統 "50%" */
         background-size: 100% 50%, 100% 50%; 
     }
     
-    /* 手機版：維持絕對定位的重疊緊湊結構，等比例縮放防止爆版 */
-.bottom-collage-zone{
-    position:relative;
-
-    display:flex;
-    justify-content:center;
-    align-items:flex-end;
-
-    height:220px;
-    margin-top:40px;
-}
-    /* 尺寸說明 */
-    .size-guide-trigger{
-        position:absolute;
-        top:-75px;
-        left:0;
-        z-index:20;
-    }
-
-    .size-guide-trigger img{
-        width:120px;
-        height:auto;    
+    /* 🚀 核心修正：手機版照樣當作「刻度固定的尺」，只縮小高度，絕對不用 flex */
+    .bottom-collage-zone {
+        position: relative;
+        width: 100%;
+        height: 140px; 
+        margin-top: 40px;
     }
     
-    /* BUY NOW 主視覺 */
-    .buy-action-zone{
-        position:relative;
-        z-index:12;
-        margin-right:0;        
+    /* 1️⃣ 查看尺寸：依然待在左邊刻度，只把貼紙等比例縮小 */
+    .size-guide-trigger {
+        position: absolute;
+        top: -40px;
+        left: -4%; 
+        z-index: 13;
     }
-
-    .buy-now-icon{
-        width:145px;
-        height:auto;
+    .size-guide-trigger img {
+        width: 125px; 
+        height: auto;    
     }
     
-    /* 價格貼紙 */
-    .price-sticker-tag{
-        position:relative;
-
-        width:115px;
-        height:115px;
-
-        z-index:11;
-
-        margin-left:-25px;
-
-    transform:
-        translateY(15px)
-        rotate(10deg);
+    /* 2️⃣ BUY NOW 愛心：依然待在中間刻度，層級不變 */
+    .buy-action-zone {
+        position: absolute;
+        left: 31%;
+        bottom: -5px;
+        z-index: 11;       
     }
-
-    .price-number{
-        font-size:2rem;
+    .buy-now-icon {
+        width: 120px; 
+        height: auto;
     }
-
-    .price-currency{
-        font-size:.9rem;
+    
+    /* 3️⃣ 價格貼紙：依然待在右邊刻度，絕對不會跑到愛心上面去！ */
+    .price-sticker-tag {
+        position: absolute;
+        left: 64%;
+        bottom: 5px;
+        z-index: 12;
+        width: 115px; 
+        height: 100px;
+        transform: rotate(8deg);
     }
-
-    .dynamic-stamp-icon{
-        width:180px;
+    .price-number {
+        font-size: 1.8rem;
+    }
+    .price-currency {
+        font-size: .8rem;
+    }
+    .dynamic-stamp-icon {
+        width: 160px;
     }
 }
