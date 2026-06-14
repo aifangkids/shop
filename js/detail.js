@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 renderProductDetails(foundProduct);
 
                 initSizeGuidePopup();
-                initBuyButtonAction(); // 綁定您最愛的蓋章爽快感特效
+                initBuyButtonAction(foundProduct); // ⭕ 讓按鈕知道要存哪一件衣服的資料！// 綁定您最愛的蓋章爽快感特效
             } else {
                 showErrorMessage("🐻 魔法已被凍結保存，無法顯示");
             }
@@ -136,66 +136,93 @@ function initSizeGuidePopup() {
 }
 
 /**
- * ✨ 完美修正版：印章重蓋特效（日常 5 款隨機、12月聖誕 5 款隨機、取消春節章）
- * 🚀 修正重點：將印章掛載到最外層大盒子，使其完美橫跨並覆蓋價格與按鈕！
+ * ✨ 完美存檔特效升級版：不但會蓋章，還會真正把選好的尺寸顏色存進 LocalStorage！
  */
-function initBuyButtonAction() {
+function initBuyButtonAction(item) {
     const buyBtn = document.getElementById("buy-now-btn");
     const buyZone = document.getElementById("buy-zone");
     const cartIcon = document.getElementById("cart-icon");
     const cartCount = document.getElementById("cart-count");
-    
-    // 🚀 核心關鍵：抓取同時包裹「價格」與「按鈕」的最外層大盒子
-    const collageZone = document.querySelector(".bottom-collage-zone"); 
-    
-    // 安全機制：如果找不到外層大盒子，就退而求其次用原來的 buyZone，確保網頁絕不報錯
+    const collageZone = document.querySelector(".bottom-collage-zone");
     const appendTarget = collageZone || buyZone;
 
     if (!buyBtn || !appendTarget || !cartIcon) return;
 
+    // 網頁剛打開時，先同步計算目前購物車裡有多少件衣服，顯示在右上角
+    let currentCart = [];
+    try { currentCart = JSON.parse(localStorage.getItem('cart')) || []; } catch(e) {}
+    if (cartCount) {
+        cartCount.innerText = currentCart.reduce((sum, i) => sum + (i.quantity || 1), 0);
+    }
+
     buyBtn.addEventListener("click", () => {
-        // 🚀 修正點：改為檢查外層大盒子裡是否已有印章，防止重複點擊堆疊
         if (appendTarget.querySelector(".dynamic-stamp-icon")) return;
 
-        // 📅 獲取今天日期
-        const today = new Date();
-        const month = today.getMonth(); // 💡 11 代表 12 月
+        // 🚀【核心補救功能】：抓取當下畫面上哪一粒藥丸按鈕被啟動了 (.active)
+        const activeColorPill = document.querySelector("#color-options .option-pill.active");
+        const activeSizePill = document.querySelector("#size-options .option-pill.active");
         
+        const selectedColor = activeColorPill ? activeColorPill.innerText.trim() : "單色";
+        const selectedSize = activeSizePill ? activeSizePill.innerText.trim() : "F";
+
+        // 🚀【核心補救功能】：寫入 LocalStorage 購物車資料庫
+        let cart = [];
+        try { cart = JSON.parse(localStorage.getItem('cart')) || []; } catch(e) {}
+        
+        // 檢查車子裡是不是已經有一模一樣（同編號、同顏色、同尺寸）的衣服了
+        const existingItem = cart.find(i => i.code === item.code && i.color === selectedColor && i.size === selectedSize);
+        
+        if (existingItem) {
+            existingItem.quantity += 1; // 有的話，數量加 1
+        } else {
+            // 沒有的話，整件衣服打包塞進去，並完美對齊前端所需的所有欄位
+            cart.push({
+                id: item.code,
+                code: item.code,
+                codename: item.code,
+                name: item.name || "韓國童裝",
+                koreanname: item.koreanname || "",
+                color: selectedColor,
+                koreancolor: item.koreancolor || "", // 後台 code.gs 會自動比對中文色對照，免擔心
+                size: selectedSize,
+                quantity: 1,
+                unitprice: parseFloat(item.price) || 0,
+                // 防呆切出第一張主圖
+                imagemain: item.imagemain ? item.imagemain.split(/[,;]/)[0].replace(/[{}"'\[\]]/g, "").trim() : "images/products/default.jpg"
+            });
+        }
+        
+        // 完美存回瀏覽器
+        localStorage.setItem('cart', JSON.stringify(cart));
+
+        // 📅 下方維持闆娘最愛的精緻蓋章動畫與右上角搖晃效果...
+        const today = new Date();
+        const month = today.getMonth(); 
         let stampSrc = "";
 
-        // 🎄 1. 聖誕節判定 (整整 12 月，每天隨機跳 1~5 號聖誕章)
         if (month === 11) {
-            const randomXmasNum = Math.floor(Math.random() * 5) + 1; // 🚀 隨機 1 ~ 5
+            const randomXmasNum = Math.floor(Math.random() * 5) + 1; 
             stampSrc = `images/ui/stamp_christmas${randomXmasNum}.png`;
-        } 
-        // 🧸 2. 平常日子 (其餘月份，每天隨機跳 1~5 號日常章)
-        else {
-            const randomStampNum = Math.floor(Math.random() * 5) + 1; // 🚀 隨機 1 ~ 5
+        } else {
+            const randomStampNum = Math.floor(Math.random() * 5) + 1; 
             stampSrc = `images/ui/stamp${randomStampNum}.png`;
         }
 
-        // 建立印章圖片元素
         const stamp = document.createElement("img");
         stamp.src = stampSrc;
         stamp.className = "dynamic-stamp-icon";
         
-        // 讓每一次蓋下去的角度稍微隨機歪斜（-15度 ~ +15度），更有手工蓋章的俏皮感！
         const randomRotate = Math.floor(Math.random() * 30) - 15;
         stamp.style.setProperty('--random-rotate', `${randomRotate}deg`);
         
-        // 🚀 核心修正：重重蓋在外層大盒子上，這樣就能瞬間把價格、按鈕通通踩在腳下！
         appendTarget.appendChild(stamp);
-        
-        // 右上角小購物車開始歡樂搖晃
         cartIcon.classList.add("cart-shake-active");
-   
-        // 購物車數量 +1
+        
+        // 即時刷新右上角購物車總數
         if (cartCount) {
-            let currentCount = parseInt(cartCount.innerText) || 0;
-            cartCount.innerText = currentCount + 1;
+            cartCount.innerText = cart.reduce((sum, i) => sum + i.quantity, 0);
         }
 
-        // 1.5 秒後讓印章優雅淡出並移除，同時停止購物車搖晃
         setTimeout(() => {
             stamp.style.transition = "opacity 0.4s ease";
             stamp.style.opacity = "0";

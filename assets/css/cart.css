@@ -1,0 +1,272 @@
+/* ==========================================================================
+   AiFang Kids 購物車專屬佈局 (全新優化 - 完美繼承 global.css 版)
+   ========================================================================== */
+
+/* --- 1. 購物車專屬特有字型 (中文字體將自動繼承 global.css 的 NotoSansKR) --- */
+@font-face {
+    font-family: 'StarPanda';
+    src: url('../fonts/StarPandaKidsBeta2.1.ttf') format('truetype'); /*  */
+}
+
+/* --- 2. 購物車滿版包裝盒 (左右分欄佈局) --- */
+.cart-wrapper {
+    display: flex;
+    max-width: 1200px;
+    margin: 40px auto; /* [cite: 3] */
+    padding: 0 20px;
+    gap: 30px;
+}
+
+/* --- 3. 左側固定填單區 --- */
+.cart-left-panel {
+    width: 40%;
+    position: sticky; /* [cite: 4] */
+    top: 40px;                  /* 捲動時頂部錨定高度 */
+    height: calc(100vh - 80px); /* [cite: 5] */
+}
+
+.memo-card-main1 {
+    width: 100%;
+    height: 100%;
+    /* 【破圖修正】：路徑回歸正確的一層退回 */
+    background: url('../../images/ui/cart_memo_main1.png') no-repeat center top;
+    background-size: 100% 100%;
+    padding: 40px 35px; /* [cite: 6] */
+}
+
+.form-title {
+    font-size: 1.5rem;
+    color: var(--baby-pink);    /* 繼承全域粉色變數 */
+    text-align: center;
+    margin-bottom: 30px; /* [cite: 7] */
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px; /* [cite: 8] */
+    font-size: 0.95rem;
+}
+
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px dashed var(--baby-pink); /* [cite: 9] */
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.7);
+    font-family: inherit;
+    font-size: 1rem; /* [cite: 10] */
+    color: var(--text-main);
+    outline: none;
+    transition: all 0.3s; /* [cite: 11] */
+}
+
+.form-group input:focus, .form-group select:focus {
+    background: #ffffff;
+    border-style: solid;
+    box-shadow: 0 0 8px rgba(242, 166, 178, 0.2); /* [cite: 12] */
+}
+
+/* --- 4. 右側滑動明細區 (隱藏捲軸) --- */
+.cart-right-panel {
+    width: 60%;
+    height: calc(100vh - 80px);
+    overflow-y: scroll; /* [cite: 13] */
+    scrollbar-width: none;      /* Firefox 隱藏捲軸 */
+    display: flex;
+    flex-direction: column;
+    gap: 25px; /* [cite: 14] */
+}
+
+.cart-right-panel::-webkit-scrollbar {
+    display: none; /* [cite: 15] */
+}
+
+/* 【右上方】粉紅便籤計算區 */
+.memo-card-main2 {
+    /* 【破圖修正】：路徑回歸正確的一層退回 */
+    background: url('../../images/ui/cart_memo_main2.png') no-repeat center top;
+    background-size: 100% 100%;
+    padding: 35px;
+    position: relative;
+    min-height: 250px; /* [cite: 16] */
+}
+
+.panel-title {
+    font-size: 1.3rem;
+    color: var(--baby-pink);
+    margin-bottom: 20px; /* [cite: 17] */
+}
+
+/* 計算清單單筆項目 */
+.summary-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px dashed rgba(90, 75, 65, 0.1); /* [cite: 18] */
+}
+
+.item-meta-txt {
+    font-size: 0.95rem; /* [cite: 19] */
+}
+
+/* 即時加減數量按鈕組 */
+.quantity-control-set {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.qty-btn {
+    width: 26px;
+    height: 26px; /* [cite: 20] */
+    border-radius: 50%;
+    border: 1px solid var(--text-main);
+    background: white;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s; /* [cite: 21] */
+}
+
+.qty-btn:hover {
+    background: var(--baby-pink);
+    color: white;
+    border-color: var(--baby-pink); /* [cite: 22] */
+}
+
+/* 結帳動作組合區 */
+.checkout-action-area {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 30px;
+    gap: 15px; /* [cite: 23] */
+}
+
+.submit-order-btn {
+    background: transparent;
+    cursor: pointer;
+    transition: transform 0.2s;
+    border: none !important;    /* 防止部分瀏覽器原生黑框 */
+    outline: none !important;
+}
+
+.submit-order-btn:hover {
+    transform: scale(1.08) rotate(-2deg); /* [cite: 24] */
+}
+
+.submit-order-btn img {
+    width: 110px;
+    display: block;
+}
+
+/* 總計價格標籤貼紙 */
+.total-price-tag {
+    width: 140px;
+    height: 60px; /* [cite: 25] */
+    /* 【破圖修正】：路徑回歸正確的一層退回 */
+    background: url('../../images/ui/cart_price_tag.png') no-repeat center center;
+    background-size: contain;
+    display: flex;
+    justify-content: center;
+    align-items: center; /* [cite: 26] */
+}
+
+#order-total-price {
+    font-family: 'StarPanda', sans-serif;
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #ffffff;
+    padding-top: 4px; /* [cite: 27] */
+}
+
+/* 【右下方】薄荷綠便籤詳細區 (拼接彈性拉長) */
+.memo-card-main3-dynamic {
+    display: flex;
+    flex-direction: column; /* [cite: 28] */
+}
+
+.memo3-top-bg {
+    height: 40px;
+    /* 【破圖修正】：路徑回歸正確的一層退回 */
+    background: url('../../images/ui/cart_memo_main3.png') no-repeat center top;
+    background-size: 100% auto; /* [cite: 29] */
+}
+
+.memo3-content-body {
+    /* 【破圖修正】：路徑回歸正確的一層退回 */
+    background: url('../../images/ui/cart_memo_main4.png') repeat-y center top;
+    background-size: 100% auto;
+    padding: 10px 40px; /* [cite: 30] */
+}
+
+.memo3-bottom-bg {
+    height: 40px;
+    /* 【破圖修正】：路徑回歸正確的一層退回 */
+    background: url('../../images/ui/cart_memo_main3.png') no-repeat center bottom;
+    background-size: 100% auto;
+    transform: rotate(180deg); /* [cite: 31] */
+}
+
+.panel-title-green {
+    font-size: 1.3rem;
+    color: #8cb8b0;
+    margin-bottom: 20px; /* [cite: 32] */
+}
+
+/* 詳細圖文商品卡 */
+.detail-item-card {
+    display: flex;
+    gap: 20px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 18px;
+    padding: 15px;
+    margin-bottom: 15px; /* [cite: 33] */
+}
+
+.detail-card-img {
+    width: 80px;
+    height: 106px; /* [cite: 34] */
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05); /* [cite: 35] */
+}
+
+.detail-card-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+}
+
+.detail-card-name {
+    font-weight: 600;
+    font-size: 1rem; /* [cite: 36] */
+}
+
+.detail-card-specs {
+    font-size: 0.85rem;
+    color: var(--text-gray); /* [cite: 37] */
+}
+
+/* --- 5. 平板與手機版斷點排版 (RWD 佈局切換) --- */
+@media (max-width: 768px) {
+    .cart-wrapper {
+        flex-direction: column;
+        margin: 10px auto; /* [cite: 38] */
+    }
+    .cart-left-panel, .cart-right-panel {
+        width: 100%;
+        position: relative; /* [cite: 39] */
+        top: 0;
+        height: auto;
+    }
+}
