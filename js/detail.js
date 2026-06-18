@@ -59,7 +59,7 @@ function renderProductDetails(item) {
     leftPanel.innerHTML = "";
 
     // 處理陣列、過濾大括號
-    let rawImages = item.imageextra || item.imagemain || "images/products/default.jpg";
+    let rawImages = item.imageextra || item.imagemain || "images/ui/logo.png";
     rawImages = rawImages.replace(/[{}"'\[\]]/g, ""); 
     const imageArray = rawImages.split(/[,;]/).map(url => url.trim()).filter(url => url !== "");
 

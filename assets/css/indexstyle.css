@@ -142,65 +142,99 @@ a, button, .category-btn {
     object-fit: cover !important;  /* 縱橫比不對時自動裁切，絕對不變扁 */
 }
 
-/* --- 4. 商品卡片佈局 (完全透明防裁切) --- */
-.gallery-container { padding: 20px 15px 60px; max-width: 1200px; margin: 0 auto; /* [cite: 22] */ }
-.masonry-grid { column-count: 2; column-gap: 25px; /* [cite: 23] */ }
-@media (min-width: 768px) { .masonry-grid { column-count: 3; } }
-@media (min-width: 1024px) { .masonry-grid { column-count: 4; /* [cite: 24] */ } }
+/* --- 4. 商品卡片佈局 (全新改造：絕對定位拼貼舞台版) --- */
+.gallery-container { 
+    padding: 20px 15px 60px; 
+    max-width: 1200px; 
+    margin: 0 auto; 
+}
 
-/* ❌ 【關鍵】強制拔除舊有 CSS 的寫死膠帶，避免與 JS 隨機效果起衝突 */
+/* 🌸 核心改造：移除舊有 column-count 瀑布流，將地基改為相對定位的空舞台 */
+.masonry-grid { 
+    position: relative;
+    width: 100%;
+    /* 注意：此處需要透過 JS 在渲染商品後，動態設定 min-height 撐開網頁，否則底部會被切掉 */
+}
+
+/* ❌ 強制拔除舊有 CSS 的寫死膠帶，避免與 JS 隨機效果起衝突 */
 .product-card::before, .product-card::after {
     display: none !important;
     content: none !important;
 }
 
+/* 🌸 核心改造：將卡片改為 position: absolute (絕對定位)，並拿掉原本的 break-inside */
 .product-card {
-    position: relative; break-inside: avoid; margin-bottom: 30px; /* [cite: 25] */
+    position: absolute; /* 核心魔法：脫離常規排版，允許用 top/left 任意重疊亂飛 */
+    width: 240px;       /* 拼貼舞台必須「寫死卡片固定寬度」，才方便計算重疊與交錯 */
     background-color: transparent !important; /* 確保 100% 透明背景 */
     border: none !important; /* 移除外框 */
-    padding: 10px; cursor: pointer; /* [cite: 28] */
-    overflow: visible !important; /* 確保膠帶任意貼出界時，不會被截斷裁切 */
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* [cite: 30] */
+    padding: 10px; 
+    cursor: pointer; 
+    overflow: visible !important; /* 確保膠帶、塗鴉任意貼出界時，不會被截斷裁切 */
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), z-index 0.1s; 
 }
+
+/* 滑鼠移上去時：卡片跳到最上層(z-index: 99)，稍微放大、微微回正 */
 .product-card:hover {
-    z-index: 10; transform: translateY(-8px) scale(1.03) rotate(-1.5deg); /* [cite: 31] */
+    z-index: 99; 
+    transform: translateY(-8px) scale(1.06) rotate(0deg) !important; /* !important 確保壓過 JS 產生的隨機旋轉 */
 }
 
 /* 完美固定 3:4 比例 */
 .product-img-wrap { 
-    width: 100%; border-radius: 25px; overflow: hidden;
-    position: relative; aspect-ratio: 3/4; /* [cite: 36] */
+    width: 100%; 
+    border-radius: 25px; 
+    overflow: hidden;
+    position: relative; 
+    aspect-ratio: 3/4; 
     background: #fdf5f6;
     box-shadow: 0 8px 24px rgba(90, 75, 65, 0.08); /* 替透明卡片的圖片加上輕盈剪紙陰影 */
 }
-.product-img { width: 100%; height: 100%; object-fit: cover; display: block; /* [cite: 37] */ }
+.product-img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+    display: block; 
+}
 
 /* JS 動態控制：全卡片自由貼膠帶樣式 */
 .washi-tape {
     position: absolute;
-    width: 85px; height: 30px;
+    width: 85px; 
+    height: 30px;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
     z-index: 50; /* 確保覆蓋在圖片與文字的最上層 */
     opacity: 0.9;
-    pointer-events: none; /* [cite: 34] */
+    pointer-events: none; 
     filter: drop-shadow(1px 3px 3px rgba(0,0,0,0.06));
 }
 
-.product-info { padding: 12px 4px 4px; text-align: center; }
-.product-name { font-size: 0.95rem; color: #5a4b41; margin: 0 0 4px; font-weight: 600; }
-.product-price { font-size: 0.95rem; color: #f2a6b2; font-weight: bold; }
+.product-info { 
+    padding: 12px 4px 4px; 
+    text-align: center; 
+}
+.product-name { 
+    font-size: 0.95rem; 
+    color: #5a4b41; 
+    margin: 0 0 4px; 
+    font-weight: 600; 
+}
+.product-price { 
+    font-size: 0.95rem; 
+    color: #f2a6b2; 
+    font-weight: bold; 
+}
 
-/* 貼紙小塗鴉（壓縮版：徹底拔除虛無的留白空間） */
+/* 貼紙小塗鴉 */
 .sticker-doodle {
     text-align: center; 
-    font-size: 2rem;          /* 稍微縮小圖標，視覺上更精緻 */
-    padding: 0 !important;    /* 【關鍵】徹底拔除上下的內邊距 */
-    margin: 4px 0 !important; /* 【關鍵】縮減為極小的上下外邊距 */
-    line-height: 1 !important;/* 【關鍵】強制行高為 1，防止瀏覽器自動撐開隱形高度 */
+    font-size: 2rem;          
+    padding: 0 !important;    
+    margin: 4px 0 !important; 
+    line-height: 1 !important;
     opacity: 0.85; 
-    break-inside: avoid;
     display: inline-block; 
     width: 100%;
 }
