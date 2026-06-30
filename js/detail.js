@@ -161,7 +161,7 @@ async function changeQty(index, delta) {
     }];
 
     // 異步在背景更新，不阻礙客人操作
-    AifangAPI.updatePendingData(updatePayload, []);
+    AifangAPI.syncPendingChanges(updatePayload, []);
 }
 
 /**
@@ -181,8 +181,8 @@ async function deleteItemFromServer(index) {
 
     try {
         // 傳送 rowNum 到後台進行刪除
-        const res = await AifangAPI.updatePendingData([], [item.rowNum]);
-        
+        const res = await AifangAPI.syncPendingChanges([], [item.rowNum]);
+
         if (res.success) {
             // 重新後台拉取最新狀態，確保 rowNum 列號物理校正不衝突
             fetchAndRenderPendingItems();
