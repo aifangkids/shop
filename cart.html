@@ -19,10 +19,13 @@
             <p class="cart-subtitle">您的單號：<span id="checkout-order-id" class="order-highlight">-</span></p>
         </div>
 
+        <!-- 雙欄排版主要網格系統 -->
         <div class="cart-content-grid">
             
+            <!-- 左側：表單填寫區 -->
             <form id="order-submit-form" onsubmit="submitOrderForm(event)" class="checkout-form">
                 
+                <!-- 第一區塊：基本資料卡片 -->
                 <div class="form-section">
                     <h2 class="section-title">訂購人基本資料</h2>
                     
@@ -47,6 +50,7 @@
                     </div>
                 </div>
 
+                <!-- 第二區塊：選擇超商卡片 -->
                 <div class="form-section">
                     <h2 class="section-title">選擇配送超商</h2>
                     
@@ -95,34 +99,52 @@
                     </div>
                 </div>
 
+                <!-- 第三區塊：匯款核對與條款卡片（完美收納於左側欄位中） -->
                 <div class="form-section">
-                    <h2 class="section-title">匯款核對資訊</h2>
-                    <div class="bank-info-alert">
-                        <strong>我們的匯款帳號：</strong><br>
-                        玉山銀行 (808) 帳號：xxxx-xxxx-xxxx<br>
-                        請確認金額正確並完成轉帳後，於下方填入後五碼唷！
+                    <h2 class="section-title">匯款核對與須知</h2>
+                    
+                    <!-- 💰 匯款資訊 -->
+                    <div class="remittance-box">
+                        <div class="remittance-title">💰 匯款資訊</div>
+                        <div>銀行：103 臺灣新光商業銀行</div>
+                        <div>帳號：0675-1010-04736</div>
+                        <div style="margin-top:15px; color:#d9534f; font-style:italic;">請於2天之內，完成匯款，逾時視同放棄訂單</div>    
                     </div>
                     
-                    <div class="input-group">
+                    <!-- 您的帳號後五碼輸入框 -->
+                    <div class="input-group" style="margin-top: 20px;">
                         <label for="bank-last5">您的帳號後五碼 <span class="required">*</span></label>
                         <input type="text" id="bank-last5" name="bank_last5" placeholder="請輸入您轉出帳號的後 5 位數字" maxlength="5" pattern="\d{5}" required>
                     </div>
+
+                    <!-- 📝 頁尾溫馨提示 -->
+                    <div class="footer">
+                        <div>* 商品金額已含營業稅</div>
+                        <div>* 取貨時請務必攜帶與收貨人姓名相同的證件</div>
+                        <div>* 依《消費者保護法》規範，享有七天鑑賞期退換貨服務</div>
+                        <div>* 退換貨商品須保持全新、未剪標且完整包裝</div>
+                    </div>
                 </div>
 
+                <!-- 提交按鈕（隸屬於表單內） -->
                 <button type="submit" id="submit-order-btn" class="submit-form-btn">
                     確認無誤，提交系統核對
                 </button>
             </form>
 
+            <!-- 右側：商品摘要核對區卡片 -->
             <div class="checkout-summary-box">
                 <h2 class="summary-box-title">本次結帳商品摘要</h2>
                 
+                <!-- 迷你商品列表容器 -->
                 <div id="checkout-summary-list" class="mini-list-container"></div>
                 
+                <!-- 計費總覽區 -->
                 <div class="price-calc-area">
                     <div class="calc-row">
                         <span>商品小計</span>
                         <span id="summary-items-subtotal">NT$ 0</span>
+                    </div>
                     <div class="divider"></div>
                     <div class="calc-row total-row">
                         <span>應付總合計</span>
@@ -131,8 +153,8 @@
                 </div>
             </div>
 
-        </div>
-    </div>
+        </div> <!-- 關閉 cart-content-grid -->
+    </div> <!-- 關閉 cart-wrapper -->
 
     <script src="js/api.js"></script>
     <script src="js/cart.js"></script>

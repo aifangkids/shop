@@ -1,7 +1,3 @@
-/* ==========================================================================
-   Aifangkids 專屬填單結帳頁樣式 (css/cart.css) - 精簡互補版
-   ========================================================================== */
-
 .cart-wrapper {
     max-width: 950px; /* 雙欄排版，稍微放寬容納明細 */
     margin: 0 auto;
@@ -108,7 +104,7 @@
     font-weight: normal;
 }
 
-/* 高質感奶油白輸入框 - 已移除與 global.css 重複的全域重設 */
+/* 高質感奶油白輸入框 */
 .input-group input {
     width: 100%;
     height: 44px;
@@ -212,18 +208,6 @@
     margin-top: 2px;
 }
 
-/* 匯款提示框 */
-.bank-info-alert {
-    background-color: #FFFBF4;
-    border: 1px dashed #F5E6CC;
-    border-radius: 10px;
-    padding: 14px;
-    font-size: 13px;
-    color: #7A613B;
-    line-height: 1.6;
-    margin-bottom: 16px;
-}
-
 /* 提交按鈕 */
 .submit-form-btn {
     width: 100%;
@@ -237,6 +221,7 @@
     cursor: pointer;
     box-shadow: 0 4px 15px rgba(242, 166, 178, 0.25);
     transition: all 0.25s ease;
+    margin-top: 10px;
 }
 
 .submit-form-btn:hover {
@@ -249,6 +234,39 @@
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
+}
+
+/* 📥 匯款資訊區塊：內嵌安全寬度 */
+.remittance-box {
+    background: #fffdfd;
+    border: 1px solid #f5e6e8;
+    padding: 15px;
+    border-radius: 6px;
+    margin-top: 5px;
+    font-size: 13px;
+    line-height: 1.6;
+    text-align: left;
+    box-sizing: border-box;
+    width: 100%;
+}
+.remittance-title {
+    font-weight: 700;
+    color: #d9534f;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+/* 📝 頁尾溫馨提示：卡片內襯美化 */
+.footer { 
+    width: 100%;
+    margin-top: 25px; 
+    color: #666; 
+    font-size: 11px;
+    line-height: 1.8; 
+    border-top: 1px dashed #eee; 
+    padding-top: 15px; 
+    text-align: left;
+    box-sizing: border-box;
 }
 
 /* ==========================================================================
