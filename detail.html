@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>核對商品明細</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="./assets/css/global.css">
+    <link rel="stylesheet" href="./assets/css/detail.css">
+</head>
+<body>
+
+    <div id="falling-container"></div>
+
+    <div class="detail-wrapper">
+        <div class="detail-header">
+            <div class="back-to-index" onclick="location.href='index.html'">❮ 返回首頁</div>
+            <h1 class="customer-title">
+                <img id="title-random-seal" src="images/ui/seal4.png" alt="icon" class="title-icon-img">
+                <span id="customer-id-text">-</span> 的訂單商品
+            </h1>
+            <p class="customer-subtitle">請核對您的商品品項、規格與數量，確認無誤即可點擊按鈕前往結帳。</p>
+        </div>
+
+        <div id="loading-spinner" class="spinner-wrapper">
+            <div class="spinner"></div>
+            <p>正在為您連線...</p>
+        </div>
+
+        <div id="product-list-container" class="products-container"></div>
+        
+        <div class="bottom-safe-padding"></div>
+    </div>
+
+    <div class="bottom-sticky-bar">
+        <div class="sticky-bar-container">
+            <div class="summary-info">
+                <span class="qty-label">已選商品 <strong id="summary-total-qty">0</strong> 件</span>
+                <span class="price-label">合計: <span class="currency">NT$</span> <strong id="summary-total-amount">0</strong></span>
+            </div>
+            
+            <button type="button" id="goto-checkout-btn" class="text-checkout-btn" onclick="proceedToCheckout()" disabled>
+                確認無誤，前往結帳
+            </button>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/detail.js"></script>
+    <script src="js/articles.js"></script>
+</body>
+</html>

@@ -2,6 +2,12 @@
    1. 字體與基礎設定
    ========================================================================== */
 @font-face {
+    font-family: 'CutieStar';
+        src: url('../fonts/Cutie-Star.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+   @font-face {
     font-family: 'NotoSansKR';
     src: url('../fonts/notosanskr-light.ttf') format('truetype');
     font-weight: 300;

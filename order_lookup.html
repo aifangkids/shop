@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>訂單查詢</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="./assets/css/global.css">
+    <link rel="stylesheet" href="./assets/css/detail.css">
+
+    <style>
+        /* 📌 修正字體載入路徑：由於網頁在根目錄，需改為 ./assets/fonts/ */
+        @font-face {
+            font-family: 'CutieStar';
+            src: url('./assets/fonts/Cutie-Star.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'NotoSansKR';
+            src: url('./assets/fonts/notosanskr-light.ttf') format('truetype');
+            font-weight: 300;
+        }
+        @font-face {
+            font-family: 'NotoSansKR';
+            src: url('./assets/fonts/notosanskr-regular.ttf') format('truetype');
+            font-weight: 400;
+        }
+
+        body {
+            background-color: var(--bg-main, #FFF9EF);
+            font-family: var(--font-main), 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            padding: 40px 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 標題與手寫英文 */
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 10;
+        }
+        .page-title {
+            font-size: 24px;
+            color: var(--text-main, #333333);
+            font-weight: 700;
+            margin: 0 0 5px 0;
+        }
+        .page-subtitle {
+            font-family: 'CutieStar', sans-serif;
+            font-size: 28px;
+            color: var(--baby-pink, #f2a6b2);
+            margin: 0;
+        }
+
+        /* 查詢輸入卡片 */
+        .lookup-card, .result-card {
+            background: #FFFFFF;
+            max-width: 500px;
+            width: 100%;
+            border-radius: 24px;
+            padding: 30px 25px;
+            box-shadow: 0 10px 30px rgba(242, 166, 178, 0.08);
+            border: 1px solid rgba(242, 166, 178, 0.12);
+            box-sizing: border-box;
+            position: relative;
+            z-index: 10;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 13px 16px;
+            border: 1px solid #E8E8E8;
+            border-radius: 12px;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.25s ease;
+            background: #FAFAFA;
+        }
+
+        .input-group input:focus {
+            border-color: var(--baby-pink, #f2a6b2);
+            background-color: #FFFFFF;
+        }
+
+        .btn-search {
+            background-color: var(--baby-pink, #f2a6b2);
+            color: #FFFFFF;
+            border: none;
+            padding: 0 24px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .btn-search:hover {
+            background-color: #e395a1;
+        }
+
+        /* 查詢結果樣式 */
+        .result-card {
+            display: none; 
+        }
+
+        .status-badge {
+            display: inline-block;
+            background-color: #FFF0F2;
+            color: var(--baby-pink, #f2a6b2);
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px dashed #F5F5F5;
+            font-size: 14px;
+        }
+
+        .info-label {
+            color: var(--text-gray, #888888);
+        }
+
+        .info-value {
+            color: var(--text-main, #333333);
+            font-weight: 600;
+        }
+
+        /* 明細小商品卡 */
+        .detail-title {
+            font-size: 15px;
+            color: var(--text-main, #333333);
+            font-weight: 700;
+            margin: 25px 0 12px 0;
+            text-align: left;
+            border-left: 4px solid var(--baby-pink, #f2a6b2);
+            padding-left: 8px;
+        }
+
+        .item-mini-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #FFFBF7;
+            padding: 14px 15px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .item-name-spec {
+            text-align: left;
+        }
+
+        .item-spec {
+            font-size: 12px;
+            color: var(--text-gray, #888888);
+            margin-top: 3px;
+        }
+
+        .item-qty {
+            font-weight: 700;
+            color: var(--baby-pink, #f2a6b2);
+            white-space: nowrap;
+            margin-left: 10px;
+        }
+
+        /* 📌 修正：補上飄落花瓣動畫的 CSS 骨架 */
+        @keyframes slowFall {
+            0% {
+                top: -20px;
+                opacity: 0;
+                transform: translateX(0) rotate(0deg);
+            }
+            10% {
+                opacity: 0.8;
+            }
+            90% {
+                opacity: 0.8;
+            }
+            100% {
+                top: 105vh;
+                opacity: 0;
+                transform: translateX(var(--drift-x)) rotate(var(--drift-rotate));
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-header">
+        <h1 class="page-title">訂單查詢</h1>
+    </div>
+
+    <div class="lookup-card">
+        <div style="font-size: 14px; color: var(--text-gray, #888888); text-align: left;">請輸入您的專屬訂單編號或收件人手機</div>
+        <div class="input-group">
+            <input type="text" id="search-id-input" placeholder="請輸入專屬訂單編號或收件人手機" autocomplete="off">
+            <button class="btn-search" id="btn-do-search" onclick="handleOrderLookup()">查詢</button>
+        </div>
+    </div>
+
+    <div class="result-card" id="lookup-result-section">
+        <div class="status-badge" id="res-status">已付款待核對</div>
+        
+        <div class="info-row"><span class="info-label">專屬訂單編號</span><span class="info-value" id="res-order-id">-</span></div>
+        <div class="info-row"><span class="info-label">LINE 名稱</span><span class="info-value" id="res-line-name">-</span></div>
+        <div class="info-row"><span class="info-label">收件人姓名</span><span class="info-value" id="res-receiver-name">-</span></div>
+        <div class="info-row"><span class="info-label">收件人手機</span><span class="info-value" id="res-phone">-</span></div>
+        <div class="info-row"><span class="info-label">取件門市資訊</span><span class="info-value" id="res-store">-</span></div>
+        <div class="info-row"><span class="info-label">匯款後五碼</span><span class="info-value" id="res-last-five">-</span></div>
+        <div class="info-row"><span class="info-label">訂單建立時間</span><span class="info-value" id="res-time">-</span></div>
+        <div class="info-row" style="border: none; margin-top: 5px;"><span class="info-label" style="font-weight: 700; color: #333;">訂單總金額</span><span class="info-value" id="res-total" style="color: var(--baby-pink, #f2a6b2); font-size: 16px;">NT$ 0</span></div>
+        
+        <div class="detail-title">預購明細</div>
+        <div id="res-items-container"></div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/articles.js"></script>
+
+    <script>
+        // 📌 智慧修復：將 ISO 格式時間精確轉換為台灣標準時間 (UTC+8) 格式
+        function formatTaiwanTime(timeStr) {
+            if (!timeStr) return "-";
+            if (typeof timeStr === 'string' && !timeStr.includes('T') && !timeStr.includes('Z')) {
+                return timeStr;
+            }
+            try {
+                const date = new Date(timeStr);
+                if (isNaN(date.getTime())) return timeStr;
+                
+                const yyyy = date.getFullYear();
+                const mm = String(date.getMonth() + 1).padStart(2, '0');
+                const dd = String(date.getDate()).padStart(2, '0');
+                const hh = String(date.getHours()).padStart(2, '0');
+                const min = String(date.getMinutes()).padStart(2, '0');
+                const ss = String(date.getSeconds()).padStart(2, '0');
+                
+                return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
+            } catch (e) {
+                return timeStr;
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlId = AifangAPI.getURLParameter("id");
+            if (urlId) {
+                document.getElementById("search-id-input").value = urlId;
+                handleOrderLookup(urlId);
+            }
+            
+            // 啟動浪漫飄落背景
+            setInterval(createPetal, 450);
+        });
+
+        async function handleOrderLookup(targetId) {
+            const inputId = targetId || document.getElementById("search-id-input").value.trim();
+            const btn = document.getElementById("btn-do-search");
+            const resultCard = document.getElementById("lookup-result-section");
+
+            if (!inputId) {
+                alert("請填寫專屬訂單編號或收件人手機再進行查詢");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "搜尋中..";
+
+            try {
+                const res = await AifangAPI.lookupHistoryOrder(inputId);
+
+                if (res.success) {
+                    const order = res.order;
+                    const items = res.items;
+
+                    document.getElementById("res-status").innerText = order.status;
+                    document.getElementById("res-order-id").innerText = order.orderId;
+                    document.getElementById("res-line-name").innerText = order.name;
+                    document.getElementById("res-receiver-name").innerText = order.buyerName;
+                    document.getElementById("res-phone").innerText = order.phone;
+                    document.getElementById("res-store").innerText = `${order.logistics} - ${order.storeName}`;
+                    document.getElementById("res-last-five").innerText = order.lastFive || "未提供";
+                    
+                    // 📌 使用轉換函式將時間漂亮地呈現為台灣標準時間
+                    document.getElementById("res-time").innerText = formatTaiwanTime(order.orderTime);
+                    document.getElementById("res-total").innerText = `NT$ ${Number(order.totalAmount).toLocaleString()}`;
+
+                    // 2. 填入衣服明細清單
+                    const itemsContainer = document.getElementById("res-items-container");
+                    itemsContainer.innerHTML = ""; 
+
+                    items.forEach(item => {
+                        const row = document.createElement("div");
+                        row.className = "item-mini-row";
+                        
+                        // 📌 升級：版面重新排版，清晰展示「商品編號」與「商品單價」
+                        const unitPriceText = item.price ? `NT$ ${Number(item.price).toLocaleString()}` : "對帳確認中";
+                        row.innerHTML = `
+                            <div class="item-name-spec">
+                                <div style="font-weight: 600; color: #333; margin-bottom: 3px;">${item.prodName}</div>
+                                <div class="item-spec">商品編號：${item.prodId || '-'}</div>
+                                <div class="item-spec">規格款式：${item.color} / ${item.size}</div>
+                                <div class="item-spec" style="color: #666; font-weight: 500;">商品單價：${unitPriceText}</div>
+                            </div>
+                            <div class="item-qty">× ${item.quantity} 件</div>
+                        `;
+                        itemsContainer.appendChild(row);
+                    });
+
+                    resultCard.style.display = "block";
+                } else {
+                    alert(res.message || "找不到該筆訂單，請確認輸入是否正確");
+                    resultCard.style.display = "none";
+                }
+            } catch (err) {
+                console.error("歷史訂單查詢出錯:", err);
+                alert("網路連線逾時，請再試一次");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "查詢";
+            }
+        }
+
+        // 背景韓系粉紅花瓣動態產生腳本
+        function createPetal() {
+            const petal = document.createElement("div");
+            petal.style.position = "fixed";
+            petal.style.top = "-20px";
+            petal.style.left = Math.random() * 100 + "vw";
+            
+            const size = Math.random() * 10 + 10;
+            petal.style.width = `${size}px`;
+            petal.style.height = `${size}px`;
+            
+            const pinkColors = ["#f2a6b2", "#ffccd5", "#ffb3c1", "#ffe5ec"];
+            petal.style.backgroundColor = pinkColors[Math.floor(Math.random() * pinkColors.length)];
+            petal.style.borderRadius = "50% 0 50% 50%";
+            petal.style.opacity = "0";
+            petal.style.pointerEvents = "none";
+            petal.style.zIndex = "1";
+            
+            const randomDriftX = (Math.random() * 140 - 70) + "px";
+            const randomRotate = (Math.random() * 360 - 180) + "deg";
+            petal.style.setProperty("--drift-x", randomDriftX);
+            petal.style.setProperty("--drift-rotate", randomRotate);
+            
+            const duration = Math.random() * 3 + 5;
+            petal.style.animation = `slowFall ${duration}s linear forwards`;
+            
+            document.body.appendChild(petal);
+            setTimeout(() => { petal.remove(); }, duration * 1000);
+        }
+    </script>
+</body>
+</html>

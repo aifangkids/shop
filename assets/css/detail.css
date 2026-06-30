@@ -1,376 +1,400 @@
 /* ==========================================================================
-   璦坊童裝 手帳風詳細頁 - 底部大貼紙拼貼終極版 (背景圖完美保留)
+   Aifangkids 專屬商品對帳頁樣式 (css/detail.css)
    ========================================================================== */
 
-/* 恢復手繪字體：僅應用於標題與價格，其餘繼承 global.css */
-@font-face {
-    font-family: 'StarPandaKids';
-    src: url('../fonts/StarPandaKidsBeta2.1.ttf') format('truetype');
-}
-
-* { box-sizing: border-box; }
-
+/* 📌 修正：覆寫 global.css 的 body 內距，確保滿版對帳工具列完美貼底 */
 body {
-    background-color: #fff9f2;
-    margin: 0;
-    padding: 0;
-    opacity: 1;
-    transition: opacity 0.4s ease;
+    padding: 0 !important; 
 }
 
-body.page-leaving {
-    opacity: 0;
-}
-
-/* 導覽列與購物車 */
-.top-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 40px;
-    max-width: 1150px;
+.detail-wrapper {
+    max-width: 600px;
     margin: 0 auto;
-}
-.logo-img { height: 50px; width: auto; }
-.cart-box { position: relative; cursor: pointer; transition: transform 0.2s ease; z-index: 100; }
-.cart-box:hover { transform: scale(1.15); }
-.cart-icon-img { width: 45px; height: auto; }
-.cart-badge {
-    position: absolute; top: -2px; right: -3px;
-    background-color: #f2a6b2; color: white; font-size: 0.8rem;
-    padding: 2px 8px; border-radius: 20px; font-weight: bold;
+    padding: 25px 15px; /* 上下維持舒適寬度 */
 }
 
-/* 購物車搖晃動畫 */
-@keyframes cartShake {
-    0%, 100% { transform: scale(1) rotate(0deg); }
-    20%, 60% { transform: scale(1.1) rotate(-8deg); }
-    40%, 80% { transform: scale(1.1) rotate(8deg); }
-}
-.cart-shake-active { animation: cartShake 0.5s ease-in-out infinite; }
-
-/* 佈局 */
-.scrapbook-wrapper { max-width: 1150px; margin: 20px auto 60px auto; padding: 0 20px; }
-.detail-loading { text-align: center; padding: 100px 0; font-size: 1.3rem; color: #5a4b41; }
-.detail-main-container { display: flex; gap: 50px; align-items: flex-start; }
-
-/* ==========================================================================
-   📸 左側相片區：無底色，真正拍立得遮罩夾心
-   ========================================================================== */
-.left-panel{
-    flex: 0 0 52%; display: flex; flex-direction: column; gap: 45px; }
-
-.polaroid-container {
-    position: relative;
-    width: 100%;
-    max-width: none;
-    margin: 0;
-    filter: drop-shadow(8px 12px 16px rgba(90,75,65,.08));
-    transition: transform .4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.polaroid-container.tilt-left { transform: rotate(-2.5deg); }
-.polaroid-container.tilt-right { transform: rotate(3deg); }
-.polaroid-container:hover { transform: scale(1.03) rotate(0deg) !important; z-index: 10; }
-
-.polaroid-photo-layer {
-    position:absolute;
-    top:5%;
-    left:5%;
-    width:90%;
-    height:80%;
-    z-index:1;
-}
-.polaroid-photo-layer img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; 
-    border-radius: 4px;
-}
-
-.frame-layer-overlay {
-    width: 100%;
-    height: auto;
-    display: block;
-    position: relative;
-    z-index: 2;
-    pointer-events: none; 
-}
-
-/* ==========================================================================
-   📝 右側便簽區 (文字完全鎖定在背景內、Brand與Name置中使用特色字體)
-   ========================================================================== */
-.right-panel{
-    flex: 0 0 48%; position: relative; transition: transform 0.4s ease; }
-.right-panel:hover { transform: translateY(-2px); }
-
-.memo-container {
-    width: 100%;
-    background: 
-        url('../../images/ui/detail_memo_main1.png') no-repeat top center,
-        url('../../images/ui/detail_memo_main2.png') no-repeat bottom center;
-    background-size: 100% 50%, 100% 50%;
-    background-repeat: no-repeat;
-    padding: 75px 55px 60px 55px; 
-    min-height: 520px; 
-}
-
-.product-header {
-    text-align: center;
+/* 頂部導覽與標題 */
+.detail-header {
     margin-bottom: 25px;
 }
 
-.brand-tag {
+.back-to-index {
     display: inline-block;
-    font-family: 'StarPandaKids', sans-serif;
-    font-size: 2rem;
-    color: #f2a6b2;
-    margin-bottom: 5px;
-}
-.product-title {
-    font-family: 'StarPandaKids', sans-serif;
-    font-size: 3rem;
-    color: #5a4b41;
-    margin: 0;
+    font-size: 14px;
+    color: var(--text-gray);
+    cursor: pointer;
+    margin-bottom: 12px;
+    transition: color 0.2s ease;
 }
 
-.product-note {
-    background: transparent !important;
-    border: none !important;
-    padding: 0 !important;
-    margin: 0 0 25px 0 !important;
-    box-shadow: none !important;
-    font-size: 1rem;
-    color: #5a4b41;
-    font-family: 'NotoSansKR-Light', sans-serif;
-    line-height: 1.6;
+.back-to-index:hover {
+    color: var(--baby-pink);
 }
 
-.spec-section { margin-bottom: 25px; }
-.spec-label { 
-    font-size: 1rem; 
-    color: #5a4b41; 
-    margin-bottom: 12px; 
-    font-weight: bold;
-    font-family: 'NotoSansKR-Light', sans-serif;
+.customer-title {
+    font-size: 22px;
+    color: var(--text-main);
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
-.option-pill-group { display: flex; flex-wrap: wrap; gap: 10px; }
-.option-pill {
-    padding: 8px 18px; border: 2px dashed #f2a6b2; border-radius: 20px;
-    background-color: white; font-size: 0.95rem; cursor: pointer; color: #5a4b41;
-    font-family: 'NotoSansKR-Light', sans-serif;
-    transition: all 0.2s ease;
-}
-.option-pill.active, .option-pill:hover { border-style: solid; background-color: #f2a6b2; color: white; transform: scale(1.05) rotate(-2deg); }
 
+/* 📌 標題小海豹圖片尺寸控制 */
+.title-icon-img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+}
+
+.customer-subtitle {
+    font-size: 13px;
+    color: var(--text-gray);
+    line-height: 1.5;
+}
+
+/* 雲端連線轉圈圈 (Loading) */
+.spinner-wrapper {
+    text-align: center;
+    padding: 50px 0;
+    color: var(--text-gray);
+    font-size: 14px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #EFECE8;
+    border-top: 3px solid var(--baby-pink);
+    border-radius: 50%;
+    margin: 0 auto 15px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.no-data-alert {
+    background-color: #FFFFFF;
+    padding: 40px 20px;
+    border-radius: 16px;
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.8;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    border: 1px dashed #EFECE8;
+}
 
 /* ==========================================================================
-   ✨ 全新底部極致拼貼區 (用百分比釘死刻度：電腦、手機永遠不變形、不換位)
+   核心商品卡片排版
    ========================================================================== */
-.bottom-collage-zone {
-    position: relative;
-    width: 100%;
-    height: 190px; 
-    margin-top: 35px;
-    border-top: 2px dashed #ecdcc9; 
-    padding-top: 20px;
-}
-
-/* 1️⃣ 查看尺寸 Icon (鎖定在尺的左側刻度 -4% 處) */
-.size-guide-trigger {
-    position: absolute; 
-    left: -4%; 
-    top: -50px; 
-    z-index: 13; /* 最上層 */
-    display: inline-flex;
-    align-items: center;
-    cursor: pointer;
-    transform: rotate(-6deg);
-    animation: gentle-shake 3.5s infinite ease-in-out;
-}
-.size-guide-trigger img {
-    width: 180px; 
-    height: auto;
-    transition: transform 0.2s ease;
-}
-.size-guide-trigger:hover img { transform: scale(1.1) rotate(-10deg); }
-
-
-/* 2️⃣ BUY NOW 紅色愛心章 (鎖定在尺的中央刻度 31% 處，作為最底層地基) */
-.buy-action-zone { 
-    position: absolute; 
-    left: 31%; 
-    bottom: -10px; 
-    z-index: 11; /* 最底層 */
-    cursor: pointer;
-}
-.buy-now-icon {
-    width: 165px; 
-    height: auto;
-    transform: rotate(-2deg);
-    transition: transform 0.2s ease;
-    animation: gentle-shake 4s infinite ease-in-out reverse;
-}
-.buy-now-icon:hover { 
-    transform: scale(1.08) rotate(3deg); 
-}
-
-
-/* 3️⃣ 價格貼紙標籤 (鎖定在尺的右側刻度 64% 處，永遠夾在愛心右邊) */
-.price-sticker-tag {
-    position: absolute; 
-    left: 64%; 
-    bottom: 5px; 
-    z-index: 12; /* 夾在中間層 */
-    width: 165px; 
-    height: 145px;
-    background: url('../../images/ui/detail_price_tag.png') no-repeat center / contain;
+.products-container {
     display: flex;
-    flex-direction: row; 
+    flex-direction: column;
+    gap: 16px;
+}
+
+.prod-card {
+    background-color: #FFFFFF;
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(242, 166, 178, 0.05);
+    border: 1px solid rgba(239, 236, 232, 0.6);
+    transition: all 0.3s ease;
+}
+
+/* 客製化韓系粉色核取方塊 */
+.card-checkbox-wrapper {
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+}
+
+.prod-checkbox {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border: 2px solid #EFECE8;
+    border-radius: 6px;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: #FAF9F6;
+    display: inline-block;
+    position: relative;
+}
+
+.prod-checkbox:checked {
+    background-color: var(--baby-pink);
+    border-color: var(--baby-pink);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23fff'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+    background-size: 14px;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* 商品縮圖包裝 */
+.prod-img-wrapper {
+    width: 80px;
+    height: 80px;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #FAF9F6;
+    margin-right: 14px;
+    flex-shrink: 0;
+    border: 1px solid #F5F2ED;
+}
+
+.prod-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 商品規格明細 */
+.prod-details {
+    flex-grow: 1;
+    padding-right: 15px;
+}
+
+.prod-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 4px;
+    line-height: 1.4;
+}
+
+.prod-spec {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.spec-tag {
+    font-size: 11px;
+    background-color: #FAF9F6;
+    color: var(--text-gray);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid #F0EDE9;
+}
+
+.prod-price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.prod-price {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--baby-pink);
+}
+
+/* 數量加減器 */
+.qty-counter {
+    display: flex;
+    border: 1px solid #EFECE8;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #FAF9F6;
+}
+
+.qty-btn {
+    width: 28px;
+    height: 28px;
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: var(--text-main);
+    display: flex;
     align-items: center;
     justify-content: center;
-    gap: 2px;
+}
+
+.qty-btn:active {
+    background-color: #EFECE8;
+}
+
+.qty-input {
+    width: 32px;
+    height: 28px;
+    border: none;
+    border-left: 1px solid #EFECE8;
+    border-right: 1px solid #EFECE8;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    background-color: #FFFFFF;
+    color: var(--text-main);
+}
+
+/* 悄悄話備註欄 */
+.prod-note-wrapper {
+    width: 100%;
+}
+
+.prod-note-input {
+    width: 100%;
+    padding: 6px 10px;
+    font-size: 12px;
+    border: 1px solid #EFECE8;
+    border-radius: 6px;
+    outline: none;
+    background-color: #FAF9F6;
+    color: var(--text-main);
+    transition: border 0.2s ease;
+}
+
+.prod-note-input:focus {
+    border-color: var(--baby-pink);
+    background-color: #FFFFFF;
+}
+
+/* 右上角極簡刪除叉叉 */
+.delete-card-btn {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #D5CDCC;
     cursor: pointer;
-    transform: rotate(8deg); 
-    animation: price-auto-shake 3.5s infinite ease-in-out;
+    transition: color 0.2s ease;
+    line-height: 1;
+}
+
+.delete-card-btn:hover {
+    color: var(--accent-red);
+}
+
+/* 底部防遮擋留白 */
+.bottom-safe-padding {
+    height: 80px;
+}
+
+/* ==========================================================================
+   底部固定式結帳工具列 (純文字窄版優化)
+   ========================================================================== */
+.bottom-sticky-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid #EFECE8;
+    box-shadow: 0 -3px 15px rgba(0,0,0,0.03);
+    z-index: 100;
+    
+    padding-top: 12px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+}
+
+.sticky-bar-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.summary-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.qty-label {
+    font-size: 12px;
+    color: var(--text-gray);
+}
+
+.qty-label strong {
+    color: var(--text-main);
+}
+
+.price-label {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.price-label .currency {
+    font-size: 13px;
+    color: var(--baby-pink);
+    margin-right: 2px;
+}
+
+.price-label strong {
+    color: var(--baby-pink);
+}
+
+/* 全新純文字扁平化按鈕 */
+.text-checkout-btn {
+    flex-grow: 1;
+    max-width: 220px;
+    height: 44px;
+    background-color: var(--baby-pink);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
     transition: all 0.2s ease;
-}
-.price-sticker-tag:hover {
-    animation: price-hover-shake 0.5s ease-in-out infinite;
+    box-shadow: 0 3px 10px rgba(242, 166, 178, 0.15);
 }
 
-.price-currency { 
-    font-family: 'NotoSansKR-Light', sans-serif;
-    font-size: 1.1rem; 
-    color: #e56363; 
-    font-weight: bold; 
-    margin-top: 8px; 
+.text-checkout-btn:not([disabled]):hover {
+    background-color: #f294a5;
+    transform: translateY(-1px);
 }
 
-.price-number { 
-    font-family: 'StarPandaKids', sans-serif; 
-    font-size: 2.6rem; 
-    font-weight: bold; 
-    color: #e56363; 
-    line-height: 1.0; 
-    letter-spacing: -1px; 
+.text-checkout-btn:not([disabled]):active {
+    transform: translateY(0);
 }
 
-/* 點擊加入購物車的蓋章特效 */
-.dynamic-stamp-icon {
-    position: absolute; 
-    top: 50%; 
-    left: 50%; 
-    width: 300px; 
-    height: auto;
-    pointer-events: none; 
-    z-index: 30; 
-    animation: stampSlam 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+/* 禁用狀態 */
+.text-checkout-btn[disabled] {
+    background-color: #D5CDCC;
+    color: #FFFFFF;
+    cursor: not-allowed;
+    box-shadow: none;
 }
-
 
 /* ==========================================================================
-   🎬 動態特效與響應式定義
+   手機版明細頁專屬微調 (RWD)
    ========================================================================== */
-
-/* 價格貼紙專用搖晃 */
-@keyframes price-auto-shake {
-    0%, 80%, 100% { transform: rotate(8deg); }
-    82%, 86%, 90%, 94% { transform: rotate(5deg); }
-    84%, 88%, 92%, 96% { transform: rotate(11deg); }
-}
-@keyframes price-hover-shake {
-    0%, 100% { transform: rotate(8deg) scale(1.08); }
-    50% { transform: rotate(12deg) scale(1.08); }
-}
-
-/* 共通水平慢搖 */
-@keyframes gentle-shake {
-    0%, 80%, 100% { transform: rotate(-6deg); }
-    82%, 86%, 90%, 94% { transform: rotate(-9deg); }
-    84%, 88%, 92%, 96% { transform: rotate(-3deg); }
-}
-
-/* 蓋章重擊震撼特效 */
-@keyframes stampSlam {
-    0% { transform: translate(-50%, -50%) scale(3.5) rotate(40deg); opacity: 0; }
-    100% { transform: translate(-50%, -50%) scale(1.15) rotate(var(--random-rotate, -10deg)); opacity: 0.95; }
-}
-
-/* 尺寸圖彈出視窗 */
-.size-popup-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(90, 75, 65, 0.6); display: flex; justify-content: center; align-items: center;
-    z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
-}
-.size-popup-overlay.open { opacity: 1; pointer-events: auto; }
-.size-popup-content { background-color: white; padding: 30px; border-radius: 20px; max-width: 500px; width: 90%; position: relative; }
-.close-popup-btn { position: absolute; top: 10px; right: 15px; font-size: 2rem; background: none; border: none; cursor: pointer; color: #5a4b41; }
-.popup-image-container img { width: 100%; height: auto; border-radius: 10px; }
-
-
-/* ==========================================================================
-   📱 RWD 手機版自動適應 (徹底拿掉 flex，全絕對定位完美鎖死位置)
-   ========================================================================== */
-@media (max-width:768px){ 
-    .detail-main-container { flex-direction: column; gap: 30px; }
-    .left-panel, .right-panel { width: 100%; }
-    .polaroid-container { transform: rotate(0deg) !important; max-width: 100%; }
-    
-    .memo-container { 
-        padding: 65px 35px; 
-        background-size: 100% 50%, 100% 50%; 
+@media (max-width: 480px) {
+    .prod-card { 
+        padding: 12px; 
     }
-    
-    /* 🚀 核心修正：手機版照樣當作「刻度固定的尺」，只縮小高度，絕對不用 flex */
-    .bottom-collage-zone {
-        position: relative;
-        width: 100%;
-        height: 140px; 
-        margin-top: 40px;
+    .prod-img-wrapper { 
+        width: 70px; 
+        height: 70px; 
+        margin-right: 10px; 
     }
-    
-    /* 1️⃣ 查看尺寸：依然待在左邊刻度，只把貼紙等比例縮小 */
-    .size-guide-trigger {
-        position: absolute;
-        top: -40px;
-        left: -4%; 
-        z-index: 13;
+    .price-label { 
+        font-size: 17px; 
     }
-    .size-guide-trigger img {
-        width: 125px; 
-        height: auto;    
-    }
-    
-    /* 2️⃣ BUY NOW 愛心：依然待在中間刻度，層級不變 */
-    .buy-action-zone {
-        position: absolute;
-        left: 31%;
-        bottom: -5px;
-        z-index: 11;       
-    }
-    .buy-now-icon {
-        width: 120px; 
-        height: auto;
-    }
-    
-    /* 3️⃣ 價格貼紙：依然待在右邊刻度，絕對不會跑到愛心上面去！ */
-    .price-sticker-tag {
-        position: absolute;
-        left: 64%;
-        bottom: 5px;
-        z-index: 12;
-        width: 115px; 
-        height: 100px;
-        transform: rotate(8deg);
-    }
-    .price-number {
-        font-size: 1.8rem;
-    }
-    .price-currency {
-        font-size: .8rem;
-    }
-    .dynamic-stamp-icon {
-        width: 160px;
+    .text-checkout-btn { 
+        max-width: 180px; 
+        height: 40px; 
+        font-size: 14px; 
     }
 }

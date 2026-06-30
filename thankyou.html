@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>感謝預購</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    
+    <link rel="stylesheet" href="./assets/css/global.css">
+
+    <style>
+        body {
+            background-color: var(--bg-main, #FFF9EF);
+            font-family: var(--font-main), 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            position: relative;
+            overflow-x: hidden; /* 📌 防止飄落碎片飄到外面的時候撐開手機畫面螢幕寬度 */
+        }
+
+        .thankyou-container {
+            background: #FFFFFF;
+            max-width: 480px;
+            width: 100%;
+            border-radius: 24px;
+            padding: 40px 25px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(242, 166, 178, 0.12);
+            border: 1px solid rgba(242, 166, 178, 0.15);
+            box-sizing: border-box;
+            position: relative;
+            z-index: 10; /* 確保內容卡片永遠在飄落背景的上方，不影響按鈕點擊 */
+        }
+
+        /* 感謝圖尺寸優化 */
+        .thankyou-img {
+            max-width: 90%;
+            height: auto;
+            margin-bottom: 20px;
+            border-radius: 16px;
+        }
+
+        /* 📌 修正：特別為手寫英文字體加上專屬樣式 */
+        .footer-note {
+            font-family: 'CutieStar', var(--font-main), sans-serif;
+            font-size: 32px; /* 放大字體展現可愛手寫感 */
+            color: var(--baby-pink, #f2a6b2);
+            font-weight: normal; /* CutieStar 字體通常不需額外加粗 */
+            margin: 0 0 15px 0;
+            letter-spacing: 1px;
+        }
+
+        .thankyou-text {
+            font-size: 15px;
+            color: var(--text-main, #333333);
+            line-height: 1.6;
+            margin-bottom: 35px;
+        }
+
+        .thankyou-text strong {
+            color: var(--baby-pink, #f2a6b2);
+            font-weight: 700;
+        }
+
+        .thankyou-text span {
+            display: block;
+            margin-top: 10px;
+            font-size: 13px;
+            color: var(--text-gray, #888888);
+        }
+
+        /* 按鈕群組區塊 */
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .action-btn {
+            display: block;
+            width: 100%;
+            padding: 13px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        /* 主色調粉紅按鈕 */
+        .btn-primary {
+            background-color: var(--baby-pink, #f2a6b2);
+            color: #FFFFFF;
+            border: none;
+            box-shadow: 0 4px 12px rgba(242, 166, 178, 0.25);
+        }
+
+        .btn-primary:hover {
+            background-color: #e395a1;
+            transform: translateY(-1px);
+        }
+
+        /* 次要白底按鈕 */
+        .btn-secondary {
+            background-color: #FFFFFF;
+            color: var(--text-gray, #888888);
+            border: 1px solid #E8E8E8;
+        }
+
+        .btn-secondary:hover {
+            background-color: #FAF5ED;
+            color: var(--text-main, #333333);
+            border-color: var(--baby-pink, #f2a6b2);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="thankyou-container">
+        <img src="images/ui/cart_send.png" alt="感謝您的訂購" class="thankyou-img">
+        
+        <h1 class="footer-note">Order submitted successfully.</h1>
+        
+        <div class="thankyou-text">
+            感謝您的購買！<br>
+            您的預購明細與對帳資料已安全送達管理後台。<br>
+            <strong>AIFANG KIDS 會儘快為您核對並安排出貨。</strong>
+            <span>若後續有任何訂單變動問題，歡迎隨時透過 LINE 官方客服聯繫 💗</span>
+        </div>
+
+        <div class="btn-group">
+            <a href="index.html" class="action-btn btn-primary">返回官網首頁</a>
+            <a href="order_lookup.html" class="action-btn btn-secondary">查詢訂單進度</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // 每 400 毫秒在頂部隨機製造一個粉紅小花瓣
+            setInterval(createPetal, 400);
+        });
+
+        function createPetal() {
+            const petal = document.createElement("div");
+            
+            // 基礎飄落物形狀與定位設定
+            petal.style.position = "fixed";
+            petal.style.top = "-20px";
+            petal.style.left = Math.random() * 100 + "vw";
+            
+            // 隨機大小控制 (10px ~ 22px 之間，大小不一更自然)
+            const size = Math.random() * 12 + 10;
+            petal.style.width = `${size}px`;
+            petal.style.height = `${size}px`;
+            
+            // 溫柔粉色系調色盤
+            const pinkColors = ["#f2a6b2", "#ffccd5", "#ffb3c1", "#ffe5ec"];
+            const randomColor = pinkColors[Math.floor(Math.random() * pinkColors.length)];
+            
+            petal.style.backgroundColor = randomColor;
+            petal.style.borderRadius = "50% 0 50% 50%"; // 捏出柔和的小花瓣外型
+            petal.style.opacity = "0";
+            petal.style.pointerEvents = "none";
+            petal.style.zIndex = "1"; // 在最底層飄落，不遮擋文字與按鈕
+            
+            // 📌 重點：對接 global.css 裡面 slowFall 動態所需的兩個核心 CSS 變數
+            const randomDriftX = (Math.random() * 160 - 80) + "px"; // 左右飄移範圍 -80px 到 +80px
+            const randomRotate = (Math.random() * 360 - 180) + "deg"; // 旋轉角度
+            petal.style.setProperty("--drift-x", randomDriftX);
+            petal.style.setProperty("--drift-rotate", randomRotate);
+            
+            // 隨機飄落速度 (5秒 ~ 8秒之間，速度交錯更漂亮)
+            const duration = Math.random() * 3 + 5;
+            petal.style.animation = `slowFall ${duration}s linear forwards`;
+            
+            document.body.appendChild(petal);
+            
+            // 當花瓣掉落出螢幕外後，自動將 HTML 節點刪除，維持手機瀏覽時的高效能與省電
+            setTimeout(() => {
+                petal.remove();
+            }, duration * 1000);
+        }
+    </script>
+
+</body>
+</html>

@@ -1,272 +1,390 @@
 /* ==========================================================================
-   AiFang Kids 購物車專屬佈局 (全新優化 - 完美繼承 global.css 版)
+   Aifangkids 專屬填單結帳頁樣式 (css/cart.css) - 精簡互補版
    ========================================================================== */
 
-/* --- 1. 購物車專屬特有字型 (中文字體將自動繼承 global.css 的 NotoSansKR) --- */
-@font-face {
-    font-family: 'StarPanda';
-    src: url('../fonts/StarPandaKidsBeta2.1.ttf') format('truetype'); /*  */
-}
-
-/* --- 2. 購物車滿版包裝盒 (左右分欄佈局) --- */
 .cart-wrapper {
-    display: flex;
-    max-width: 1200px;
-    margin: 40px auto; /* [cite: 3] */
-    padding: 0 20px;
+    max-width: 950px; /* 雙欄排版，稍微放寬容納明細 */
+    margin: 0 auto;
+    padding: 15px 10px; /* 配合 global.css 的手機版基礎留白，在電腦版則由 RWD 擴展 */
+}
+
+@media (min-width: 769px) {
+    .cart-wrapper {
+        padding: 30px 20px; /* 電腦版給予更寬敞的呼吸空間 */
+    }
+}
+
+/* 頂部導覽標題 */
+.cart-header {
+    margin-bottom: 30px;
+}
+
+.back-to-detail {
+    display: inline-block;
+    font-size: 14px;
+    color: var(--text-gray);
+    cursor: pointer;
+    margin-bottom: 12px;
+    transition: color 0.2s ease;
+}
+
+.back-to-detail:hover {
+    color: var(--baby-pink);
+}
+
+.cart-title {
+    font-size: 24px;
+    color: var(--text-main);
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.cart-subtitle {
+    font-size: 14px;
+    color: var(--text-gray);
+}
+
+.order-highlight {
+    color: var(--baby-pink);
+    font-weight: 700;
+    background-color: #FFF0F2;
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+/* ==========================================================================
+   網格雙欄切換版面
+   ========================================================================== */
+.cart-content-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr; /* 左寬右窄 */
     gap: 30px;
+    align-items: start;
 }
 
-/* --- 3. 左側固定填單區 --- */
-.cart-left-panel {
-    width: 40%;
-    position: sticky; /* [cite: 4] */
-    top: 40px;                  /* 捲動時頂部錨定高度 */
-    height: calc(100vh - 80px); /* [cite: 5] */
+/* 填單卡片與外框 */
+.form-section {
+    background-color: #FFFFFF;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(242, 166, 178, 0.04);
+    border: 1px solid rgba(239, 236, 232, 0.6);
 }
 
-.memo-card-main1 {
+.section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 20px;
+    border-left: 4px solid var(--baby-pink);
+    padding-left: 10px;
+}
+
+/* ==========================================================================
+   標準精緻表單欄位元件
+   ========================================================================== */
+.input-group {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.input-group label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.input-group label .required {
+    color: var(--accent-red);
+    margin-left: 2px;
+}
+
+.input-group label .note-lbl {
+    font-size: 11px;
+    color: var(--text-gray);
+    font-weight: normal;
+}
+
+/* 高質感奶油白輸入框 - 已移除與 global.css 重複的全域重設 */
+.input-group input {
     width: 100%;
-    height: 100%;
-    /* 【破圖修正】：路徑回歸正確的一層退回 */
-    background: url('../../images/ui/cart_memo_main1.png') no-repeat center top;
-    background-size: 100% 100%;
-    padding: 40px 35px; /* [cite: 6] */
+    height: 44px;
+    padding: 0 14px;
+    border: 1px solid #EFECE8;
+    border-radius: 10px;
+    background-color: #FAF9F6;
+    color: var(--text-main);
+    transition: all 0.25s ease;
 }
 
-.form-title {
-    font-size: 1.5rem;
-    color: var(--baby-pink);    /* 繼承全域粉色變數 */
-    text-align: center;
-    margin-bottom: 30px; /* [cite: 7] */
+.input-group input:focus {
+    border-color: var(--baby-pink);
+    background-color: #FFFFFF;
+    box-shadow: 0 0 0 3px rgba(242, 166, 178, 0.1);
 }
 
-.form-group {
+/* 雙欄輸入欄排版（門市+店號） */
+.input-row {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 15px;
+}
+
+/* 物流品牌卡片切換 */
+.shipping-radio-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.radio-card {
+    border: 1px solid #EFECE8;
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    background-color: #FAF9F6;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.radio-card input[type="radio"] {
+    display: none; 
+}
+
+/* 客製化韓系粉色單選鈕 */
+.radio-custom {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #D5CDCC;
+    border-radius: 50%;
+    display: inline-block;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.radio-card input[type="radio"]:checked + .radio-custom {
+    border-color: var(--baby-pink);
+}
+
+.radio-card input[type="radio"]:checked + .radio-custom::after {
+    content: "";
+    width: 10px;
+    height: 10px;
+    background-color: var(--baby-pink);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.radio-card input[type="radio"]:checked {
+    background-color: #FFFFFF;
+}
+
+.radio-card:has(input[type="radio"]:checked) {
+    border-color: var(--baby-pink);
+    background-color: #FFFFFF;
+    box-shadow: 0 4px 12px rgba(242, 166, 178, 0.06);
+}
+
+.radio-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.store-brand {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.store-desc {
+    font-size: 11px;
+    color: var(--text-gray);
+    margin-top: 2px;
+}
+
+/* 匯款提示框 */
+.bank-info-alert {
+    background-color: #FFFBF4;
+    border: 1px dashed #F5E6CC;
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 13px;
+    color: #7A613B;
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+/* 提交按鈕 */
+.submit-form-btn {
+    width: 100%;
+    height: 50px;
+    background-color: var(--baby-pink);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(242, 166, 178, 0.25);
+    transition: all 0.25s ease;
+}
+
+.submit-form-btn:hover {
+    background-color: #f294a5;
+    transform: translateY(-1px);
+}
+
+.submit-form-btn:disabled {
+    background-color: #D5CDCC;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* ==========================================================================
+   右側：商品摘要核對區樣式
+   ========================================================================== */
+.checkout-summary-box {
+    background-color: #FFFFFF;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.01);
+    border: 1px solid #EFECE8;
+    position: sticky;
+    top: 20px; 
+}
+
+.summary-box-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #FAF9F6;
+}
+
+.mini-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 280px;
+    overflow-y: auto; 
+    padding-right: 5px;
     margin-bottom: 20px;
 }
 
-.form-group label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 8px; /* [cite: 8] */
-    font-size: 0.95rem;
-}
-
-.form-group input, .form-group select {
-    width: 100%;
-    padding: 12px 15px;
-    border: 2px dashed var(--baby-pink); /* [cite: 9] */
-    border-radius: 15px;
-    background: rgba(255, 255, 255, 0.7);
-    font-family: inherit;
-    font-size: 1rem; /* [cite: 10] */
-    color: var(--text-main);
-    outline: none;
-    transition: all 0.3s; /* [cite: 11] */
-}
-
-.form-group input:focus, .form-group select:focus {
-    background: #ffffff;
-    border-style: solid;
-    box-shadow: 0 0 8px rgba(242, 166, 178, 0.2); /* [cite: 12] */
-}
-
-/* --- 4. 右側滑動明細區 (隱藏捲軸) --- */
-.cart-right-panel {
-    width: 60%;
-    height: calc(100vh - 80px);
-    overflow-y: scroll; /* [cite: 13] */
-    scrollbar-width: none;      /* Firefox 隱藏捲軸 */
+/* 迷你版小商品卡片 */
+.mini-prod-item {
     display: flex;
-    flex-direction: column;
-    gap: 25px; /* [cite: 14] */
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed #FAF9F6;
 }
 
-.cart-right-panel::-webkit-scrollbar {
-    display: none; /* [cite: 15] */
+.mini-prod-img {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+    background-color: #FAF9F6;
+    border: 1px solid #F5F2ED;
+    flex-shrink: 0;
 }
 
-/* 【右上方】粉紅便籤計算區 */
-.memo-card-main2 {
-    /* 【破圖修正】：路徑回歸正確的一層退回 */
-    background: url('../../images/ui/cart_memo_main2.png') no-repeat center top;
-    background-size: 100% 100%;
-    padding: 35px;
-    position: relative;
-    min-height: 250px; /* [cite: 16] */
+.mini-prod-info {
+    flex-grow: 1;
 }
 
-.panel-title {
-    font-size: 1.3rem;
-    color: var(--baby-pink);
-    margin-bottom: 20px; /* [cite: 17] */
+.mini-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-main);
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
-/* 計算清單單筆項目 */
-.summary-item-row {
+.mini-spec {
+    font-size: 11px;
+    color: var(--text-gray);
+    margin-top: 2px;
+}
+
+.mini-price {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+/* 計費總覽區 */
+.price-calc-area {
+    background-color: #FAF9F6;
+    border-radius: 10px;
+    padding: 16px;
+}
+
+.calc-row {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px dashed rgba(90, 75, 65, 0.1); /* [cite: 18] */
+    font-size: 13px;
+    color: var(--text-gray);
+    margin-bottom: 10px;
 }
 
-.item-meta-txt {
-    font-size: 0.95rem; /* [cite: 19] */
+.calc-row:last-child {
+    margin-bottom: 0;
 }
 
-/* 即時加減數量按鈕組 */
-.quantity-control-set {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+.price-calc-area .divider {
+    height: 1px;
+    background-color: #EFECE8;
+    margin: 12px 0;
 }
 
-.qty-btn {
-    width: 26px;
-    height: 26px; /* [cite: 20] */
-    border-radius: 50%;
-    border: 1px solid var(--text-main);
-    background: white;
-    cursor: pointer;
-    font-weight: bold;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: all 0.2s; /* [cite: 21] */
+.total-row {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-main);
 }
 
-.qty-btn:hover {
-    background: var(--baby-pink);
-    color: white;
-    border-color: var(--baby-pink); /* [cite: 22] */
+.pink-total {
+    font-size: 20px;
+    color: var(--baby-pink);
 }
 
-/* 結帳動作組合區 */
-.checkout-action-area {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    margin-top: 30px;
-    gap: 15px; /* [cite: 23] */
-}
-
-.submit-order-btn {
-    background: transparent;
-    cursor: pointer;
-    transition: transform 0.2s;
-    border: none !important;    /* 防止部分瀏覽器原生黑框 */
-    outline: none !important;
-}
-
-.submit-order-btn:hover {
-    transform: scale(1.08) rotate(-2deg); /* [cite: 24] */
-}
-
-.submit-order-btn img {
-    width: 110px;
-    display: block;
-}
-
-/* 總計價格標籤貼紙 */
-.total-price-tag {
-    width: 140px;
-    height: 60px; /* [cite: 25] */
-    /* 【破圖修正】：路徑回歸正確的一層退回 */
-    background: url('../../images/ui/cart_price_tag.png') no-repeat center center;
-    background-size: contain;
-    display: flex;
-    justify-content: center;
-    align-items: center; /* [cite: 26] */
-}
-
-#order-total-price {
-    font-family: 'StarPanda', sans-serif;
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: #ffffff;
-    padding-top: 4px; /* [cite: 27] */
-}
-
-/* 【右下方】薄荷綠便籤詳細區 (拼接彈性拉長) */
-.memo-card-main3-dynamic {
-    display: flex;
-    flex-direction: column; /* [cite: 28] */
-}
-
-.memo3-top-bg {
-    height: 40px;
-    /* 【破圖修正】：路徑回歸正確的一層退回 */
-    background: url('../../images/ui/cart_memo_main3.png') no-repeat center top;
-    background-size: 100% auto; /* [cite: 29] */
-}
-
-.memo3-content-body {
-    /* 【破圖修正】：路徑回歸正確的一層退回 */
-    background: url('../../images/ui/cart_memo_main4.png') repeat-y center top;
-    background-size: 100% auto;
-    padding: 10px 40px; /* [cite: 30] */
-}
-
-.memo3-bottom-bg {
-    height: 40px;
-    /* 【破圖修正】：路徑回歸正確的一層退回 */
-    background: url('../../images/ui/cart_memo_main3.png') no-repeat center bottom;
-    background-size: 100% auto;
-    transform: rotate(180deg); /* [cite: 31] */
-}
-
-.panel-title-green {
-    font-size: 1.3rem;
-    color: #8cb8b0;
-    margin-bottom: 20px; /* [cite: 32] */
-}
-
-/* 詳細圖文商品卡 */
-.detail-item-card {
-    display: flex;
-    gap: 20px;
-    background: rgba(255, 255, 255, 0.5);
-    border-radius: 18px;
-    padding: 15px;
-    margin-bottom: 15px; /* [cite: 33] */
-}
-
-.detail-card-img {
-    width: 80px;
-    height: 106px; /* [cite: 34] */
-    object-fit: cover;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05); /* [cite: 35] */
-}
-
-.detail-card-info {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 5px;
-}
-
-.detail-card-name {
-    font-weight: 600;
-    font-size: 1rem; /* [cite: 36] */
-}
-
-.detail-card-specs {
-    font-size: 0.85rem;
-    color: var(--text-gray); /* [cite: 37] */
-}
-
-/* --- 5. 平板與手機版斷點排版 (RWD 佈局切換) --- */
+/* ==========================================================================
+   手機版響應式結構調整 (RWD)
+   ========================================================================== */
 @media (max-width: 768px) {
-    .cart-wrapper {
-        flex-direction: column;
-        margin: 10px auto; /* [cite: 38] */
+    .cart-content-grid {
+        grid-template-columns: 1fr; 
+        gap: 20px;
     }
-    .cart-left-panel, .cart-right-panel {
-        width: 100%;
-        position: relative; /* [cite: 39] */
-        top: 0;
-        height: auto;
+    
+    .checkout-summary-box {
+        position: static; 
+        order: -1; 
+    }
+    
+    .input-row {
+        grid-template-columns: 1fr; 
+        gap: 0;
+    }
+    
+    .form-section {
+        padding: 16px;
     }
 }

@@ -1,0 +1,105 @@
+/* 全螢幕置中佈局 */
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* 核心精緻查單卡片 */
+.search-container {
+    background-color: #FFFFFF;
+    padding: 50px 35px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(242, 166, 178, 0.15); /* 帶有品牌粉的溫柔陰影 */
+    width: 100%;
+    max-width: 450px;
+    text-align: center;
+    border: 1px solid rgba(242, 166, 178, 0.2);
+}
+
+.brand-logo {
+    font-size: 100px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 6px;
+    letter-spacing: 2px;
+}
+
+.brand-subtitle {
+    font-size: 14px;
+    color: var(--text-gray);
+    margin-bottom: 35px;
+    letter-spacing: 1px;
+}
+
+.welcome-text {
+    font-size: 15px;
+    margin-bottom: 30px;
+    line-height: 1.7;
+    font-weight: 400;
+    color: #555;
+}
+
+.input-group {
+    margin-bottom: 25px;
+}
+
+/* 韓系質感舒適輸入框 */
+.search-input {
+    width: 100%;
+    padding: 16px 20px;
+    font-size: 16px;
+    border: 2px solid #EFECE8;
+    border-radius: 12px;
+    outline: none;
+    transition: all 0.3s ease;
+    text-align: center;
+    color: var(--text-main);
+    background-color: #FAF9F6;
+}
+
+.search-input:focus {
+    border-color: var(--baby-pink);
+    background-color: #FFFFFF;
+    box-shadow: 0 0 12px rgba(242, 166, 178, 0.3);
+}
+
+/* 覆寫與擴充通用按鈕樣式 */
+.search-btn {
+    width: 100%;
+    font-size: 16px;
+    color: #FFFFFF;
+    background-color: var(--baby-pink);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(242, 166, 178, 0.3);
+    letter-spacing: 1px;
+}
+
+.search-btn:active {
+    transform: scale(0.99);
+}
+
+.footer-note {
+    font-family: 'CutieStar', var(--font-main); 
+    font-size: 20px; 
+    color: var(--text-gray);
+    margin-top: 35px;
+    border-top: 1px dashed #EFECE8;
+    padding-top: 15px;
+    letter-spacing: 0.5px; 
+}
+
+/* 手機版 RWD 的微調 */
+@media (max-width: 480px) {
+    .search-container {
+        padding: 40px 20px;
+    }
+    .brand-logo {
+        font-size: 28px;
+    }
+    .welcome-text {
+        font-size: 14px;
+    }
+}

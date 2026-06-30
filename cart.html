@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>收件資訊</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="./assets/css/global.css">
+    <link rel="stylesheet" href="./assets/css/cart.css">
+</head>
+<body>
+
+    <div id="falling-container"></div>
+
+    <div class="cart-wrapper">
+        <div class="cart-header">
+            <div class="back-to-detail" onclick="location.href='detail.html?id=' + localStorage.getItem('aifang_orderId')">❮ 返回修改商品</div>
+            <h1 class="cart-title">填寫配送與匯款資料</h1>
+            <p class="cart-subtitle">您的單號：<span id="checkout-order-id" class="order-highlight">-</span></p>
+        </div>
+
+        <div class="cart-content-grid">
+            
+            <form id="order-submit-form" onsubmit="submitOrderForm(event)" class="checkout-form">
+                
+                <div class="form-section">
+                    <h2 class="section-title">訂購人基本資料</h2>
+                    
+                    <div class="input-group">
+                        <label for="client-line-name">LINE 名稱 <span class="required">*</span></label>
+                        <input type="text" id="client-line-name" name="client_line_name" placeholder="請輸入您的 LINE 名稱" required autocomplete="username">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="receiver-name">收件人姓名 <span class="required">*</span></label>
+                        <input type="text" id="receiver-name" name="receiver_name" placeholder="請輸入收件人真實姓名" required autocomplete="name">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="receiver-phone">手機號碼 <span class="required">*</span></label>
+                        <input type="tel" id="receiver-phone" name="receiver_phone" placeholder="請輸入收件人行動電話" pattern="09\d{8}" required autocomplete="tel">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="client-email">電子信箱 <span class="note-lbl">*</span></label>
+                        <input type="email" id="client-email" name="client_email" placeholder="example@gmail.com" autocomplete="email">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2 class="section-title">選擇配送超商</h2>
+                    
+                    <div class="shipping-radio-group">
+                        <label class="radio-card">
+                            <input type="radio" name="shipping_method" id="ship-711" value="0" checked>
+                            <span class="radio-custom"></span>
+                            <div class="radio-text">
+                                <span class="store-brand">7-11 店到店</span>
+                            </div>
+                        </label>
+
+                        <label class="radio-card">
+                            <input type="radio" name="shipping_method" id="ship-family" value="0">
+                            <span class="radio-custom"></span>
+                            <div class="radio-text">
+                                <span class="store-brand">全家 店到店</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div id="section-711-store" class="sub-store-section">
+                        <div class="input-row">
+                            <div class="input-group">
+                                <label for="store-711-name">7-11 門市名稱 <span class="required">*</span></label>
+                                <input type="text" id="store-711-name" name="store_711_name" placeholder="例如：美村門市">
+                            </div>
+                            <div class="input-group">
+                                <label for="store-711-code">6 位數店號 <span class="required">*</span></label>
+                                <input type="text" id="store-711-code" name="store_711_code" placeholder="例如：142857" maxlength="6" pattern="\d{6}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="section-family-store" class="sub-store-section" style="display: none;">
+                        <div class="input-row">
+                            <div class="input-group">
+                                <label for="store-family-name">全家 門市名稱 <span class="required">*</span></label>
+                                <input type="text" id="store-family-name" name="store_family_name" placeholder="例如：新和店">
+                            </div>
+                            <div class="input-group">
+                                <label for="store-family-code">5 位數服務代號 <span class="required">*</span></label>
+                                <input type="text" id="store-family-code" name="store_family_code" placeholder="例如：01357" maxlength="5" pattern="\d{5}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2 class="section-title">匯款核對資訊</h2>
+                    <div class="bank-info-alert">
+                        <strong>我們的匯款帳號：</strong><br>
+                        玉山銀行 (808) 帳號：xxxx-xxxx-xxxx<br>
+                        請確認金額正確並完成轉帳後，於下方填入後五碼唷！
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="bank-last5">您的帳號後五碼 <span class="required">*</span></label>
+                        <input type="text" id="bank-last5" name="bank_last5" placeholder="請輸入您轉出帳號的後 5 位數字" maxlength="5" pattern="\d{5}" required>
+                    </div>
+                </div>
+
+                <button type="submit" id="submit-order-btn" class="submit-form-btn">
+                    確認無誤，提交系統核對
+                </button>
+            </form>
+
+            <div class="checkout-summary-box">
+                <h2 class="summary-box-title">本次結帳商品摘要</h2>
+                
+                <div id="checkout-summary-list" class="mini-list-container"></div>
+                
+                <div class="price-calc-area">
+                    <div class="calc-row">
+                        <span>商品小計</span>
+                        <span id="summary-items-subtotal">NT$ 0</span>
+                    <div class="divider"></div>
+                    <div class="calc-row total-row">
+                        <span>應付總合計</span>
+                        <span id="summary-final-total" class="pink-total">NT$ 0</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/articles.js"></script>
+</body>
+</html>
