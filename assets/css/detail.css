@@ -44,6 +44,211 @@
     color: #c47a55;
 }
 
+/* ==========================================================================
+   🧸 璦坊童裝 bellot_detail.html 專屬外掛樣式簿 (奶油粉韓系)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'jf-openhuninn', 'Noto Sans TC', sans-serif;
+  background-color: #fdfbf7;
+  color: #5a4b41;
+  line-height: 1.6;
+}
+
+/* ✨ 全新頂部大分類與品牌導覽列 */
+.shop-header-nav {
+  background-color: #fff;
+  border-bottom: 1px solid #f3dcd4;
+  padding: 15px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 10px rgba(124,83,67,0.03);
+}
+
+.nav-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.brand-logo {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #7c5343;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* 大分類按鈕群 */
+.main-categories {
+  display: flex;
+  gap: 12px;
+}
+
+.category-link {
+  text-decoration: none;
+  color: #8a766a;
+  font-size: 0.95rem;
+  padding: 6px 14px;
+  border-radius: 15px;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.category-link:hover {
+  background-color: #faf0ec;
+  color: #7c5343;
+}
+
+/* 小分類品牌下拉選單 */
+.brand-selector-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-label {
+  font-size: 0.85rem;
+  color: #a38c81;
+}
+
+.brand-select {
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid #eedfd8;
+  font-family: inherit;
+  color: #5a4b41;
+  background-color: #fff;
+  outline: none;
+  cursor: pointer;
+}
+
+.brand-select:focus {
+  border-color: #e8baa1;
+}
+
+/* 商品詳情主要區塊 */
+.detail-container {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 0 20px;
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.image-section {
+  flex: 1;
+  min-width: 350px;
+}
+
+.main-img {
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(124,83,67,0.08);
+  transition: src 0.3s ease;
+}
+
+.info-section {
+  flex: 1;
+  min-width: 350px;
+}
+
+.prod-title {
+  font-size: 1.6rem;
+  color: #7c5343;
+  margin-bottom: 10px;
+}
+
+.prod-price {
+  font-size: 1.4rem;
+  color: #c05050;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.spec-title {
+  font-size: 0.95rem;
+  color: #8a766a;
+  margin: 15px 0 8px 0;
+  font-weight: bold;
+}
+
+.spec-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+/* 衣服規格按鈕 */
+.spec-btn {
+  padding: 8px 16px;
+  background-color: #fff;
+  border: 1px solid #eedfd8;
+  border-radius: 20px;
+  color: #5a4b41;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.spec-btn:hover {
+  border-color: #e8baa1;
+  background-color: #fffbf9;
+}
+
+.spec-btn.active {
+  background-color: #e8baa1;
+  border-color: #e8baa1;
+  color: #fff;
+  font-weight: bold;
+  box-shadow: 0 2px 6px rgba(232,186,161,0.4);
+}
+
+.note-box {
+  margin-top: 25px;
+  background-color: #faf5f2;
+  border-left: 4px solid #e8baa1;
+  padding: 15px;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.9rem;
+  color: #7c685c;
+  white-space: pre-line;
+}
+
+.action-btn {
+  width: 100%;
+  padding: 14px;
+  background-color: #b7c7b5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: bold;
+  margin-top: 20px;
+  transition: background 0.2s;
+}
+
+.action-btn:hover { background-color: #9fb39c; }
+.action-btn:disabled { background-color: #ccc; cursor: not-allowed; }
+
 /* 商品卡片雙列網格系統 */
 .product-grid {
     display: grid;

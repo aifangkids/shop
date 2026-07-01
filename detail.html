@@ -1,51 +1,64 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aifang kids</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aifang kids</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="./assets/css/global.css">
     <link rel="stylesheet" href="./assets/css/detail.css">
 </head>
 <body>
 
-    <div id="falling-container"></div>
+  <!-- ✨ 全新頂部導覽列：解決問題 1，客人可直接在此選擇大分類與品牌小分類 -->
+  <nav class="shop-header-nav">
+    <div class="nav-container">
+      <a class="brand-logo" href="detail.html">🧸 AiFang Studio</a>
+      
+      <!-- 大分類框選項 -->
+      <div class="main-categories">
+        <a href="detail.html?category=TOP" class="category-link">TOP</a>
+        <a href="detail.html?category=BOTTOM" class="category-link">BOTTOM</a>
+        <a href="detail.html?category=SET" class="category-link">SET</a>
+        <a href="detail.html?category=BEBE" class="category-link">BEBE</a>
+        <a href="detail.html?category=ACC" class="category-link">ACC</a>
+      </div>
 
-    <div class="detail-wrapper">
-        <header class="client-header">
-            <div class="header-info">
-                <span class="welcome-tag">Welcome to AIFANG KIDS</span>
-                <div class="user-uid-badge">訂單編號：<span id="txt-user-uid">載入中</span></div>
-            </div>
-        </header>
+      <!-- 小分類：品牌欄位選單 -->
+      <div class="brand-selector-box">
+        <span class="brand-label">BRAND：</span>
+        <select id="brand-nav-select" class="brand-select" onchange="navigateToBrand(this)">
+          <option value="">請選擇BRAND</option>
+          <!-- 這裡會由 JS 自動從雲端大表撈出目前所有有上架的品牌放進來 -->
+        </select>
+      </div>
+    </div>
+  </nav>
 
-        <main class="products-main">
-            <div id="catalog-loading" class="catalog-status">
-                <div class="sub-spinner"></div>
-                <p>🐾 正在從韓國搬運漂亮衣服中</p>
-            </div>
-
-            <div id="catalog-empty" class="catalog-status hidden">
-                <p>衣服正在打包準備上架中，敬請期待</p>
-            </div>
-
-            <div id="product-grid" class="product-grid hidden"></div>
-        </main>
+  <!-- 商品詳情核心艙 -->
+  <main class="detail-container">
+    <div class="image-section">
+      <img id="main-product-img" class="main-img" src="" alt="商品主圖載入中">
     </div>
 
-    <div id="sticky-cart-bar" class="sticky-cart-bar hidden">
-        <div class="cart-bar-container">
-            <div class="cart-summary">
-                <span class="summary-label">已選商品</span>
-                <span id="total-qty-badge" class="summary-count">0</span>
-                <span class="summary-unit">件</span>
-            </div>
-            <button id="btn-go-cart" class="btn-common btn-next-step">
-                🛒 前往購物車結帳 ➔
-            </button>
-        </div>
+    <div class="info-section">
+      <h1 id="product-title" class="prod-title">加載中</h1>
+      <div id="product-price" class="prod-price">$-</div>
+      
+      <hr style="border: 0; border-top: 1px solid #f3dcd4; margin: 20px 0;">
+
+      <div class="spec-title">選擇顏色</div>
+      <div id="color-options" class="spec-group"></div>
+
+      <div class="spec-title">選擇尺寸</div>
+      <div id="size-options" class="spec-group"></div>
+
+      <div class="spec-title">介紹</div>
+      <div id="product-note" class="note-box"></div>
+
+      <button id="add-to-cart-btn" class="action-btn" onclick="handleAddToCart()">🛒 加入購物車並前往結帳</button>
     </div>
+  </main>
 
     <script src="js/detail.js"></script>
     <script src="js/articles.js"></script>

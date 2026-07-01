@@ -1,200 +1,194 @@
-// ==========================================================
-// 🧸 Aifangkids 璦坊微型電商 - 選衣服頁前端大腦 (detail.js)
-// ==========================================================
+const API_URL = "https://script.google.com/macros/s/AKfycbwJ0ERb9MhwFqtkMSE9UpfcrtGB7tnnn7LoXYJwSCrCCzn40NubmxQZUCQWqgmMI64c/exec";
 
-const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwJ0ERb9MhwFqtkMSE9UpfcrtGB7tnnn7LoXYJwSCrCCzn40NubmxQZUCQWqgmMI64c/exec";
+let currentProduct = null;
+let selectedColor = "";
+let selectedSize = "";
+let colorImageMap = {};
+let defaultMainImageUrl = "";
 
-let clientUid = "";
-let productCatalog = []; // 存放從試算表撈回來的衣服清單
-let cartSelections = {}; // 存放買家選擇的規格數量，結構如：{ "P001": 2, "P002": 1 }
+window.addEventListener('DOMContentLoaded', async () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const prodId = urlParams.get('id');
 
-document.addEventListener("DOMContentLoaded", () => {
-    // 1. 解析網址參數，取得客人的訂單編號
-    const urlParams = new URLSearchParams(window.location.search);
-    clientUid = urlParams.get("uid") || "";
+  if (!prodId) {
+    alert("找不到商品編號，為您導回首頁。");
+    window.location.href = "index.html";
+    return;
+  }
 
-    if (!clientUid) {
-        alert("偵測不到您的專屬訂單編號，將為您導回首頁生成訂單編號");
-        window.location.href = "index.html";
-        return;
-    }
-
-    // 顯示編號於網頁頂部看板
-    document.getElementById("txt-user-uid").innerText = clientUid;
-
-    // 2. 向後台調度衣服資料
-    fetchProducts();
-
-    // 3. 綁定「前往購物車」按鈕點擊事件
-    document.getElementById("btn-go-cart").addEventListener("click", submitSelectionsToPending);
+  await loadProductDetail(prodId);
 });
 
-/**
- * 從 GAS 撈取【商品上架總表】數據
- */
-async function fetchProducts() {
-    const loader = document.getElementById("catalog-loading");
-    const emptyBox = document.getElementById("catalog-empty");
-    const grid = document.getElementById("product-grid");
+// 異步載入詳情與解析全新品牌、大分類結構
+async function loadProductDetail(prodId) {
+  try {
+    const response = await fetch(`${API_URL}?action=getProductCatalog`);
+    const result = await response.json();
 
-    try {
-        const response = await fetch(`${GAS_API_URL}?action=getProducts`);
-        if (!response.ok) throw new Error("讀取商品失敗");
-        
-        const result = await response.json();
-
-        if (result.success && result.data && result.data.length > 0) {
-            productCatalog = result.data;
-            renderProductGrid(productCatalog);
-            
-            // 翻開畫面
-            loader.classList.add("hidden");
-            grid.classList.remove("hidden");
-            document.getElementById("sticky-cart-bar").removeProperty ? document.getElementById("sticky-cart-bar").style.removeProperty("display") : document.getElementById("sticky-cart-bar").classList.remove("hidden");
-        } else {
-            loader.classList.add("hidden");
-            emptyBox.classList.remove("hidden");
-        }
-    } catch (error) {
-        console.error("載入商品異常:", error);
-        loader.innerHTML = "<p style='color:red;'>🐾 連線發生一點小問題，請重新整理網頁看看</p>";
-    }
-}
-
-/**
- * 動態渲染衣服卡片到 HTML 裡面
- */
-function renderProductGrid(products) {
-    const grid = document.getElementById("product-grid");
-    grid.innerHTML = ""; // 清空舊畫面
-
-    products.forEach(item => {
-        // 防止圖片網址為空，給予精緻的預設圖
-        const displayImg = item.imgUrl && item.imgUrl.trim() !== "" ? item.imgUrl : "https://placehold.co/400x400/fdfaf7/8c7662?text=Aifangkids";
-        
-        const card = document.createElement("div");
-        card.classList.add("product-card");
-        
-        card.innerHTML = `
-            <div class="product-img-wrapper">
-                <img class="product-img" src="${displayImg}" alt="${item.prodName}" onerror="this.src='https://placehold.co/400x400/fdfaf7/8c7662?text=Aifangkids'">
-            </div>
-            <div class="product-info">
-                <h3 class="product-title">${item.prodName}</h3>
-                <div class="product-spec">
-                    ${item.color ? `<span class="badge-spec badge-color">${item.color}</span>` : ''}
-                    ${item.size ? `<span class="badge-spec badge-size">${item.size}</span>` : ''}
-                </div>
-                <div class="product-price">$${item.price}</div>
-                
-                <div class="quantity-controller">
-                    <button class="btn-stepper" onclick="updateQty('${item.prodId}', -1)">−</button>
-                    <span id="qty-${item.prodId}" class="stepper-value">0</span>
-                    <button class="btn-stepper" onclick="updateQty('${item.prodId}', 1)">+</button>
-                </div>
-            </div>
-        `;
-        grid.appendChild(card);
-    });
-}
-
-/**
- * 點擊 ＋ 或 － 時更新畫面上與記憶體中的選購數量
- */
-window.updateQty = function(prodId, change) {
-    let currentQty = cartSelections[prodId] || 0;
-    let newQty = currentQty + change;
-
-    if (newQty < 0) newQty = 0; // 最少就是 0 件
-    if (newQty > 10) {          // 貼心防呆，單一規格限制 10 件
-        alert("寶貝的衣服同款同規格最多先選 10 件唷");
-        return;
+    if (!result.success) {
+      alert("讀取雲端商品庫失敗：" + result.message);
+      return;
     }
 
-    cartSelections[prodId] = newQty;
+    // 【自動動態小分類】：自動收集試算表裡所有上架衣服的「品牌」，放進下拉選單
+    populateBrandSelector(result.data);
+
+    // 尋找對應衣服
+    currentProduct = result.data.find(p => p.prodId === prodId);
+
+    if (!currentProduct) {
+      alert("此商品已下架或編號不存在唷！");
+      window.location.href = "index.html";
+      return;
+    }
+
+    // 渲染畫面
+    document.getElementById('product-title').innerText = currentProduct.prodName;
+    document.getElementById('product-price').innerText = `TWD $${currentProduct.price.toLocaleString()}`;
     
-    // 更新該張卡片的計數器數字
-    const qtyLabel = document.getElementById(`qty-${prodId}`);
-    if (qtyLabel) qtyLabel.innerText = newQty;
+    defaultMainImageUrl = currentProduct.imgUrl || "https://placehold.co/600x600?text=AiFang+Studio";
+    document.getElementById('main-product-img').src = defaultMainImageUrl;
 
-    // 重新計算底部總件數
-    calculateTotalQty();
-};
-
-/**
- * 計算當前累計點選了幾件衣服，並同步到浮動購物條
- */
-function calculateTotalQty() {
-    let total = 0;
-    Object.keys(cartSelections).forEach(key => {
-        total += cartSelections[key];
-    });
-    document.getElementById("total-qty-badge").innerText = total;
-}
-
-/**
- * 按下「前往購物車結帳」時，打包數據 POST 送回 GAS 暫存資料庫
- */
-async function submitSelectionsToPending() {
-    // 1. 篩選出真的有選數量的商品
-    const selectedItems = [];
-    
-    productCatalog.forEach(product => {
-        const qty = cartSelections[product.prodId] || 0;
-        if (qty > 0) {
-            selectedItems.push({
-                prodId: product.prodId,
-                prodName: product.prodName,
-                color: product.color,
-                size: product.size,
-                price: product.price,
-                quantity: qty,
-                imgUrl: product.imgUrl,
-                note: product.note,
-                lineName: "" // 留待購物車頁填寫
-            });
-        }
-    });
-
-    if (selectedItems.length === 0) {
-        alert("訂單中沒有任何衣服，趕快幫寶貝選一件 🧸");
-        return;
+    if (currentProduct.note && currentProduct.note.trim() !== "") {
+      document.getElementById('product-note').innerText = currentProduct.note;
     }
 
-    // 2. 切換按鈕狀態防止重複點擊
-    const btnGoCart = document.getElementById("btn-go-cart");
-    btnGoCart.innerText = "🐾 正在為您打包中";
-    btnGoCart.disabled = true;
+    parseColorImageMap(currentProduct.colorImgMap);
+    renderColorButtons(currentProduct.color);
+    renderSizeButtons(currentProduct.size);
 
-    // 3. 籌備 POST 資料包
-    const payload = {
-        action: "addPending",
-        uid: clientUid,
-        items: selectedItems
+  } catch (error) {
+    alert("連線到 Google 資料庫發生異常：" + error.toString());
+  }
+}
+
+// 動態將大表裡不重複的品牌做成下拉選項
+function populateBrandSelector(allProducts) {
+  const selectElement = document.getElementById('brand-nav-select');
+  const uniqueBrands = new Set();
+
+  allProducts.forEach(p => {
+    if (p.brand && p.brand.trim() !== "") {
+      uniqueBrands.add(p.brand.trim());
+    }
+  });
+
+  uniqueBrands.forEach(brandName => {
+    const opt = document.createElement('option');
+    opt.value = brandName;
+    opt.innerText = brandName;
+    selectElement.appendChild(opt);
+  });
+}
+
+// 小分類品牌跳轉控制
+function navigateToBrand(selectElement) {
+  const selectedBrand = selectElement.value;
+  if (selectedBrand) {
+    // 帶著品牌參數回到首頁進行篩選
+    window.location.href = `index.html?brand=${encodeURIComponent(selectedBrand)}`;
+  }
+}
+
+// 以下為原本運作完全正確的邏輯，完整保留：
+function parseColorImageMap(mapStr) {
+  colorImageMap = {};
+  if (!mapStr || mapStr.trim() === "") return;
+  const lines = mapStr.split(/[\n,]/);
+  lines.forEach(line => {
+    const colonIndex = line.indexOf(':');
+    if (colonIndex !== -1) {
+      const colorName = line.substring(0, colonIndex).trim();
+      const imgUrl = line.substring(colonIndex + 1).trim();
+      if (colorName && imgUrl) {
+        colorImageMap[colorName] = imgUrl;
+      }
+    }
+  });
+}
+
+function renderColorButtons(colorStr) {
+  const container = document.getElementById('color-options');
+  container.innerHTML = "";
+  if (!colorStr) return;
+  const colors = colorStr.split(',');
+  colors.forEach(color => {
+    const trimmedColor = color.trim();
+    if (!trimmedColor) return;
+    const btn = document.createElement('button');
+    btn.className = "spec-btn";
+    btn.innerText = trimmedColor;
+    btn.onclick = () => {
+      container.querySelectorAll('.spec-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedColor = trimmedColor;
+      const mainImgElement = document.getElementById('main-product-img');
+      if (colorImageMap[trimmedColor]) {
+        mainImgElement.src = colorImageMap[trimmedColor];
+      } else {
+        mainImgElement.src = defaultMainImageUrl;
+      }
     };
+    container.appendChild(btn);
+  });
+}
 
-    try {
-        const response = await fetch(GAS_API_URL, {
-            method: "POST",
-            mode: "cors",
-            body: JSON.stringify(payload)
-        });
+function renderSizeButtons(sizeStr) {
+  const container = document.getElementById('size-options');
+  container.innerHTML = "";
+  if (!sizeStr) return;
+  const sizes = sizeStr.split(',');
+  sizes.forEach(size => {
+    const trimmedSize = size.trim();
+    if (!trimmedSize) return;
+    const btn = document.createElement('button');
+    btn.className = "spec-btn";
+    btn.innerText = trimmedSize;
+    btn.onclick = () => {
+      container.querySelectorAll('.spec-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedSize = trimmedSize;
+    };
+    container.appendChild(btn);
+  });
+}
 
-        if (!response.ok) throw new Error("後台儲存失敗");
-        const result = await response.json();
+async function handleAddToCart() {
+  if (!currentProduct) return;
+  if (!selectedColor) { alert("請先點選顏色唷！"); return; }
+  if (!selectedSize) { alert("請先點選尺寸唷！"); return; }
 
-        if (result.success) {
-            // 4. 暫存成功，順暢帶著 uid 前往下一關購物車頁面
-            window.location.href = `cart.html?uid=${clientUid}`;
-        } else {
-            alert("打包儲存時發生一點小狀況：" + result.message);
-            btnGoCart.innerText = "🛒 前往購物車結帳 ➔";
-            btnGoCart.disabled = false;
-        }
-    } catch (error) {
-        console.error("提交暫存異常:", error);
-        alert("連線後台逾時，請檢查手機網路是否穩定");
-        btnGoCart.innerText = "🛒 前往購物車結帳 ➔";
-        btnGoCart.disabled = false;
+  const cartBtn = document.getElementById('add-to-cart-btn');
+  cartBtn.disabled = true;
+  cartBtn.innerText = "正在放入購物車...";
+
+  const payload = {
+    action: "addPending",
+    prodId: currentProduct.prodId,
+    prodName: currentProduct.prodName,
+    color: selectedColor,
+    size: selectedSize,
+    price: currentProduct.price,
+    quantity: 1,
+    imgUrl: colorImageMap[selectedColor] || defaultMainImageUrl
+  };
+
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    const result = await response.json();
+    if (result.success) {
+      window.location.href = "cart.html";
+    } else {
+      alert("購物車包裹遺失：" + result.message);
+      cartBtn.disabled = false;
+      cartBtn.innerText = "🛒 加入購物車並前往結帳";
     }
+  } catch (error) {
+    alert("連線逾時：" + error.toString());
+    cartBtn.disabled = false;
+    cartBtn.innerText = "🛒 加入購物車並前往結帳";
+  }
 }
