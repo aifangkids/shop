@@ -3,374 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>訂單查詢</title>
+    <title>Aifang kids</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="./assets/css/global.css">
-    <link rel="stylesheet" href="./assets/css/detail.css">
-
-    <style>
-        /* 📌 修正字體載入路徑：由於網頁在根目錄，需改為 ./assets/fonts/ */
-        @font-face {
-            font-family: 'CutieStar';
-            src: url('./assets/fonts/Cutie-Star.ttf') format('truetype');
-            font-weight: normal;
-            font-style: normal;
-        }
-        @font-face {
-            font-family: 'NotoSansKR';
-            src: url('./assets/fonts/notosanskr-light.ttf') format('truetype');
-            font-weight: 300;
-        }
-        @font-face {
-            font-family: 'NotoSansKR';
-            src: url('./assets/fonts/notosanskr-regular.ttf') format('truetype');
-            font-weight: 400;
-        }
-
-        body {
-            background-color: var(--bg-main, #FFF9EF);
-            font-family: var(--font-main), 'PingFang TC', 'Microsoft JhengHei', sans-serif;
-            min-height: 100vh;
-            margin: 0;
-            padding: 40px 20px;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        /* 標題與手寫英文 */
-        .page-header {
-            text-align: center;
-            margin-bottom: 30px;
-            position: relative;
-            z-index: 10;
-        }
-        .page-title {
-            font-size: 24px;
-            color: var(--text-main, #333333);
-            font-weight: 700;
-            margin: 0 0 5px 0;
-        }
-        .page-subtitle {
-            font-family: 'CutieStar', sans-serif;
-            font-size: 28px;
-            color: var(--baby-pink, #f2a6b2);
-            margin: 0;
-        }
-
-        /* 查詢輸入卡片 */
-        .lookup-card, .result-card {
-            background: #FFFFFF;
-            max-width: 500px;
-            width: 100%;
-            border-radius: 24px;
-            padding: 30px 25px;
-            box-shadow: 0 10px 30px rgba(242, 166, 178, 0.08);
-            border: 1px solid rgba(242, 166, 178, 0.12);
-            box-sizing: border-box;
-            position: relative;
-            z-index: 10;
-            margin-bottom: 20px;
-        }
-
-        .input-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .input-group input {
-            flex: 1;
-            padding: 13px 16px;
-            border: 1px solid #E8E8E8;
-            border-radius: 12px;
-            font-size: 15px;
-            outline: none;
-            transition: border-color 0.25s ease;
-            background: #FAFAFA;
-        }
-
-        .input-group input:focus {
-            border-color: var(--baby-pink, #f2a6b2);
-            background-color: #FFFFFF;
-        }
-
-        .btn-search {
-            background-color: var(--baby-pink, #f2a6b2);
-            color: #FFFFFF;
-            border: none;
-            padding: 0 24px;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.25s ease;
-        }
-
-        .btn-search:hover {
-            background-color: #e395a1;
-        }
-
-        /* 查詢結果樣式 */
-        .result-card {
-            display: none; 
-        }
-
-        .status-badge {
-            display: inline-block;
-            background-color: #FFF0F2;
-            color: var(--baby-pink, #f2a6b2);
-            padding: 6px 16px;
-            border-radius: 50px;
-            font-size: 14px;
-            font-weight: 700;
-            margin-bottom: 20px;
-        }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px dashed #F5F5F5;
-            font-size: 14px;
-        }
-
-        .info-label {
-            color: var(--text-gray, #888888);
-        }
-
-        .info-value {
-            color: var(--text-main, #333333);
-            font-weight: 600;
-        }
-
-        /* 明細小商品卡 */
-        .detail-title {
-            font-size: 15px;
-            color: var(--text-main, #333333);
-            font-weight: 700;
-            margin: 25px 0 12px 0;
-            text-align: left;
-            border-left: 4px solid var(--baby-pink, #f2a6b2);
-            padding-left: 8px;
-        }
-
-        .item-mini-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #FFFBF7;
-            padding: 14px 15px;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            font-size: 14px;
-        }
-
-        .item-name-spec {
-            text-align: left;
-        }
-
-        .item-spec {
-            font-size: 12px;
-            color: var(--text-gray, #888888);
-            margin-top: 3px;
-        }
-
-        .item-qty {
-            font-weight: 700;
-            color: var(--baby-pink, #f2a6b2);
-            white-space: nowrap;
-            margin-left: 10px;
-        }
-
-        /* 📌 修正：補上飄落花瓣動畫的 CSS 骨架 */
-        @keyframes slowFall {
-            0% {
-                top: -20px;
-                opacity: 0;
-                transform: translateX(0) rotate(0deg);
-            }
-            10% {
-                opacity: 0.8;
-            }
-            90% {
-                opacity: 0.8;
-            }
-            100% {
-                top: 105vh;
-                opacity: 0;
-                transform: translateX(var(--drift-x)) rotate(var(--drift-rotate));
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="./assets/css/lookup.css">
 </head>
 <body>
 
-    <div class="page-header">
-        <h1 class="page-title">訂單查詢</h1>
-    </div>
+    <div id="falling-container"></div>
 
-    <div class="lookup-card">
-        <div style="font-size: 14px; color: var(--text-gray, #888888); text-align: left;">請輸入您的專屬訂單編號或收件人手機</div>
-        <div class="input-group">
-            <input type="text" id="search-id-input" placeholder="請輸入專屬訂單編號或收件人手機" autocomplete="off">
-            <button class="btn-search" id="btn-do-search" onclick="handleOrderLookup()">查詢</button>
+    <div class="lookup-wrapper">
+        
+        <header class="lookup-card search-box-card">
+            <h1 class="lookup-main-title">訂單進度查詢</h1>
+            <p class="lookup-sub-desc">請輸入您的【手機號碼】或【理貨單號 (例如: sh0001)】隨時追蹤最新動態與補填匯款資料</p>
+            
+            <form id="form-lookup" onsubmit="handleOrderLookup(event)">
+                <div class="search-input-group">
+                    <input type="text" id="ipt-keyword" class="lookup-input" placeholder="請輸入手機號碼或 sh 理貨單號" required>
+                    <button type="submit" id="btn-search" class="btn-lookup-submit">開始查詢 🔍</button>
+                </div>
+            </form>
+        </header>
+
+        <div id="lookup-loading" class="lookup-status-msg hidden">
+            <div class="lookup-spinner"></div>
+            <p>正在努力連線後台，幫您翻找預購明細中</p>
         </div>
+
+        <div id="lookup-empty" class="lookup-status-msg">
+            <p>🌸 請在上方輸入資料並按下查詢鈕</p>
+        </div>
+
+        <div id="lookup-results-container" class="hidden">
+            </div>
+
     </div>
 
-    <div class="result-card" id="lookup-result-section">
-        <div class="status-badge" id="res-status">已付款待核對</div>
-        
-        <div class="info-row"><span class="info-label">專屬訂單編號</span><span class="info-value" id="res-order-id">-</span></div>
-        <div class="info-row"><span class="info-label">LINE 名稱</span><span class="info-value" id="res-line-name">-</span></div>
-        <div class="info-row"><span class="info-label">收件人姓名</span><span class="info-value" id="res-receiver-name">-</span></div>
-        <div class="info-row"><span class="info-label">收件人手機</span><span class="info-value" id="res-phone">-</span></div>
-        <div class="info-row"><span class="info-label">取件門市資訊</span><span class="info-value" id="res-store">-</span></div>
-        <div class="info-row"><span class="info-label">匯款後五碼</span><span class="info-value" id="res-last-five">-</span></div>
-        <div class="info-row"><span class="info-label">訂單建立時間</span><span class="info-value" id="res-time">-</span></div>
-        <div class="info-row" style="border: none; margin-top: 5px;"><span class="info-label" style="font-weight: 700; color: #333;">訂單總金額</span><span class="info-value" id="res-total" style="color: var(--baby-pink, #f2a6b2); font-size: 16px;">NT$ 0</span></div>
-        
-        <div class="detail-title">預購明細</div>
-        <div id="res-items-container"></div>
-    </div>
-
-    <script src="js/api.js"></script>
     <script src="js/articles.js"></script>
 
     <script>
-        // 📌 智慧修復：將 ISO 格式時間精確轉換為台灣標準時間 (UTC+8) 格式
-        function formatTaiwanTime(timeStr) {
-            if (!timeStr) return "-";
-            if (typeof timeStr === 'string' && !timeStr.includes('T') && !timeStr.includes('Z')) {
-                return timeStr;
+        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwJ0ERb9MhwFqtkMSE9UpfcrtGB7tnnn7LoXYJwSCrCCzn40NubmxQZUCQWqgmMI64c/exec";
+
+        // 頁面載入時，自動檢查網址有沒有帶過來的單號
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const shippingId = urlParams.get("shippingId") || urlParams.get("uid");
+            if (shippingId) {
+                document.getElementById("ipt-keyword").value = shippingId;
+                executeLookup(shippingId);
             }
+        });
+
+        // 表單提交觸發
+        function handleOrderLookup(event) {
+            event.preventDefault();
+            const keyword = document.getElementById("ipt-keyword").value.trim();
+            if (!keyword) return;
+            executeLookup(keyword);
+        }
+
+        // 執行查詢主核心
+        async function executeLookup(keyword) {
+            const loader = document.getElementById("lookup-loading");
+            const emptyBox = document.getElementById("lookup-empty");
+            const resultsContainer = document.getElementById("lookup-results-container");
+            const btnSearch = document.getElementById("btn-search");
+
+            // 切換 UI 狀態
+            loader.classList.remove("hidden");
+            emptyBox.classList.add("hidden");
+            resultsContainer.classList.add("hidden");
+            resultsContainer.innerHTML = "";
+            btnSearch.disabled = true;
+
             try {
-                const date = new Date(timeStr);
-                if (isNaN(date.getTime())) return timeStr;
+                // 向 GAS 發送查詢請求 (對接您已部署好的新網址)
+                const response = await fetch(`${GAS_API_URL}?action=lookupOrder&keyword=${encodeURIComponent(keyword)}`);
+                if (!response.ok) throw new Error("網路連線異常");
                 
-                const yyyy = date.getFullYear();
-                const mm = String(date.getMonth() + 1).padStart(2, '0');
-                const dd = String(date.getDate()).padStart(2, '0');
-                const hh = String(date.getHours()).padStart(2, '0');
-                const min = String(date.getMinutes()).padStart(2, '0');
-                const ss = String(date.getSeconds()).padStart(2, '0');
-                
-                return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
-            } catch (e) {
-                return timeStr;
+                const result = await response.json();
+
+                if (result.success && result.data && result.data.length > 0) {
+                    renderOrderCards(result.data);
+                    resultsContainer.classList.remove("hidden");
+                } else {
+                    emptyBox.innerHTML = `❌ 找不到與「${keyword}」相關的訂單紀錄，請檢查號碼是否正確，或連繫 LINE 官方客服核對唷`;
+                    emptyBox.classList.remove("hidden");
+                }
+            } catch (error) {
+                console.error("查詢錯誤:", error);
+                emptyBox.innerHTML = "<p style='color:var(--accent-red);'>🐾 後台塞車中或網路不穩，請稍等幾秒後再試一次</p>";
+                emptyBox.classList.remove("hidden");
+            } finally {
+                loader.classList.add("hidden");
+                btnSearch.disabled = false;
             }
         }
 
-        document.addEventListener("DOMContentLoaded", () => {
-            const urlId = AifangAPI.getURLParameter("id");
-            if (urlId) {
-                document.getElementById("search-id-input").value = urlId;
-                handleOrderLookup(urlId);
-            }
-            
-            // 啟動浪漫飄落背景
-            setInterval(createPetal, 450);
-        });
+        // 動態渲染訂單卡片列表 (考量到一組手機號碼可能有多筆預購單)
+        function renderOrderCards(orders) {
+            const container = document.getElementById("lookup-results-container");
+            container.innerHTML = "";
 
-        async function handleOrderLookup(targetId) {
-            const inputId = targetId || document.getElementById("search-id-input").value.trim();
-            const btn = document.getElementById("btn-do-search");
-            const resultCard = document.getElementById("lookup-result-section");
+            orders.forEach(order => {
+                const card = document.createElement("div");
+                card.classList.add("lookup-card", "result-card");
 
-            if (!inputId) {
-                alert("請填寫專屬訂單編號或收件人手機再進行查詢");
+                // 依據訂單狀態決定標籤顏色與樣式
+                let statusClass = "status-unpaid";
+                let statusText = order.status || "未付款";
+                if (statusText === "已確認" || statusText === "已對帳") statusClass = "status-confirmed";
+                if (statusText === "已出貨") statusClass = "status-shipped";
+
+                // 計算衣服總件數與總額 (相容後台格式)
+                let totalQty = order.totalQty || 0;
+                let totalAmount = order.totalAmount || 0;
+                
+                // 建立衣服小明細區塊
+                let itemsHtml = "";
+                if (order.items && order.items.length > 0) {
+                    itemsHtml = `<div class="lookup-items-summary"><strong>📦 預購明細：</strong><ul class="mini-item-list">`;
+                    order.items.forEach(item => {
+                        itemsHtml += `<li>${item.prodName} (${item.color || '無'}/${item.size || '無'}) x ${item.quantity}</li>`;
+                    });
+                    itemsHtml += `</ul></div>`;
+                }
+
+                // 建立補填匯款後五碼區塊
+                let lastFiveHtml = "";
+                if (statusText === "未付款") {
+                    lastFiveHtml = `
+                        <div class="update-bank-box" id="bank-box-${order.shippingId}">
+                            <div class="update-bank-title">💰 補填匯款後五碼</div>
+                            <div class="update-bank-row">
+                                <input type="text" id="ipt-five-${order.shippingId}" class="lookup-input-mini" placeholder="後5碼" maxlength="5" value="${order.lastFive || ''}">
+                                <button onclick="submitLastFive('${order.shippingId}')" id="btn-five-${order.shippingId}" class="btn-lookup-mini">送出更新</button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    lastFiveHtml = order.lastFive ? `<p class="order-meta-line"><strong>匯款後五碼：</strong>已填寫 (${order.lastFive})</p>` : "";
+                }
+
+                card.innerHTML = `
+                    <div class="result-card-header">
+                        <div class="result-ship-id">🚚 單號：<span>${order.shippingId || '核對中'}</span></div>
+                        <div class="status-badge ${statusClass}">${statusText}</div>
+                    </div>
+                    
+                    <div class="result-card-body">
+                        <p class="order-meta-line"><strong>專屬訂單編號：</strong>${order.uid || '--'}</p>
+                        <p class="order-meta-line"><strong>收件人真實姓名：</strong>${order.receiverName || ''}</p>
+                        <p class="order-meta-line"><strong>LINE 名稱：</strong>${order.lineName || ''}</p>
+                        <p class="order-meta-line"><strong>取貨方式：</strong>${order.logistics || ''}</p>
+                        <p class="order-meta-line"><strong>指定門市：</strong>${order.storeInfo || ''}</p>
+                        <p class="order-meta-line"><strong>預購商品總計：</strong><span class="highlight-text">${totalQty}</span> 件，金額 <span class="highlight-price">$${totalAmount}</span></p>
+                        
+                        ${itemsHtml}
+                        ${lastFiveHtml}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 補填匯款五碼的線上即時提交非同步處理
+        async function submitLastFive(shippingId) {
+            const inputField = document.getElementById(`ipt-five-${shippingId}`);
+            const btn = document.getElementById(`btn-five-${shippingId}`);
+            const code = inputField.value.trim();
+
+            if (!code || code.length !== 5 || isNaN(code)) {
+                alert("請輸入正確的銀行帳號後 5 碼數字");
                 return;
             }
 
             btn.disabled = true;
-            btn.innerText = "搜尋中..";
+            btn.innerText = "傳送中...";
 
             try {
-                const res = await AifangAPI.lookupHistoryOrder(inputId);
+                const payload = {
+                    action: "updateLastFive",
+                    shippingId: shippingId,
+                    lastFive: code
+                };
+
+                const response = await fetch(GAS_API_URL, {
+                    method: "POST",
+                    mode: "cors",
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error("上傳資料失敗");
+                const res = await response.json();
 
                 if (res.success) {
-                    const order = res.order;
-                    const items = res.items;
-
-                    document.getElementById("res-status").innerText = order.status;
-                    document.getElementById("res-order-id").innerText = order.orderId;
-                    document.getElementById("res-line-name").innerText = order.lineName;
-                    document.getElementById("res-receiver-name").innerText = order.buyerName;
-                    document.getElementById("res-phone").innerText = order.phone;
-                    document.getElementById("res-store").innerText = `${order.logistics} - ${order.storeName}`;
-                    document.getElementById("res-last-five").innerText = order.lastFive || "未提供";
-                    
-                    // 📌 使用轉換函式將時間漂亮地呈現為台灣標準時間
-                    document.getElementById("res-time").innerText = formatTaiwanTime(order.orderTime);
-                    document.getElementById("res-total").innerText = `NT$ ${Number(order.totalAmount).toLocaleString()}`;
-
-                    // 2. 填入衣服明細清單
-                    const itemsContainer = document.getElementById("res-items-container");
-                    itemsContainer.innerHTML = ""; 
-
-                    items.forEach(item => {
-                        const row = document.createElement("div");
-                        row.className = "item-mini-row";
-                        
-                        // 📌 升級：版面重新排版，清晰展示「商品編號」與「商品單價」
-                        const unitPriceText = item.price ? `NT$ ${Number(item.price).toLocaleString()}` : "對帳確認中";
-                        row.innerHTML = `
-                            <div class="item-name-spec">
-                                <div style="font-weight: 600; color: #333; margin-bottom: 3px;">${item.prodName}</div>
-                                <div class="item-spec">商品編號：${item.prodId || '-'}</div>
-                                <div class="item-spec">規格款式：${item.color} / ${item.size}</div>
-                                <div class="item-spec" style="color: #666; font-weight: 500;">商品單價：${unitPriceText}</div>
-                            </div>
-                            <div class="item-qty">× ${item.quantity} 件</div>
-                        `;
-                        itemsContainer.appendChild(row);
-                    });
-
-                    resultCard.style.display = "block";
+                    alert("🎉 匯款後五碼已成功補填更新！收到通知後會立刻幫您對帳，謝謝您");
+                    const bankBox = document.getElementById(`bank-box-${shippingId}`);
+                    bankBox.innerHTML = `<p class="update-bank-success">✅ 已成功補上後五碼：<strong>${code}</strong> (處理中)</p>`;
                 } else {
-                    alert(res.message || "找不到該筆訂單，請確認輸入是否正確");
-                    resultCard.style.display = "none";
+                    alert("系統訊息：" + res.message);
+                    btn.disabled = false;
+                    btn.innerText = "送出更新";
                 }
-            } catch (err) {
-                console.error("歷史訂單查詢出錯:", err);
-                alert("網路連線逾時，請再試一次");
-            } finally {
+            } catch (error) {
+                console.error("更新後五碼出錯:", error);
+                alert("哎呀，連線有些塞車，請稍後再試一次！");
                 btn.disabled = false;
-                btn.innerText = "查詢";
+                btn.innerText = "送出更新";
             }
-        }
-
-        // 背景韓系粉紅花瓣動態產生腳本
-        function createPetal() {
-            const petal = document.createElement("div");
-            petal.style.position = "fixed";
-            petal.style.top = "-20px";
-            petal.style.left = Math.random() * 100 + "vw";
-            
-            const size = Math.random() * 10 + 10;
-            petal.style.width = `${size}px`;
-            petal.style.height = `${size}px`;
-            
-            const pinkColors = ["#f2a6b2", "#ffccd5", "#ffb3c1", "#ffe5ec"];
-            petal.style.backgroundColor = pinkColors[Math.floor(Math.random() * pinkColors.length)];
-            petal.style.borderRadius = "50% 0 50% 50%";
-            petal.style.opacity = "0";
-            petal.style.pointerEvents = "none";
-            petal.style.zIndex = "1";
-            
-            const randomDriftX = (Math.random() * 140 - 70) + "px";
-            const randomRotate = (Math.random() * 360 - 180) + "deg";
-            petal.style.setProperty("--drift-x", randomDriftX);
-            petal.style.setProperty("--drift-rotate", randomRotate);
-            
-            const duration = Math.random() * 3 + 5;
-            petal.style.animation = `slowFall ${duration}s linear forwards`;
-            
-            document.body.appendChild(petal);
-            setTimeout(() => { petal.remove(); }, duration * 1000);
         }
     </script>
 </body>

@@ -1,229 +1,171 @@
-// 全局變數
-let checkoutItems = [];
-let orderId = "";
-let totalAmount = 0;
-let totalQty = 0;
+// ==========================================================
+// 🧸 Aifangkids 璦坊微型電商 - 購物車前端資料大腦 (cart.js)
+// ==========================================================
+
+const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwJ0ERb9MhwFqtkMSE9UpfcrtGB7tnnn7LoXYJwSCrCCzn40NubmxQZUCQWqgmMI64c/exec";
+
+let clientUid = "";
+let loadedCartItems = []; // 儲存從後台撈回來的暫存衣服
 
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. 從 localStorage 讀取前一頁打包過來的核心商品資料與訂單 ID
-    orderId = localStorage.getItem("aifang_orderId");
-    const cachedItems = localStorage.getItem("aifang_checkout_items");
+    // 1. 解析網址中的 uid
+    const urlParams = new URLSearchParams(window.location.search);
+    clientUid = urlParams.get("uid") || "";
 
-    if (!orderId || !cachedItems) {
-        alert("未偵測到結帳商品資訊，將為您導回首頁。");
+    if (!clientUid) {
+        alert("找不到您的專屬訂單編號，將引導您返回首頁");
         window.location.href = "index.html";
         return;
     }
 
-    checkoutItems = JSON.parse(cachedItems);
+    document.getElementById("txt-cart-uid").innerText = clientUid;
 
-    // 2. 畫面上方顯示訂單 ID (例如 afID)
-    const orderIdEl = document.getElementById("checkout-order-id");
-    if (orderIdEl) orderIdEl.innerText = orderId;
-
-    // 3. 渲染右側或上方的「本次結帳商品明細小卡」
-    renderCheckoutSummaryList();
-
-    // 4. 計算總金額與總件數 (無運費規則)
-    updateCheckoutPrice();
-
-    // 5. 監聽物流切換事件（切換 7-11 或 全家 門市輸入框）
-    setupShippingToggle();
+    // 2. 自動向 GAS 調度該代號底下的購物車明細
+    fetchCartDetails();
 });
 
 /**
- * 縮小版商品明細清單渲染（單純複查）
+ * 撈取該 uid 的購物車暫存列表
  */
-function renderCheckoutSummaryList() {
-    const listContainer = document.getElementById("checkout-summary-list");
-    if (!listContainer) return;
+async function fetchCartDetails() {
+    const loader = document.getElementById("cart-loading");
+    const container = document.getElementById("cart-items-container");
 
-    listContainer.innerHTML = "";
-
-    checkoutItems.forEach(item => {
-        const miniCard = document.createElement("div");
-        miniCard.className = "mini-prod-item";
-
-        // 處理預設圖片防呆
-        const imgUrl = item.imgUrl && item.imgUrl.startsWith("http") ? item.imgUrl : "images/ui/seal3.png";
-
-        miniCard.innerHTML = `
-            <img src="${imgUrl}" alt="${item.prodName}" class="mini-prod-img">
-            <div class="mini-prod-info">
-                <div class="mini-title" title="${item.prodName}">${item.prodName}</div>
-                <div class="mini-spec">${item.color} / ${item.size} × ${item.quantity} 件</div>
-            </div>
-            <div class="mini-price">NT$ ${(item.price * item.quantity).toLocaleString()}</div>
-        `;
-        listContainer.appendChild(miniCard);
-    });
-}
-
-/**
- * 計算並更新結帳金額明細
- */
-function updateCheckoutPrice() {
-    totalAmount = 0;
-    totalQty = 0;
-
-    checkoutItems.forEach(item => {
-        totalQty += item.quantity;
-        totalAmount += (item.price * item.quantity);
-    });
-
-    const subtotalEl = document.getElementById("summary-items-subtotal");
-    const totalEl = document.getElementById("summary-final-total");
-
-    if (subtotalEl) subtotalEl.innerText = `NT$ ${totalAmount.toLocaleString()}`;
-    if (totalEl) totalEl.innerText = `NT$ ${totalAmount.toLocaleString()}`;
-}
-
-/**
- * 控制 7-11 與 全家 物流輸入欄位的顯示與隱藏
- */
-function setupShippingToggle() {
-    const ship711Radio = document.getElementById("ship-711");
-    const shipFamilyRadio = document.getElementById("ship-family");
-    const sec711 = document.getElementById("section-711-store");
-    const secFamily = document.getElementById("section-family-store");
-
-    if (!ship711Radio || !shipFamilyRadio) return;
-
-    const toggleLogisticsFields = () => {
-        if (ship711Radio.checked) {
-            if (sec711) sec711.style.display = "block";
-            if (secFamily) secFamily.style.display = "none";
-            // 切換時清除另一邊的必填屬性防呆
-            setInputsRequired(sec711, true);
-            setInputsRequired(secFamily, false);
-        } else {
-            if (sec711) sec711.style.display = "none";
-            if (secFamily) secFamily.style.display = "block";
-            setInputsRequired(sec711, false);
-            setInputsRequired(secFamily, true);
-        }
-    };
-
-    ship711Radio.addEventListener("change", toggleLogisticsFields);
-    shipFamilyRadio.addEventListener("change", toggleLogisticsFields);
-
-    // 初始執行一次設定
-    toggleLogisticsFields();
-}
-
-/**
- * 輔助工具：動態設定特定容器內輸入框的 required 屬性
- */
-function setInputsRequired(container, isRequired) {
-    if (!container) return;
-    const inputs = container.querySelectorAll("input");
-    inputs.forEach(input => {
-        if (isRequired) {
-            input.setAttribute("required", "required");
-        } else {
-            input.removeAttribute("required");
-            input.value = ""; // 切換時順便清空隱藏欄位的值
-        }
-    });
-}
-
-/**
- * 表單提交核心控制邏輯
- */
-async function submitOrderForm(event) {
-    event.preventDefault(); // 阻擋表單預設跳轉
-
-    const submitBtn = document.getElementById("submit-order-btn");
-    
-    // 1. 讀取並清除前後空白欄位值
-    const lineName = document.getElementById("client-line-name").value.trim();
-    const receiverName = document.getElementById("receiver-name").value.trim();
-    const receiverPhone = document.getElementById("receiver-phone").value.trim();
-    const clientEmail = document.getElementById("client-email").value.trim();
-    const bankLast5 = document.getElementById("bank-last5").value.trim();
-
-    // 2. 表單格式基礎防呆
-    if (!/^\d{5}$/.test(bankLast5)) {
-        alert("請確認匯款帳號後五碼是否為 5 位純數字");
-        return;
-    }
-    if (!/^09\d{8}$/.test(receiverPhone)) {
-        alert("請確認收件人手機號碼格式是否正確（例：0912345678）");
-        return;
-    }
-
-    // 收集物流門市資訊
-    let logistics = "7-11 店到店";
-    let storeInfo = "";
-
-    if (document.getElementById("ship-711").checked) {
-        const sName = document.getElementById("store-711-name").value.trim();
-        const sCode = document.getElementById("store-711-code").value.trim();
-        if (!sName || !sCode) {
-            alert("請完整填寫 7-11 門市名稱與 6 位數店號");
-            return;
-        }
-        storeInfo = `${sName} (店號:${sCode})`;
-    } else {
-        logistics = "全家 店到店";
-        const sName = document.getElementById("store-family-name").value.trim();
-        const sCode = document.getElementById("store-family-code").value.trim();
-        if (!sName || !sCode) {
-            alert("請完整填寫全家門市名稱與 5 位數服務代號");
-            return;
-        }
-        storeInfo = `${sName} (代號:${sCode})`;
-    }
-
-    // 鎖定提交按鈕，避免重複點擊
-    if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.innerText = "訂單傳送中，請稍候...";
-    }
-
-    // 3. 完美打包符合後台 code.gs 期待的物件結構
-    const orderPayload = {
-        action: "submitOrder",
-        orderId: orderId, 
-        checkoutInfo: {
-            lineName: lineName,
-            receiverName: receiverName,
-            phone: receiverPhone,
-            email: clientEmail || "-", 
-            logistics: logistics,
-            storeInfo: storeInfo,
-            lastFive: bankLast5
-        },
-        finalItems: checkoutItems
-    };
-    
     try {
-        // 呼叫 api.js 的送出訂單功能
-        const res = await AifangAPI.submitFinalOrder(orderPayload);
+        const response = await fetch(`${GAS_API_URL}?action=getCart&uid=${clientUid}`);
+        if (!response.ok) throw new Error("撈取購物車失敗");
         
-        if (res.success) {
-            // 清除暫存
-            localStorage.removeItem("aifang_checkout_items");
-            alert("感謝您的購買！訂單與匯款資料已成功送達後台，AIFANG KIDS 會盡快為您處理 🧸");
-            window.location.href = "thankyou.html"; 
+        const result = await response.json();
+
+        if (result.success && result.data && result.data.length > 0) {
+            loadedCartItems = result.data;
+            renderCartList(loadedCartItems);
+            loader.classList.add("hidden");
         } else {
-            alert(`傳送失敗：${res.message || '請通知 LINE 官方客服'}`);
-            resetSubmitButton();
+            loader.innerHTML = "🫙 您的購物車目前空空如也唷！趕快回上一頁挑選";
+            document.getElementById("btn-submit-order").disabled = true;
+            document.getElementById("btn-submit-order").style.opacity = "0.5";
         }
-    } catch (err) {
-        console.error("提交表單發生連線錯誤:", err);
-        alert("網路連線不穩定，請再點擊一次按鈕試試看");
-        resetSubmitButton();
+    } catch (error) {
+        console.error("購物車載入錯誤:", error);
+        loader.innerHTML = "<p style='color:red;'>🐾 撈取明細時線路稍微塞車，請重新整理網頁</p>";
     }
 }
 
 /**
- * 重設提交按鈕狀態（失敗時復原）
+ * 渲染購物車內每件衣服的精緻小橫列
  */
-function resetSubmitButton() {
-    const submitBtn = document.getElementById("submit-order-btn");
-    if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.innerText = "確認無誤，提交系統核對";
+function renderCartList(items) {
+    const container = document.getElementById("cart-items-container");
+    container.innerHTML = "";
+
+    let totalQty = 0;
+    let totalAmount = 0;
+
+    items.forEach(item => {
+        const subtotal = item.price * item.quantity;
+        totalQty += item.quantity;
+        totalAmount += subtotal;
+
+        const displayImg = item.imgUrl && item.imgUrl.trim() !== "" ? item.imgUrl : "https://placehold.co/100x100/fdfaf7/8c7662?text=衣物";
+
+        const row = document.createElement("div");
+        row.classList.add("cart-item-row");
+        row.innerHTML = `
+            <img class="cart-item-thumb" src="${displayImg}" alt="${item.prodName}" onerror="this.src='https://placehold.co/100x100/fdfaf7/8c7662?text=衣物'">
+            <div class="cart-item-detail">
+                <div class="cart-item-name">${item.prodName}</div>
+                <div class="cart-item-meta">
+                    ${item.color ? `<span>顏色: ${item.color}</span>` : ''}
+                    ${item.size ? `<span>規格: ${item.size}</span>` : ''}
+                </div>
+            </div>
+            <div class="cart-item-right">
+                <div class="cart-item-qty">x ${item.quantity}</div>
+                <div class="cart-item-subtotal">$${subtotal}</div>
+            </div>
+        `;
+        container.appendChild(row);
+    });
+
+    // 將總計數值寫入畫面
+    document.getElementById("total-qty").innerText = totalQty;
+    document.getElementById("total-amount").innerText = totalAmount;
+}
+
+/**
+ * 📌 依據選定的超商物流，動態調整門市提示字樣（依最新規格限定 7-11 與 全家）
+ */
+window.toggleStoreInfoHint = function() {
+    const logistics = document.getElementById("ipt-logistics").value;
+    const textarea = document.getElementById("ipt-storeInfo");
+    
+    if (logistics === "7-11") {
+        textarea.placeholder = "請輸入 7-11 的【門市店號(六碼)】與【店名】\n（例如：123456 豐業門市）";
+    } else if (logistics === "全家") {
+        textarea.placeholder = "請輸入全家的【店舖號(六碼)】與【店名】\n（例如：012345 全家新福店）";
+    } else {
+        textarea.placeholder = "請先選擇上方的取貨方式";
+    }
+};
+
+/**
+ * 送出表單：打包所有欄位，以 POST 正式遞交給 GAS 成立訂單
+ */
+async function handleCheckout(event) {
+    event.preventDefault(); // 攔截傳統網頁跳轉
+
+    const btnSubmit = document.getElementById("btn-submit-order");
+    btnSubmit.innerText = "🐾 正在為您向雲端傳送訂單中，請勿關閉網頁...";
+    btnSubmit.disabled = true;
+
+    // 彙整資料欄位
+    const orderData = {
+        uid: clientUid,
+        lineName: document.getElementById("ipt-lineName").value.trim(),
+        receiverName: document.getElementById("ipt-receiverName").value.trim(),
+        phone: document.getElementById("ipt-phone").value.trim(),
+        email: document.getElementById("ipt-email").value.trim(),
+        logistics: document.getElementById("ipt-logistics").value,
+        storeInfo: document.getElementById("ipt-storeInfo").value.trim(),
+        lastFive: document.getElementById("ipt-lastFive").value.trim(),
+        items: loadedCartItems // 把剛剛讀到的衣物陣列一併附上
+    };
+
+    const payload = {
+        action: "submitOrder",
+        orderData: orderData
+    };
+
+    try {
+        const response = await fetch(GAS_API_URL, {
+            method: "POST",
+            mode: "cors",
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) throw new Error("正式結帳網路異常");
+        const result = await response.json();
+
+        if (result.success) {
+            // 訂單成立成功！秀出收據畫面
+            document.getElementById("cart-main-view").classList.add("hidden");
+            
+            document.getElementById("rec-uid").innerText = clientUid;
+            document.getElementById("rec-shippingId").innerText = result.shippingId; // 來自後台生出的 shXXXX 單號
+            
+            document.getElementById("cart-success-view").classList.remove("hidden");
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            alert("後台系統拒絕了這次提交：" + result.message);
+            btnSubmit.innerText = "✨ 儲存資料，正式成立訂單 ➔";
+            btnSubmit.disabled = false;
+        }
+
+    } catch (error) {
+        console.error("提交正式訂單異常:", error);
+        alert("連線後台逾時，請檢查手機網路，或點擊下方按鈕重新試一次唷！");
+        btnSubmit.innerText = "✨ 儲存資料，正式成立訂單 ➔";
+        btnSubmit.disabled = false;
     }
 }

@@ -3,36 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aifangkids</title>
-    
+    <title>Aifang kids</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
-    
-    <link rel="stylesheet" href="assets/css/global.css">
-    <link rel="stylesheet" href="assets/css/index.css">
+    <link rel="stylesheet" href="./assets/css/global.css">
+    <link rel="stylesheet" href="./assets/css/index.css">
 </head>
 <body>
 
     <div id="falling-container"></div>
 
-    <div class="search-container">
-        <div class="footer-note">Aifangkids</div>
-        <div class="brand-subtitle">社群專屬下單</div>
-        
-        <div class="welcome-text">
-            🧸 歡迎光臨<br>請輸入「訂單編號」或「LINE 名稱」來查看商品
-        </div>
+    <div class="index-wrapper">
+        <div class="welcome-box">
+            <div class="brand-logo">Aifangkids</div>
+            <p class="brand-intro">
+                <span>Childhood should always feel this beautiful.</span>
+            </p>
 
-        <div class="input-group">
-            <input type="text" id="queryInput" class="search-input" placeholder="例如：af1111 或 LINE 名稱" autocomplete="off">
-        </div>
+            <div class="action-divider"></div>
 
-        <button type="button" class="btn-common search-btn" onclick="searchOrder()">查詢</button>
-        
-        <div class="footer-note">Childhood should always feel this beautiful — AIFANGKIDS</div>
+            <div id="step-init">
+                <button id="btn-generate" class="btn-common btn-action">生成專屬訂單編號</button>
+            </div>
+
+            <div id="step-loading" class="status-layer hidden">
+                <div class="spinner"></div>
+                <p class="loading-text">🐾 正在為您連線，生成不重複編號</p>
+            </div>
+
+            <div id="step-success" class="status-layer hidden">
+                <p class="success-alert">🎉 專屬訂單編號生成完畢</p>
+                <div id="uid-display" class="uid-highlight">----</div>
+                <p class="next-hint">請幫記住您的專屬訂單編號，並點擊下方進入選購：</p>
+                <button id="btn-go-detail" class="btn-common btn-next">🧸 進入童裝預購區 ➔</button>
+            </div>
+        </div>
     </div>
 
-    <script src="js/api.js"></script>
-    <script src="js/index.js"></script> 
+    <script src="js/index.js"></script>
     <script src="js/articles.js"></script>
 </body>
 </html>

@@ -1,0 +1,293 @@
+/* ==========================================================================
+   🧸 璦坊童裝 Aifangkids - 訂單查詢頁專屬視覺 (lookup.css)
+   最優先以 global.css 為主，本檔案獨立存在，不與全域衝突，內含手機響應式設計
+   ========================================================================== */
+
+/* 📌 頁面外層極致響應式容器 */
+.lookup-wrapper {
+    max-width: 550px;
+    margin: 0 auto;
+    padding: 20px 15px 60px 15px;
+}
+
+/* 📌 通用白底圓角溫馨卡片基底 */
+.lookup-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 25px 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 6px 20px rgba(222, 201, 185, 0.12);
+    border: 1px solid rgba(242, 166, 178, 0.15);
+    box-sizing: border-box;
+    position: relative;
+    z-index: 10; /* 確保在飄落特效上層，不影響輸入框點擊 */
+}
+
+/* 📌 搜尋欄卡片排版 */
+.search-box-card {
+    text-align: center;
+    border-bottom: 4px solid var(--baby-pink);
+}
+
+.lookup-main-title {
+    font-size: 18px;
+    color: #5a4b41;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.lookup-sub-desc {
+    font-size: 12.5px;
+    color: var(--text-gray);
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+/* 📌 一體成型的高級搜尋輸入框組 */
+.search-input-group {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.lookup-input {
+    flex-grow: 1;
+    font-family: inherit;
+    font-size: 14px;
+    padding: 12px 15px;
+    border-radius: 10px;
+    border: 1px solid #dcd1c4;
+    background-color: #faf8f5;
+    color: #333;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.lookup-input:focus {
+    border-color: var(--baby-pink);
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(242, 166, 178, 0.12);
+}
+
+.btn-lookup-submit {
+    background-color: var(--baby-pink);
+    color: #ffffff;
+    border: none;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 0 22px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 10px rgba(242, 166, 178, 0.2);
+    white-space: nowrap;
+}
+
+.btn-lookup-submit:hover {
+    background-color: #e395a1;
+}
+
+.btn-lookup-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* 📌 查詢結果大卡片設計 */
+.result-card {
+    border-left: 5px solid var(--kids-blue);
+    animation: lookupSlideUp 0.35s ease forwards;
+}
+
+.result-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed #f3ebe4;
+    margin-bottom: 15px;
+}
+
+.result-ship-id {
+    font-size: 14px;
+    font-weight: bold;
+    color: #4a3e36;
+}
+
+.result-ship-id span {
+    color: #c47a55;
+    background-color: #fff6f2;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* 📌 狀態標籤彩色軍團 */
+.status-badge {
+    font-size: 12px;
+    font-weight: bold;
+    padding: 4px 10px;
+    border-radius: 30px;
+}
+
+.status-unpaid {
+    background-color: #fff0f0;
+    color: var(--accent-red);
+    border: 1px solid #ffdddd;
+}
+
+.status-confirmed {
+    background-color: #f0f7f4;
+    color: #438a5e;
+    border: 1px solid #ddeedf;
+}
+
+.status-shipped {
+    background-color: #f0f4f8;
+    color: var(--kids-blue);
+    border: 1px solid #dde5ee;
+}
+
+/* 📌 卡片內文資訊排版 */
+.order-meta-line {
+    font-size: 13.5px;
+    color: #5a4b41;
+    margin: 8px 0;
+    line-height: 1.5;
+}
+
+.order-meta-line strong {
+    color: #7a685c;
+    display: inline-block;
+    width: 120px;
+}
+
+.highlight-text {
+    font-weight: bold;
+    color: var(--kids-blue);
+}
+
+.highlight-price {
+    font-weight: bold;
+    color: #c47a55;
+    font-size: 15px;
+}
+
+/* 📌 展開的衣服清單盒子 */
+.lookup-items-summary {
+    background-color: #fdfbf9;
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 12px;
+    border: 1px solid #fcf4ee;
+    font-size: 12.5px;
+}
+
+.mini-item-list {
+    margin: 6px 0 0 16px;
+    padding: 0;
+    color: #6e5d53;
+    line-height: 1.6;
+}
+
+/* 📌 線上補填後五碼迷你區塊 */
+.update-bank-box {
+    margin-top: 15px;
+    padding: 12px;
+    background-color: #fffaf7;
+    border: 1px dashed var(--baby-pink);
+    border-radius: 8px;
+}
+
+.update-bank-title {
+    font-size: 12px;
+    font-weight: bold;
+    color: #c47a55;
+    margin-bottom: 8px;
+}
+
+.update-bank-row {
+    display: flex;
+    gap: 6px;
+}
+
+.lookup-input-mini {
+    width: 90px;
+    font-family: inherit;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #dcd1c4;
+    text-align: center;
+    outline: none;
+}
+
+.lookup-input-mini:focus {
+    border-color: var(--baby-pink);
+}
+
+.btn-lookup-mini {
+    background-color: var(--kids-blue);
+    color: white;
+    border: none;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 0 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-lookup-mini:hover {
+    background-color: #718da8;
+}
+
+.update-bank-success {
+    font-size: 12.5px;
+    color: #438a5e;
+    margin: 0;
+}
+
+/* 📌 狀態讀取提示與動畫 */
+.lookup-status-msg {
+    text-align: center;
+    padding: 40px 15px;
+    color: #a39081;
+    font-size: 13.5px;
+    background: #ffffff;
+    border-radius: 20px;
+    border: 1px dashed #ebdcd0;
+}
+
+.lookup-spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #f3ebe4;
+    border-top: 2px solid var(--baby-pink);
+    border-radius: 50%;
+    margin: 0 auto 12px auto;
+    animation: lookupSpin 0.8s linear infinite;
+}
+
+.hidden { display: none !important; }
+
+@keyframes lookupSpin { 100% { transform: rotate(360deg); } }
+@keyframes lookupSlideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ==========================================================================
+   📱 手機端額外微調設計 (RWD 例外響應式增強)
+   ========================================================================== */
+@media (max-width: 480px) {
+    .lookup-wrapper { padding: 12px 10px 40px 10px; }
+    .lookup-card { padding: 20px 15px; border-radius: 16px; }
+    .lookup-main-title { font-size: 16px; }
+    .lookup-sub-desc { font-size: 11.5px; margin-bottom: 15px; }
+    
+    .search-input-group { flex-direction: column; gap: 10px; }
+    .btn-lookup-submit { padding: 12px; font-size: 14px; border-radius: 10px; }
+    
+    .order-meta-line { font-size: 12.5px; }
+    .order-meta-line strong { width: 105px; }
+    .result-card-header { padding-bottom: 10px; margin-bottom: 10px; }
+    
+    .update-bank-row { width: 100%; }
+    .lookup-input-mini { flex-grow: 1; }
+}

@@ -1,105 +1,153 @@
-/* 全螢幕置中佈局 */
-body {
+/* ==========================================================================
+   璦坊首頁專屬視覺（補強 global.css，不相衝突）
+   ========================================================================== */
+
+.index-wrapper {
     display: flex;
-    justify-content: center;
     align-items: center;
-    min-height: 100vh;
+    justify-content: center;
+    min-height: 90vh;
     padding: 20px;
 }
 
-/* 核心精緻查單卡片 */
-.search-container {
-    background-color: #FFFFFF;
-    padding: 50px 35px;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(242, 166, 178, 0.15); /* 帶有品牌粉的溫柔陰影 */
-    width: 100%;
-    max-width: 450px;
+.welcome-box {
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 40px 30px;
+    box-shadow: 0 12px 30px rgba(222, 201, 185, 0.25);
     text-align: center;
-    border: 1px solid rgba(242, 166, 178, 0.2);
+    max-width: 400px;
+    width: 100%;
+    border: 1px solid #f6efe9;
+    z-index: 10;
 }
 
 .brand-logo {
-    font-size: 100px;
-    font-weight: 700;
-    color: var(--text-main);
-    margin-bottom: 6px;
-    letter-spacing: 2px;
+    font-family: 'CutieStar', sans-serif;
+    font-size: 48px;
+    color: var(--baby-pink);
+    margin-bottom: 5px;
+    letter-spacing: 1px;
 }
 
 .brand-subtitle {
-    font-size: 14px;
+    font-size: 20px;
+    color: #6e5d53;
+    font-weight: 700;
+    margin-bottom: 15px;
+    letter-spacing: 2px;
+}
+
+.brand-intro {
+    font-size: 25px;
     color: var(--text-gray);
-    margin-bottom: 35px;
-    letter-spacing: 1px;
+    line-height: 1.8;
 }
 
-.welcome-text {
-    font-size: 15px;
-    margin-bottom: 30px;
-    line-height: 1.7;
-    font-weight: 400;
-    color: #555;
+.brand-intro span {
+    font-size: 12px;
+    color: #cca48c;
+    display: block;
+    margin-top: 5px;
 }
 
-.input-group {
-    margin-bottom: 25px;
+.action-divider {
+    height: 1px;
+    background: radial-gradient(circle, #f0e4dc 0%, rgba(255,255,255,0) 80%);
+    margin: 25px 0;
 }
 
-/* 韓系質感舒適輸入框 */
-.search-input {
-    width: 100%;
-    padding: 16px 20px;
-    font-size: 16px;
-    border: 2px solid #EFECE8;
-    border-radius: 12px;
-    outline: none;
-    transition: all 0.3s ease;
-    text-align: center;
-    color: var(--text-main);
-    background-color: #FAF9F6;
-}
-
-.search-input:focus {
-    border-color: var(--baby-pink);
-    background-color: #FFFFFF;
-    box-shadow: 0 0 12px rgba(242, 166, 178, 0.3);
-}
-
-/* 覆寫與擴充通用按鈕樣式 */
-.search-btn {
-    width: 100%;
-    font-size: 16px;
-    color: #FFFFFF;
+/* 按鈕特別色調配（繼承 btn-common 的滑動與手勢） */
+.btn-action {
     background-color: var(--baby-pink);
+    color: #ffffff;
+    font-size: 15px;
+    border-radius: 50px;
+    width: 100%;
+    box-shadow: 0 6px 15px rgba(242, 166, 178, 0.35);
+}
+
+.btn-next {
+    background-color: var(--kids-blue);
+    color: #ffffff;
+    font-size: 15px;
+    border-radius: 50px;
+    width: 100%;
+    box-shadow: 0 6px 15px rgba(141, 169, 196, 0.35);
+}
+
+/* 狀態切換排他控制 */
+.hidden {
+    display: none !important;
+}
+
+.status-layer {
+    animation: fadeIn 0.4s ease forwards;
+}
+
+/* 專屬購物編號大外框 */
+.uid-highlight {
+    font-size: 32px;
+    font-weight: 700;
+    color: #c47a55;
+    background: #fff8f5;
+    padding: 12px 25px;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(242, 166, 178, 0.3);
-    letter-spacing: 1px;
+    display: inline-block;
+    letter-spacing: 3px;
+    margin: 15px 0;
+    border: 2px dashed var(--baby-pink);
 }
 
-.search-btn:active {
-    transform: scale(0.99);
+.success-alert {
+    color: #55967e;
+    font-weight: 700;
+    font-size: 15px;
 }
 
-.footer-note {
-    font-family: 'CutieStar', var(--font-main); 
-    font-size: 20px; 
+.next-hint {
+    font-size: 12px;
     color: var(--text-gray);
-    margin-top: 35px;
-    border-top: 1px dashed #EFECE8;
-    padding-top: 15px;
-    letter-spacing: 0.5px; 
+    margin-bottom: 20px;
 }
 
-/* 手機版 RWD 的微調 */
+.loading-text {
+    font-size: 13px;
+    color: #bfa38f;
+    margin-top: 15px;
+}
+
+/* 溫柔的小等待旋轉圈圈 */
+.spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid #f3ebe4;
+    border-top: 3px solid var(--baby-pink);
+    border-radius: 50%;
+    margin: 0 auto;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   手機端額外響應式例外增強 (RWD)
+   ========================================================================== */
 @media (max-width: 480px) {
-    .search-container {
-        padding: 40px 20px;
+    .welcome-box {
+        padding: 30px 20px;
+        margin: 10px;
     }
-    .brand-logo {
-        font-size: 28px;
-    }
-    .welcome-text {
-        font-size: 14px;
-    }
+    .brand-logo { font-size: 40px; }
+    .brand-subtitle { font-size: 18px; }
+    .brand-intro { font-size: 13px; }
+    .uid-highlight { font-size: 28px; width: 90%; }
 }

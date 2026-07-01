@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>收件資訊</title>
+    <title>Aifang kids</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="./assets/css/global.css">
     <link rel="stylesheet" href="./assets/css/cart.css">
@@ -13,150 +13,135 @@
     <div id="falling-container"></div>
 
     <div class="cart-wrapper">
-        <div class="cart-header">
-            <div class="back-to-detail" onclick="location.href='detail.html?id=' + localStorage.getItem('aifang_orderId')">❮ 返回修改商品</div>
-            <h1 class="cart-title">填寫配送與匯款資料</h1>
-            <p class="cart-subtitle">您的單號：<span id="checkout-order-id" class="order-highlight">-</span></p>
+        
+        <div id="cart-main-view">
+            <header class="cart-header">
+                <a href="javascript:history.back()" class="btn-back-link">🐾 返回商品區</a>
+                <div class="cart-uid-title">訂單編號：<span id="txt-cart-uid">...</span></div>
+            </header>
+
+            <section class="cart-section">
+                <h2 class="section-title">選擇的商品</h2>
+                
+                <div id="cart-loading" class="cart-status-msg">
+                    <div class="mini-spinner"></div>
+                    <p>正在努力從後台撈取您的購物車明細...</p>
+                </div>
+
+                <div id="cart-items-container">
+                    </div>
+
+                <div class="cart-summary-box">
+                    <div class="summary-row">
+                        <span>共累計數量：</span>
+                        <span class="summary-val"><strong id="total-qty">0</strong> 件</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>預購總金額：</span>
+                        <span class="summary-val price-highlight">$<span id="total-amount">0</span></span>
+                    </div>
+                    <p class="shipping-note">※ Aifang kids 採用超商取貨不付款方式</p>
+                </div>
+            </section>
+
+            <section class="cart-section">
+                <h2 class="section-title">📝 填寫收件人資訊</h2>
+                <form id="form-checkout" onsubmit="handleCheckout(event)">
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="ipt-lineName">您的 LINE 名稱 <span class="required">*</span></label>
+                        <input type="text" id="ipt-lineName" class="form-input" placeholder="例如：小璦同學" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="ipt-receiverName">收件人真實姓名 <span class="required">*</span></label>
+                        <input type="text" id="ipt-receiverName" class="form-input" placeholder="請輸入證件真實姓名以利超商取貨" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="ipt-phone">手機號碼 <span class="required">*</span></label>
+                        <input type="tel" id="ipt-phone" class="form-input" placeholder="例如：0912345678" pattern="09\\d{8}" title="請輸入正確的手機號碼格式（共10碼）" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="ipt-email">電子信箱</label>
+                        <input type="email" id="ipt-email" class="form-input" placeholder="接收超商貨運通知">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="ipt-logistics">取貨方式 <span class="required">*</span></label>
+                        <select id="ipt-logistics" class="form-select" onchange="toggleStoreInfoHint()" required>
+                            <option value="" disabled selected>-- 請選擇超商取貨方式 --</option>
+                            <option value="7-11店到店">7-11 (取貨不付款)</option>
+                            <option value="全家店到店">全家 (取貨不付款)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="ipt-storeInfo">超商門市名稱與店號 <span class="required">*</span></label>
+                        <textarea id="ipt-storeInfo" class="form-textarea" placeholder="請先選擇上方的取貨方式" required></textarea>
+                    </div>
+
+                    <div class="form-group group-bank">
+                        <label class="form-label" for="ipt-lastFive">銀行轉帳後五碼</label>
+                        <p class="form-input-desc">💡 若您已完成匯款，請在此填寫後五碼，匯款『給予對方備註』請勿填寫，不便核對帳號與金額，請見諒</p>
+                        
+                        <div class="bank-info-card">
+                            <div class="bank-title-text">💰 匯款資訊</div>
+                            <div class="bank-detail-text">
+                                <strong>戶名：</strong>璦坊童裝<br>
+                                <strong>銀行：</strong>103 臺灣新光商業銀行<br>
+                                <strong>分行：</strong>0675 斗六分行<br>
+                                <strong>帳號：</strong>0675101004736
+                            </div>
+                            <div class="bank-deadline-alert">📌 請於 24 小時之內完成匯款，逾時視同放棄訂單</div>
+                        </div>
+
+                        <input type="text" id="ipt-lastFive" class="form-input" placeholder="例如：12345 (已匯款再填寫)" maxlength="5">
+                        
+                        <ul class="shop-policy-list">
+                            <li class="shop-policy-item">商品金額已含營業稅</li>
+                            <li class="shop-policy-item">取貨時請務必攜帶與收件人姓名相同的證件</li>
+                            <li class="shop-policy-item">依《消費者保護法》規範，享有七天鑑賞期退換貨服務</li>
+                            <li class="shop-policy-item">退換貨商品須保持全新、未剪標且完整包裝</li>
+                        </ul>
+                    </div>
+
+                    <button type="submit" id="btn-submit-order" class="btn-common btn-submit">
+                        ✨ 儲存資料，正式成立訂單 ➔
+                    </button>
+                </form>
+            </section>
         </div>
 
-        <!-- 雙欄排版主要網格系統 -->
-        <div class="cart-content-grid">
-            
-            <!-- 左側：表單填寫區 -->
-            <form id="order-submit-form" onsubmit="submitOrderForm(event)" class="checkout-form">
+        <div id="cart-success-view" class="hidden">
+            <div class="receipt-card">
+                <div class="success-icon">🎉</div>
+                <h1 class="receipt-title">訂單已成功提交</h1>
+                <p class="receipt-desc">謝謝您的預購，準備處理訂單中</p>
                 
-                <!-- 第一區塊：基本資料卡片 -->
-                <div class="form-section">
-                    <h2 class="section-title">訂購人基本資料</h2>
-                    
-                    <div class="input-group">
-                        <label for="client-line-name">LINE 名稱 <span class="required">*</span></label>
-                        <input type="text" id="client-line-name" name="client_line_name" placeholder="請輸入您的 LINE 名稱" required autocomplete="username">
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="receiver-name">收件人姓名 <span class="required">*</span></label>
-                        <input type="text" id="receiver-name" name="receiver_name" placeholder="請輸入收件人真實姓名" required autocomplete="name">
-                    </div>
-                    
-                    <div class="input-group">
-                        <label for="receiver-phone">手機號碼 <span class="required">*</span></label>
-                        <input type="tel" id="receiver-phone" name="receiver_phone" placeholder="請輸入收件人行動電話" pattern="09\d{8}" required autocomplete="tel">
-                    </div>
-
-                    <div class="input-group">
-                        <label for="client-email">電子信箱 <span class="note-lbl">*</span></label>
-                        <input type="email" id="client-email" name="client_email" placeholder="example@gmail.com" autocomplete="email">
-                    </div>
+                <div class="receipt-divider"></div>
+                
+                <div class="receipt-info-row">
+                    <span class="r-label">您的專屬訂單編號：</span>
+                    <span id="rec-uid" class="r-val-uid">--</span>
                 </div>
-
-                <!-- 第二區塊：選擇超商卡片 -->
-                <div class="form-section">
-                    <h2 class="section-title">選擇配送超商</h2>
-                    
-                    <div class="shipping-radio-group">
-                        <label class="radio-card">
-                            <input type="radio" name="shipping_method" id="ship-711" value="0" checked>
-                            <span class="radio-custom"></span>
-                            <div class="radio-text">
-                                <span class="store-brand">7-11 店到店</span>
-                            </div>
-                        </label>
-
-                        <label class="radio-card">
-                            <input type="radio" name="shipping_method" id="ship-family" value="0">
-                            <span class="radio-custom"></span>
-                            <div class="radio-text">
-                                <span class="store-brand">全家 店到店</span>
-                            </div>
-                        </label>
-                    </div>
-
-                    <div id="section-711-store" class="sub-store-section">
-                        <div class="input-row">
-                            <div class="input-group">
-                                <label for="store-711-name">7-11 門市名稱 <span class="required">*</span></label>
-                                <input type="text" id="store-711-name" name="store_711_name" placeholder="例如：美村門市">
-                            </div>
-                            <div class="input-group">
-                                <label for="store-711-code">6 位數店號 <span class="required">*</span></label>
-                                <input type="text" id="store-711-code" name="store_711_code" placeholder="例如：142857" maxlength="6" pattern="\d{6}">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="section-family-store" class="sub-store-section" style="display: none;">
-                        <div class="input-row">
-                            <div class="input-group">
-                                <label for="store-family-name">全家 門市名稱 <span class="required">*</span></label>
-                                <input type="text" id="store-family-name" name="store_family_name" placeholder="例如：新和店">
-                            </div>
-                            <div class="input-group">
-                                <label for="store-family-code">5 位數服務代號 <span class="required">*</span></label>
-                                <input type="text" id="store-family-code" name="store_family_code" placeholder="例如：01357" maxlength="5" pattern="\d{5}">
-                            </div>
-                        </div>
-                    </div>
+                <div class="receipt-info-row">
+                    <span class="r-label">您的專屬理貨單號：</span>
+                    <span id="rec-shippingId" class="r-val-ship">--</span>
                 </div>
-
-                <!-- 第三區塊：匯款核對與條款卡片（完美收納於左側欄位中） -->
-                <div class="form-section">
-                    <h2 class="section-title">匯款核對與須知</h2>
-                    
-                    <!-- 💰 匯款資訊 -->
-                    <div class="remittance-box">
-                        <div class="remittance-title">💰 匯款資訊</div>
-                        <div>銀行：103 臺灣新光商業銀行</div>
-                        <div>帳號：0675-1010-04736</div>
-                        <div style="margin-top:15px; color:#d9534f; font-style:italic;">請於2天之內，完成匯款，逾時視同放棄訂單</div>    
-                    </div>
-                    
-                    <!-- 您的帳號後五碼輸入框 -->
-                    <div class="input-group" style="margin-top: 20px;">
-                        <label for="bank-last5">您的帳號後五碼 <span class="required">*</span></label>
-                        <input type="text" id="bank-last5" name="bank_last5" placeholder="請輸入您轉出帳號的後 5 位數字" maxlength="5" pattern="\d{5}" required>
-                    </div>
-
-                    <!-- 📝 頁尾溫馨提示 -->
-                    <div class="footer">
-                        <div>* 商品金額已含營業稅</div>
-                        <div>* 取貨時請務必攜帶與收貨人姓名相同的證件</div>
-                        <div>* 依《消費者保護法》規範，享有七天鑑賞期退換貨服務</div>
-                        <div>* 退換貨商品須保持全新、未剪標且完整包裝</div>
-                    </div>
-                </div>
-
-                <!-- 提交按鈕（隸屬於表單內） -->
-                <button type="submit" id="submit-order-btn" class="submit-form-btn">
-                    確認無誤，提交系統核對
+                
+                <div class="receipt-divider"></div>
+                <p class="receipt-alert-text">💡 溫馨小叮嚀：請將上方【理貨單號】截圖或記下來，隨時可以使用此號碼查詢最新理貨進度與進行補填匯款後五碼</p>
+                
+                <button onclick="window.location.href='index.html'" class="btn-common btn-home">
+                    返回童裝首頁
                 </button>
-            </form>
-
-            <!-- 右側：商品摘要核對區卡片 -->
-            <div class="checkout-summary-box">
-                <h2 class="summary-box-title">本次結帳商品摘要</h2>
-                
-                <!-- 迷你商品列表容器 -->
-                <div id="checkout-summary-list" class="mini-list-container"></div>
-                
-                <!-- 計費總覽區 -->
-                <div class="price-calc-area">
-                    <div class="calc-row">
-                        <span>商品小計</span>
-                        <span id="summary-items-subtotal">NT$ 0</span>
-                    </div>
-                    <div class="divider"></div>
-                    <div class="calc-row total-row">
-                        <span>應付總合計</span>
-                        <span id="summary-final-total" class="pink-total">NT$ 0</span>
-                    </div>
-                </div>
             </div>
+        </div>
 
-        </div> <!-- 關閉 cart-content-grid -->
-    </div> <!-- 關閉 cart-wrapper -->
+    </div>
 
-    <script src="js/api.js"></script>
     <script src="js/cart.js"></script>
     <script src="js/articles.js"></script>
 </body>
