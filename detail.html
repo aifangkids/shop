@@ -1,66 +1,52 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aifang kids</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aifang kids</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="./assets/css/global.css">
     <link rel="stylesheet" href="./assets/css/detail.css">
 </head>
 <body>
 
-  <!-- ✨ 全新頂部導覽列：解決問題 1，客人可直接在此選擇大分類與品牌小分類 -->
-  <nav class="shop-header-nav">
-    <div class="nav-container">
-      <a class="brand-logo" href="detail.html">🧸 AiFang Studio</a>
-      
-      <!-- 大分類框選項 -->
-      <div class="main-categories">
-        <a href="detail.html?category=TOP" class="category-link">TOP</a>
-        <a href="detail.html?category=BOTTOM" class="category-link">BOTTOM</a>
-        <a href="detail.html?category=SET" class="category-link">SET</a>
-        <a href="detail.html?category=BEBE" class="category-link">BEBE</a>
-        <a href="detail.html?category=ACC" class="category-link">ACC</a>
-      </div>
+    <!-- 頂部高雅品牌列 -->
+    <header class="menu-header">
+        <h1 class="brand-logo">Aifang kids</h1>
+        <div class="order-uid-badge">專屬單號: <span id="display-afid">連線中...</span></div>
+    </header>
 
-      <!-- 小分類：品牌欄位選單 -->
-      <div class="brand-selector-box">
-        <span class="brand-label">BRAND：</span>
-        <select id="brand-nav-select" class="brand-select" onchange="navigateToBrand(this)">
-          <option value="">請選擇BRAND</option>
-          <!-- 這裡會由 JS 自動從雲端大表撈出目前所有有上架的品牌放進來 -->
-        </select>
-      </div>
+    <!-- 韓系橫向滾動分類導航 -->
+    <nav class="category-nav">
+        <button class="cat-btn active" data-cat="ALL">全部商品</button>
+        <button class="cat-btn" data-cat="TOP">TOP</button>
+        <button class="cat-btn" data-cat="BOTTOM">BOTTOM</button>
+        <button class="cat-btn" data-cat="SET">SET</button>
+        <button class="cat-btn" data-cat="BEBE">BEBE</button>
+        <button class="cat-btn" data-cat="ACC">ACC</button>
+    </nav>
+
+    <!-- 主要商品展示網格區 -->
+    <main class="menu-container">
+        <!-- 讀取狀態圈圈 -->
+        <div id="catalog-loading" class="loading-status">
+            <div class="spinner"></div>
+            <p>🐾 正在讀取商品資料...</p>
+        </div>
+        
+        <!-- 商品卡片動態注入地基 -->
+        <div id="products-grid" class="products-grid"></div>
+    </main>
+
+    <!-- 底部固定購物車捷徑列 -->
+    <div class="sticky-footer">
+        <div class="footer-hint">選擇商品資料即可加入暫存追加區</div>
+        <button class="btn-cart-main" id="btn-go-cart">🛒 前往我的暫存車</button>
     </div>
-  </nav>
 
-  <!-- 商品詳情核心艙 -->
-  <main class="detail-container">
-    <div class="image-section">
-      <img id="main-product-img" class="main-img" src="" alt="商品主圖載入中">
-    </div>
-
-    <div class="info-section">
-      <h1 id="product-title" class="prod-title">加載中</h1>
-      <div id="product-price" class="prod-price">$-</div>
-      
-      <hr style="border: 0; border-top: 1px solid #f3dcd4; margin: 20px 0;">
-
-      <div class="spec-title">選擇顏色</div>
-      <div id="color-options" class="spec-group"></div>
-
-      <div class="spec-title">選擇尺寸</div>
-      <div id="size-options" class="spec-group"></div>
-
-      <div class="spec-title">介紹</div>
-      <div id="product-note" class="note-box"></div>
-
-      <button id="add-to-cart-btn" class="action-btn" onclick="handleAddToCart()">🛒 加入購物車並前往結帳</button>
-    </div>
-  </main>
-
+    <!-- 確保 DOM 載入完畢才執行大腦 -->
     <script src="js/detail.js"></script>
     <script src="js/articles.js"></script>
+
 </body>
 </html>
