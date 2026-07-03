@@ -1,357 +1,316 @@
-/* ==========================================================================
-   🧸 璦坊童裝 Aifangkids - 購物車與填單頁專屬視覺 (cart.css)
-   最優先以 global.css 為主，本檔案獨立且不與全域樣式衝突，內含手機響應式例外設計
-   ========================================================================== */
+/* STREAMING_CHUNK:Importing font files and base resets for cart... */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
 
-/* 📌 頁面外層極致容器 */
+@font-face {
+    font-family: 'CutieStar';
+    src: url('../fonts/Cutie-Star.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* 基礎全域重置 */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #fcf8f5; /* 溫柔的高雅奶油色調背景 */
+    color: #5a4b41; /* 優雅的深可可色字體 */
+    font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+    line-height: 1.6;
+    padding: 20px 10px;
+}
+
+/* 外層最大容器包裹 */
 .cart-wrapper {
-    max-width: 650px;
+    max-width: 1000px;
     margin: 0 auto;
-    padding: 15px 15px 50px 15px;
 }
 
-/* 📌 頂部導覽控制列 */
+/* 頂部品牌暖心抬頭 */
 .cart-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px 0;
+    border-bottom: 2px dashed #e8dcd4;
 }
 
-.btn-back-link {
-    font-size: 14px;
-    color: var(--kids-blue);
-    text-decoration: none;
+.cart-header h1 {
+    font-family: 'CutieStar', sans-serif !important;
+    font-size: 35px;
+    color: #f2a6b2;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.cart-header .subtitle {
+    margin-top: 8px;
+    font-size: 0.95rem;
+    color: #a89482;
+}
+
+#display-afid {
+    background-color: #f0e4dc;
+    padding: 2px 8px;
+    border-radius: 12px;
     font-weight: bold;
+    color: #705b49;
 }
 
-.cart-uid-title {
-    font-size: 13px;
-    color: #6e5d53;
-    background: #ffffff;
-    padding: 4px 12px;
-    border-radius: 30px;
-    font-weight: bold;
-    border: 1px solid #f6efe9;
+/* 左右分欄 RWD 智慧佈局 */
+.cart-container {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 25px;
 }
 
-#txt-cart-uid {
-    color: #c47a55;
+@media (max-width: 850px) {
+    .cart-container {
+        grid-template-columns: 1fr; /* 手機平板自動轉為上下單欄 */
+    }
 }
 
-/* 📌 溫馨大區塊卡片白底底塊 */
-.cart-section {
-    background: #ffffff;
-    border-radius: 20px;
-    padding: 25px 20px;
-    margin-bottom: 25px;
-    box-shadow: 0 6px 16px rgba(222, 201, 185, 0.15);
-    border: 1px solid #f6efe9;
+/* 兩大區塊通用卡片白底外殼 */
+section {
+    background-color: #ffffff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 15px rgba(216, 197, 183, 0.2);
+    border: 1px solid #f2eae4;
 }
 
-.section-title {
-    font-size: 16px;
-    color: #5a4b41;
+section h2 {
+    font-size: 1.25rem;
+    color: #735d4c;
     margin-bottom: 20px;
-    border-left: 4px solid var(--baby-pink);
-    padding-left: 10px;
-    font-weight: 700;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #f7ece4;
 }
 
-/* 📌 購物車單品衣物項目橫列 */
-.cart-item-row {
+/* ==========================================================================
+   🛒 左側：購物車商品清單樣式
+   ========================================================================== */
+.loading-text, .empty-cart, .error-msg {
+    text-align: center;
+    padding: 40px 10px;
+    color: #a89482;
+}
+.empty-cart {
+    font-size: 1.05rem;
+    color: #baa38f;
+}
+.error-msg {
+    color: #c97a71;
+}
+
+.cart-item-card {
     display: flex;
     align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px dashed #f0e4dc;
     gap: 15px;
-    padding: 12px 0;
-    border-bottom: 1px dashed #f3ebe4;
 }
 
-.cart-item-row:last-of-type {
+.cart-item-card:last-child {
     border-bottom: none;
 }
 
-.cart-item-thumb {
-    width: 60px;
-    height: 60px;
-    object-fit: cover;
-    border-radius: 8px;
-    background-color: #fdfaf7;
-    border: 1px solid #f6efe9;
+.item-img-box {
+    width: 75px;
+    height: 75px;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #fafafa;
+    border: 1px solid #eee7e1;
+    flex-shrink: 0;
 }
 
-.cart-item-detail {
+.item-img-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.item-details {
     flex-grow: 1;
 }
 
-.cart-item-name {
-    font-size: 14px;
-    color: #4a3e36;
-    font-weight: 700;
+.item-code {
+    font-weight: bold;
+    font-size: 1rem;
+    color: #5a4b41;
     margin-bottom: 3px;
 }
 
-.cart-item-meta {
-    font-size: 12px;
-    color: var(--text-gray);
+.item-spec {
+    font-size: 0.85rem;
+    color: #9c897c;
 }
 
-.cart-item-meta span {
-    margin-right: 8px;
+.item-price, .item-qty {
+    font-size: 0.85rem;
+    color: #a69385;
 }
 
-.cart-item-right {
-    text-align: right;
-}
-
-.cart-item-qty {
-    font-size: 12px;
-    color: #8da9c4;
+.item-total-box {
     font-weight: bold;
+    color: #8c725e;
+    font-size: 1.05rem;
+    white-space: nowrap;
 }
 
-.cart-item-subtotal {
-    font-size: 14px;
-    font-weight: bold;
-    color: #ba7654;
-    margin-top: 2px;
-}
-
-/* 📌 金額與累計數量總計盒子 */
 .cart-summary-box {
-    background-color: #fdfbf9;
+    margin-top: 25px;
+    background-color: #faf6f2;
     border-radius: 12px;
-    padding: 15px;
-    margin-top: 15px;
-    border: 1px solid #fcf3eb;
+    padding: 18px;
+    border: 1px dashed #e8ded6;
 }
 
 .summary-row {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    font-size: 14px;
-    color: #6e5d53;
     margin-bottom: 8px;
+    font-size: 0.95rem;
+    color: #8c796c;
 }
 
-.summary-row:last-of-type {
-    margin-bottom: 0;
-}
-
-.summary-val {
+.grand-total {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #e8ded6;
+    font-size: 1.2rem;
     font-weight: bold;
-    color: #333;
+    color: #b06249; /* 柔和的焦糖紅強調結帳金額 */
 }
 
-.price-highlight {
-    font-size: 20px;
-    color: #c47a55;
-}
-
-.shipping-note {
-    font-size: 11px;
-    color: #bfa38f;
-    margin-top: 8px;
-    text-align: right;
-    line-height: 1.4;
-}
-
-/* 📌 溫馨填單資料欄位防呆排版 */
+/* ==========================================================================
+   📦 右側：表單輸入控制區樣式
+   ========================================================================== */
 .form-group {
     margin-bottom: 18px;
 }
 
-.form-label {
+.form-group label {
     display: block;
-    font-size: 13.5px;
-    color: #5a4b41;
+    font-size: 0.9rem;
     font-weight: bold;
     margin-bottom: 6px;
+    color: #6b5646;
 }
 
 .required {
-    color: var(--accent-red);
+    color: #c4715c;
     margin-left: 2px;
 }
 
-.form-input-desc {
-    font-size: 11px;
-    color: #a69285;
-    margin-bottom: 6px;
-    line-height: 1.4;
+.optional {
+    font-size: 0.8rem;
+    color: #baa38f;
+    font-weight: normal;
 }
 
-.form-input, .form-select, .form-textarea {
+/* 質感圓角舒適輸入框 */
+.form-group input, .form-group select, .form-input {
     width: 100%;
-    font-family: inherit;
-    font-size: 14px;
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid #dcd1c4;
-    background-color: #faf8f5;
-    color: #333;
+    padding: 11px 14px;
+    border: 1px solid #dcd0c4;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    color: #5a4b41;
+    background-color: #fdfdfd;
+    transition: all 0.25s ease;
+    font-family: 'Noto Sans KR', sans-serif !important;
+}
+
+.form-group input:focus, .form-group select:focus, .form-input:focus {
     outline: none;
-    transition: border-color 0.2s, background-color 0.2s;
-}
-
-.form-input:focus, .form-select:focus, .form-textarea:focus {
-    border-color: var(--baby-pink);
+    border-color: #ba9d84;
+    box-shadow: 0 0 0 3px rgba(186, 157, 132, 0.15);
     background-color: #ffffff;
-    box-shadow: 0 0 0 3px rgba(242, 166, 178, 0.15);
 }
 
-.form-textarea {
-    height: 70px;
-    resize: none;
+.form-note {
+    display: block;
+    font-size: 0.8rem;
+    color: #a18a78;
+    margin-top: 5px;
 }
 
-/* 📌 銀行轉帳與條款融合大底塊 */
-.group-bank {
-    background-color: #fff9f6;
-    padding: 15px;
-    border-radius: 12px;
-    border: 1px solid #fcefe9;
-}
-
+/* 💰 匯款資訊卡專屬微調（溫馨粉嫩奶油排版） */
 .bank-info-card {
-    background-color: #ffffff;
-    border: 1px dashed var(--baby-pink);
+    background-color: #faf4ee;
+    border: 1px dashed #d9c5b6;
     border-radius: 12px;
-    padding: 15px;
-    margin: 12px 0;
-    text-align: left;
+    padding: 16px;
+    margin-bottom: 12px;
+    margin-top: 6px;
 }
 
 .bank-title-text {
-    font-size: 14px;
     font-weight: bold;
-    color: #c47a55;
-    margin-bottom: 6px;
+    font-size: 1rem;
+    color: #735d4c;
+    margin-bottom: 8px;
 }
 
 .bank-detail-text {
-    font-size: 13px;
-    color: #5a4b41;
+    font-size: 0.9rem;
+    color: #615043;
     line-height: 1.6;
 }
 
 .bank-deadline-alert {
-    font-size: 12px;
-    color: var(--accent-red);
+    margin-top: 10px;
+    color: #b3563e; /* 溫和的警示紅褐色 */
     font-weight: bold;
-    margin-top: 8px;
-    background-color: #fff0f0;
-    padding: 6px 10px;
-    border-radius: 6px;
-    display: inline-block;
+    font-size: 0.85rem;
 }
 
-/* 📌 品牌四大購買須知條款列表 */
+/* 📜 店鋪條款政策清單樣式 */
 .shop-policy-list {
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px dashed #ebdcd0;
-    text-align: left;
+    margin: 22px 0;
+    padding-top: 16px;
+    border-top: 1px solid #f2eae4;
+    list-style-position: inside;
 }
 
 .shop-policy-item {
-    font-size: 12px;
-    color: #6e5d53;
-    line-height: 1.8;
-    list-style: none;
+    font-size: 0.85rem;
+    color: #8c7769;
+    margin-bottom: 6px;
     position: relative;
-    padding-left: 14px;
+    padding-left: 5px;
 }
 
-.shop-policy-item::before {
-    content: "•";
-    position: absolute;
-    left: 2px;
-    color: var(--baby-pink);
-    font-weight: bold;
-}
-
-/* 📌 正式成立訂單大粉紅按鈕 */
+/* 完美高亮結帳按鈕 */
 .btn-submit {
-    background-color: var(--baby-pink);
-    color: white;
     width: 100%;
-    font-size: 15px;
-    border-radius: 50px;
-    margin-top: 15px;
-    box-shadow: 0 5px 15px rgba(242, 166, 178, 0.35);
+    padding: 14px;
+    background-color: #8c725e;
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 10px rgba(140, 114, 94, 0.2);
+    margin-top: 5px;
+    font-family: 'Noto Sans KR', sans-serif !important;
 }
 
-/* 📌 線路狀態提示與動畫 */
-.hidden { display: none !important; }
-
-.cart-status-msg {
-    text-align: center;
-    padding: 30px 10px;
-    color: #a39081;
-    font-size: 13px;
+.btn-submit:hover:not(:disabled) {
+    background-color: #735d4c;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(140, 114, 94, 0.3);
 }
 
-.mini-spinner {
-    width: 20px;
-    height: 20px;
-    border: 2px solid #f3ebe4;
-    border-top: 2px solid var(--baby-pink);
-    border-radius: 50%;
-    margin: 0 auto 10px auto;
-    animation: spin 0.8s linear infinite;
-}
-
-/* 📌 狀態 B：結帳成功後的精美電子收據收據卡 */
-.receipt-card {
-    background: #ffffff;
-    border-radius: 24px;
-    padding: 40px 25px;
-    text-align: center;
-    box-shadow: 0 10px 25px rgba(222, 201, 185, 0.2);
-    border: 1px solid #f6efe9;
-    animation: slideUp 0.4s ease forwards;
-}
-
-.success-icon { font-size: 44px; margin-bottom: 15px; }
-.receipt-title { font-size: 20px; color: #55967e; font-weight: bold; margin-bottom: 10px; }
-.receipt-desc { font-size: 13.5px; color: var(--text-gray); line-height: 1.6; }
-.receipt-divider { height: 1px; background: dashed #ebdcd0; margin: 25px 0; }
-
-.receipt-info-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 12px;
-    font-size: 14px;
-}
-
-.r-label { color: #6e5d53; }
-.r-val-uid { font-weight: bold; color: #333; letter-spacing: 1px; }
-.r-val-ship { font-weight: bold; color: #c47a55; font-size: 16px; letter-spacing: 1px; background: #fff6f2; padding: 2px 8px; border-radius: 4px; }
-.receipt-alert-text { font-size: 11.5px; color: #bba494; line-height: 1.5; background-color: #faf7f2; padding: 12px; border-radius: 8px; text-align: left; margin-bottom: 30px; }
-
-.btn-home {
-    background-color: var(--kids-blue);
-    color: white;
-    border-radius: 50px;
-    width: 100%;
-}
-
-@keyframes spin { 100% { transform: rotate(360deg); } }
-@keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-
-/* ==========================================================================
-   📱 手機端額外微調設計 (RWD 例外響應式增強)
-   ========================================================================== */
-@media (max-width: 480px) {
-    .cart-section { padding: 20px 15px; }
-    .cart-item-name { font-size: 13px; }
-    .price-highlight { font-size: 18px; }
-    .form-label { font-size: 13px; }
-    .form-input, .form-select, .form-textarea { padding: 10px; font-size: 13px; }
-    .receipt-card { padding: 30px 15px; }
-    .group-bank { padding: 12px; }
-    .bank-info-card { padding: 12px; }
-    .bank-detail-text { font-size: 12px; }
+.btn-submit:disabled {
+    background-color: #d1c5bc;
+    color: #ffffff;
+    cursor: not-allowed;
+    box-shadow: none;
 }

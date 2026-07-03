@@ -1,171 +1,195 @@
-// ==========================================================
-// 🧸 Aifangkids 璦坊微型電商 - 購物車前端資料大腦 (cart.js)
-// ==========================================================
+/**
+ * 🧸 璦坊童裝 AiFang Studio —— 購物車結帳大腦 (cart.js)
+ */
 
-const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwJ0ERb9MhwFqtkMSE9UpfcrtGB7tnnn7LoXYJwSCrCCzn40NubmxQZUCQWqgmMI64c/exec";
+const GLOBAL_GAS_URL = "https://script.google.com/macros/s/AKfycbwrIptncgsBt4hAiRDniddghritIT8U9SXRvu8rTSY-t-LWYk4HoC7iQ_hGtaJLYIl5/exec";
 
-let clientUid = "";
-let loadedCartItems = []; // 儲存從後台撈回來的暫存衣服
+let currentAfid = "";
+let cartItems = [];
 
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. 解析網址中的 uid
     const urlParams = new URLSearchParams(window.location.search);
-    clientUid = urlParams.get("uid") || "";
+    currentAfid = urlParams.get('afid') || urlParams.get('uid');
 
-    if (!clientUid) {
-        alert("找不到您的專屬訂單編號，將引導您返回首頁");
-        window.location.href = "index.html";
+    if (!currentAfid) {
+        alert("🧸 偵測不到您的專屬單號，請由商品選單頁面的購物車按鈕進入");
         return;
     }
 
-    document.getElementById("txt-cart-uid").innerText = clientUid;
+    const idBadge = document.getElementById("display-afid");
+    if (idBadge) idBadge.innerText = currentAfid;
 
-    // 2. 自動向 GAS 調度該代號底下的購物車明細
-    fetchCartDetails();
+    // STREAMING_CHUNK:Latching fetch cart item queue...
+    fetchCartItems();
+    setupPhoneFormatter();
+
+    const orderForm = document.getElementById("order-form");
+    if (orderForm) {
+        orderForm.addEventListener("submit", handleOrderSubmit);
+    }
 });
 
-/**
- * 撈取該 uid 的購物車暫存列表
- */
-async function fetchCartDetails() {
-    const loader = document.getElementById("cart-loading");
-    const container = document.getElementById("cart-items-container");
+async function fetchCartItems() {
+    const loadingBox = document.getElementById("cart-loading");
+    const cartList = document.getElementById("cart-list");
 
     try {
-        const response = await fetch(`${GAS_API_URL}?action=getCart&uid=${clientUid}`);
-        if (!response.ok) throw new Error("撈取購物車失敗");
-        
-        const result = await response.json();
+        const targetUrl = `${GLOBAL_GAS_URL}?action=getCartItems&afid=${encodeURIComponent(currentAfid)}`;
+        const response = await fetch(targetUrl);
+        if (!response.ok) throw new Error("網路通訊異常");
 
-        if (result.success && result.data && result.data.length > 0) {
-            loadedCartItems = result.data;
-            renderCartList(loadedCartItems);
-            loader.classList.add("hidden");
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+            cartItems = result.data;
+            renderCartList();
         } else {
-            loader.innerHTML = "🫙 您的購物車目前空空如也唷！趕快回上一頁挑選";
-            document.getElementById("btn-submit-order").disabled = true;
-            document.getElementById("btn-submit-order").style.opacity = "0.5";
+            cartList.innerHTML = `<p class="error-msg">購物車讀取失敗：${result.message}</p>`;
         }
     } catch (error) {
-        console.error("購物車載入錯誤:", error);
-        loader.innerHTML = "<p style='color:red;'>🐾 撈取明細時線路稍微塞車，請重新整理網頁</p>";
+        console.error("讀取購物車失敗:", error);
+        cartList.innerHTML = `<p class="error-msg">無法連線至資料庫，請確認網路連線狀態！</p>`;
+    } finally {
+        if (loadingBox) loadingBox.style.display = "none";
     }
 }
 
-/**
- * 渲染購物車內每件衣服的精緻小橫列
- */
-function renderCartList(items) {
-    const container = document.getElementById("cart-items-container");
-    container.innerHTML = "";
+function renderCartList() {
+    const cartList = document.getElementById("cart-list");
+    const txtSubtotal = document.getElementById("text-subtotal");
+    const txtGrandTotal = document.getElementById("text-grand-total");
+    const btnSubmit = document.getElementById("btn-submit-order");
 
-    let totalQty = 0;
-    let totalAmount = 0;
+    cartList.innerHTML = "";
+    let totalSum = 0;
 
-    items.forEach(item => {
-        const subtotal = item.price * item.quantity;
-        totalQty += item.quantity;
-        totalAmount += subtotal;
+    if (cartItems.length === 0) {
+        cartList.innerHTML = `<div class="empty-cart">您的購物車目前空空如也唷 🧸</div>`;
+        if (btnSubmit) btnSubmit.disabled = true;
+        txtSubtotal.innerText = "0";
+        txtGrandTotal.innerText = "0";
+        return;
+    }
 
-        const displayImg = item.imgUrl && item.imgUrl.trim() !== "" ? item.imgUrl : "https://placehold.co/100x100/fdfaf7/8c7662?text=衣物";
+    if (btnSubmit) btnSubmit.disabled = false;
 
-        const row = document.createElement("div");
-        row.classList.add("cart-item-row");
-        row.innerHTML = `
-            <img class="cart-item-thumb" src="${displayImg}" alt="${item.prodName}" onerror="this.src='https://placehold.co/100x100/fdfaf7/8c7662?text=衣物'">
-            <div class="cart-item-detail">
-                <div class="cart-item-name">${item.prodName}</div>
-                <div class="cart-item-meta">
-                    ${item.color ? `<span>顏色: ${item.color}</span>` : ''}
-                    ${item.size ? `<span>規格: ${item.size}</span>` : ''}
-                </div>
-            </div>
-            <div class="cart-item-right">
-                <div class="cart-item-qty">x ${item.quantity}</div>
-                <div class="cart-item-subtotal">$${subtotal}</div>
-            </div>
+    // STREAMING_CHUNK:Looping through active cart item array...
+    cartItems.forEach(item => {
+        totalSum += Number(item.total || 0);
+
+        const itemCard = document.createElement("div");
+        itemCard.className = "cart-item-card";
+
+        const imgBox = document.createElement("div");
+        imgBox.className = "item-img-box";
+        const img = document.createElement("img");
+        img.src = item.imagemain || "images/products/default.jpg";
+        img.alt = item.code;
+        imgBox.appendChild(img);
+
+        const infoBox = document.createElement("div");
+        infoBox.className = "item-details";
+        infoBox.innerHTML = `
+            <div class="item-code">${item.code}</div>
+            <div class="item-spec">規格：${item.color} / ${item.size}</div>
+            <div class="item-price">單價：NT$ ${Number(item.price).toLocaleString()}</div>
+            <div class="item-qty">數量：${item.qty} 件</div>
         `;
-        container.appendChild(row);
+
+        const totalBox = document.createElement("div");
+        totalBox.className = "item-total-box";
+        totalBox.innerHTML = `NT$ ${Number(item.total).toLocaleString()}`;
+
+        itemCard.appendChild(imgBox);
+        itemCard.appendChild(infoBox);
+        itemCard.appendChild(totalBox);
+        cartList.appendChild(itemCard);
     });
 
-    // 將總計數值寫入畫面
-    document.getElementById("total-qty").innerText = totalQty;
-    document.getElementById("total-amount").innerText = totalAmount;
+    txtSubtotal.innerText = totalSum.toLocaleString();
+    txtGrandTotal.innerText = totalSum.toLocaleString();
 }
 
-/**
- * 📌 依據選定的超商物流，動態調整門市提示字樣（依最新規格限定 7-11 與 全家）
- */
-window.toggleStoreInfoHint = function() {
-    const logistics = document.getElementById("ipt-logistics").value;
-    const textarea = document.getElementById("ipt-storeInfo");
-    
-    if (logistics === "7-11") {
-        textarea.placeholder = "請輸入 7-11 的【門市店號(六碼)】與【店名】\n（例如：123456 豐業門市）";
-    } else if (logistics === "全家") {
-        textarea.placeholder = "請輸入全家的【店舖號(六碼)】與【店名】\n（例如：012345 全家新福店）";
-    } else {
-        textarea.placeholder = "請先選擇上方的取貨方式";
-    }
-};
+function setupPhoneFormatter() {
+    const phoneInput = document.getElementById("input-phone");
+    if (!phoneInput) return;
 
-/**
- * 送出表單：打包所有欄位，以 POST 正式遞交給 GAS 成立訂單
- */
-async function handleCheckout(event) {
-    event.preventDefault(); // 攔截傳統網頁跳轉
+    phoneInput.addEventListener("input", (e) => {
+        let value = e.target.value.replace(/\D/g, "");
+        if (value.startsWith("09")) {
+            if (value.length > 4 && value.length <= 7) {
+                value = value.replace(/(\d{4})(\d+)/, "$1-$2");
+            } else if (value.length > 7) {
+                value = value.replace(/(\d{4})(\d{3})(\d+)/, "$1-$2-$3");
+            }
+        }
+        e.target.value = value;
+    });
+}
+
+// STREAMING_CHUNK:Submitting clean order form to GAS...
+async function handleOrderSubmit(e) {
+    e.preventDefault();
 
     const btnSubmit = document.getElementById("btn-submit-order");
-    btnSubmit.innerText = "🐾 正在為您向雲端傳送訂單中，請勿關閉網頁...";
-    btnSubmit.disabled = true;
+    if (!currentAfid) {
+        alert("專屬單號遺失，無法完成結帳。");
+        return;
+    }
 
-    // 彙整資料欄位
-    const orderData = {
-        uid: clientUid,
-        lineName: document.getElementById("ipt-lineName").value.trim(),
-        receiverName: document.getElementById("ipt-receiverName").value.trim(),
-        phone: document.getElementById("ipt-phone").value.trim(),
-        email: document.getElementById("ipt-email").value.trim(),
-        logistics: document.getElementById("ipt-logistics").value,
-        storeInfo: document.getElementById("ipt-storeInfo").value.trim(),
-        lastFive: document.getElementById("ipt-lastFive").value.trim(),
-        items: loadedCartItems // 把剛剛讀到的衣物陣列一併附上
-    };
+    const lineVal = document.getElementById("input-line").value.trim();
+    const nameVal = document.getElementById("input-name").value.trim();
+    const phoneRaw = document.getElementById("input-phone").value.trim();
+    const emailVal = document.getElementById("input-email").value.trim();
+    const shippingVal = document.getElementById("select-shipping").value;
+    const storeVal = document.getElementById("input-store").value.trim();
+    
+    const lastfiveVal = document.getElementById("ipt-lastFive").value.trim();
+
+    const purePhone = phoneRaw.replace(/\D/g, "");
+    if (purePhone.length !== 10 || !purePhone.startsWith("09")) {
+        alert("⚠️ 請填寫正確的 10 位數手機號碼（格式如：0912345678）");
+        return;
+    }
+
+    btnSubmit.disabled = true;
+    btnSubmit.innerText = "正在為您向韓國追加登記中...";
 
     const payload = {
         action: "submitOrder",
-        orderData: orderData
+        afid: currentAfid,
+        line: lineVal,
+        name: nameVal,
+        phone: phoneRaw,
+        email: emailVal,
+        shipping: shippingVal,
+        store: storeVal,
+        lastfive: lastfiveVal
     };
 
     try {
-        const response = await fetch(GAS_API_URL, {
+        const response = await fetch(GLOBAL_GAS_URL, {
             method: "POST",
             mode: "cors",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
             body: JSON.stringify(payload)
         });
 
-        if (!response.ok) throw new Error("正式結帳網路異常");
-        const result = await response.json();
+        const resData = await response.json();
 
-        if (result.success) {
-            // 訂單成立成功！秀出收據畫面
-            document.getElementById("cart-main-view").classList.add("hidden");
-            
-            document.getElementById("rec-uid").innerText = clientUid;
-            document.getElementById("rec-shippingId").innerText = result.shippingId; // 來自後台生出的 shXXXX 單號
-            
-            document.getElementById("cart-success-view").classList.remove("hidden");
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (resData.success) {
+            alert(`🧸 恭喜您！訂單順利成立！\n\n為您排入追加排程。後續您可以利用專屬單號【${currentAfid}】至查詢頁面追蹤進度與補填匯款後五碼`);
+            cartItems = [];
+            renderCartList();
+            document.getElementById("order-form").reset();
         } else {
-            alert("後台系統拒絕了這次提交：" + result.message);
-            btnSubmit.innerText = "✨ 儲存資料，正式成立訂單 ➔";
-            btnSubmit.disabled = false;
+            alert("結帳失敗，請聯繫 LINE 官方客服協助處理：" + resData.message);
         }
-
-    } catch (error) {
-        console.error("提交正式訂單異常:", error);
-        alert("連線後台逾時，請檢查手機網路，或點擊下方按鈕重新試一次唷！");
-        btnSubmit.innerText = "✨ 儲存資料，正式成立訂單 ➔";
+    } catch (err) {
+        console.error("發送結帳請求失敗:", err);
+        alert("連線發生錯誤，請檢查網路狀態後再試一次！");
+    } finally {
         btnSubmit.disabled = false;
+        btnSubmit.innerText = "🛒 確認完成訂單";
     }
 }

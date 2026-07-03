@@ -1,6 +1,20 @@
-/* ==========================================================================
-   🧸 璦坊團購菜單專屬獨立樣式 (detail.css) - 溫馨奶油韓系風格
-   ========================================================================== */
+/*2. 修正字型覆蓋與對齊的菜單樣式表 (`detail.css`)
+
+```css:璦坊團購菜單樣式:assets/css/detail.css
+/* STREAMING_CHUNK:Importing font files and rules... */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+
+@font-face {
+    font-family: 'CutieStar';
+    src: url('../fonts/Cutie-Star.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* STREAMING_CHUNK:Setting body base styling... */
+body {
+    font-family: 'Noto Sans KR', sans-serif !important;
+}
 
 /* 頂部導航與品牌標題 */
 .menu-header {
@@ -10,8 +24,8 @@
     border-bottom: 1px solid #f3ebe1;
 }
 .brand-logo {
-    font-family: 'jf-openhuninn', sans-serif;
-    font-size: 32px;
+    font-family: 'CutieStar', sans-serif !important;
+    font-size: 35px;
     color: var(--baby-pink, #f2a6b2);
     margin-bottom: 6px;
     letter-spacing: 1px;
@@ -27,38 +41,103 @@
     border: 1px solid #eadecc;
 }
 
-/* 分類滑動列 */
-.category-nav {
-    display: flex;
-    gap: 8px;
-    padding: 12px 10px;
-    overflow-x: auto;
-    background-color: #fff;
+/* 📲 手機版左上角 ︙ 懸浮觸發按鈕 */
+.mobile-menu-btn {
+    display: none; /* 電腦版與頂部時預設不顯示 */
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 1000;
+    background-color: var(--baby-pink, #f2a6b2);
+    color: white;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(242, 166, 178, 0.3);
+    align-items: center;
+    justify-content: center;
+}
+
+/* 雙層導航控制面板 */
+.navigation-wrapper {
     position: sticky;
     top: 0;
     z-index: 90;
+    background-color: #fff;
     border-bottom: 1px solid #f3ebe1;
+    transition: all 0.3s ease-in-out;
 }
-.category-nav::-webkit-scrollbar { 
-    display: none;
+
+/* 📲 手機響應式：滾動隱藏與 ︙ 展開機制 */
+@media (max-width: 768px) {
+    /* 當頁面滑動超過設定高度時，掛載此隱藏樣式 */
+    body.page-scrolled .navigation-wrapper {
+        transform: translateY(-150%);
+        pointer-events: none;
+        opacity: 0;
+    }
+    body.page-scrolled .mobile-menu-btn {
+        display: flex; /* 滑動到下方時，浮現左上角 ︙ 按鈕 */
+    }
+    /* 當客人點擊 ︙ 強制叫出導航選單時 */
+    body.page-scrolled .navigation-wrapper.mobile-force-show {
+        transform: translateY(0);
+        pointer-events: auto;
+        opacity: 1;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        box-shadow: 0 8px 25px rgba(163, 145, 122, 0.2);
+    }
+}
+
+/* 橫向滾動基礎排版 */
+.scroll-nav-row {
+    display: flex;
+    gap: 8px;
+    padding: 10px;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+.scroll-nav-row::-webkit-scrollbar { 
+    display: none; /* 隱藏捲動條 */
 } 
-.cat-btn {
+
+.brand-btn, .cat-btn {
     flex-shrink: 0;
-    padding: 8px 16px;
+    padding: 7px 15px;
     border-radius: 30px;
     border: 1px solid #eadecc;
     background-color: var(--bg-main, #faf6f0);
     color: var(--text-main, #333);
-    font-family: 'jf-openhuninn', sans-serif;
+    font-family: 'Noto Sans KR', sans-serif !important;
     font-size: 13px;
     cursor: pointer;
     transition: all 0.2s ease;
 }
+/* 品牌按鈕選中樣式（用知性的霧藍色區隔） */
+.brand-btn.active {
+    background-color: #6d8294;
+    color: #fff;
+    border-color: #6d8294;
+}
+/* 大分類按鈕選中樣式（優雅的奶油粉紅） */
 .cat-btn.active {
     background-color: var(--baby-pink, #f2a6b2);
     color: #fff;
     border-color: var(--baby-pink, #f2a6b2);
 }
+.nav-loading-text {
+    font-size: 13px;
+    color: #999;
+    padding: 5px;
+}
+.hidden { display: none !important; }
 
 /* 響應式商品網格系統（手機 2 欄 / 電腦 4 欄） */
 .menu-container {
@@ -78,7 +157,7 @@
     }
 }
 
-/* 商品卡片 */
+/* 🍔 漢堡式雙層商品卡片 */
 .product-card {
     background-color: #fff;
     border: 1px solid #ebdcc5;
@@ -88,7 +167,13 @@
     flex-direction: column;
     transition: all 0.25s ease;
     position: relative;
+    cursor: pointer;
 }
+.product-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(163, 145, 122, 0.1);
+}
+
 .card-img-box {
     width: 100%;
     aspect-ratio: 1 / 1;
@@ -100,42 +185,75 @@
     height: 100%;
     object-fit: cover;
 }
+
+/* 第一層：乾淨基礎資訊（永遠現身） */
 .card-info {
     padding: 12px;
     font-size: 13px;
-    flex-grow: 1;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
 }
 .info-code {
-    font-size: 11px;
-    color: #888;
+    font-size: 14px;
+    font-weight: bold;
+    color: #9e8e79;
     letter-spacing: 0.5px;
 }
 .info-title {
-    font-size: 13px;
-    font-weight: bold;
-    color: #333;
+    font-size: 11px;
+    color: #666;
     line-height: 1.4;
-    height: 36px;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    background-color: #fffbf5;
+    padding: 6px 8px;
+    border-radius: 6px;
+    border-left: 2px solid #eadecc;
 }
 .info-price {
     font-size: 15px;
-    font-weight: bold;
-    color: #d9534f;
-    margin-top: 4px;
+    font-weight: 800;
+    color: #333;
+    margin-top: 2px;
 }
 
-/* 規格按鈕 */
+/* 🍔 第二層：漢堡規格核心內餡（預設收納） */
+.card-hamburger-specs {
+    display: none; /* 預設完全收起來 */
+    padding: 0 12px 12px 12px;
+    border-top: 1px dashed #f3ebe1;
+    background-color: #fffdfb;
+    cursor: default; /* 規格內頁指標恢復正常 */
+}
+
+/* 規格頂部抬頭與 ☒ 按鈕列 */
+.spec-header-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0 4px 0;
+}
+.spec-main-title {
+    font-size: 11px;
+    font-weight: bold;
+    color: #888;
+}
+/* ☒ 刪除還原按鈕 */
+.btn-reset-spec {
+    font-size: 16px;
+    color: #ccc;
+    cursor: pointer;
+    transition: color 0.2s;
+    line-height: 1;
+}
+.btn-reset-spec:hover {
+    color: #d9534f;
+}
+
 .spec-label {
     font-size: 11px;
-    color: #888;
-    margin-top: 4px;
+    color: #aaa;
+    margin-top: 6px;
+    margin-bottom: 4px;
 }
 .spec-group {
     display: flex;
@@ -148,14 +266,17 @@
     border: 1px solid #eadecc;
     background-color: #fff;
     border-radius: 6px;
-    font-size: 12px;
+    font-size: 11px;
     color: #333;
+    font-family: 'Noto Sans KR', sans-serif !important;
     cursor: pointer;
+    transition: all 0.15s;
 }
+.spec-btn:hover { border-color: #999; }
 .spec-btn.selected {
-    background-color: var(--baby-pink, #f2a6b2);
+    background-color: #6d8294; /* 規格選取改用知性藍 */
     color: white;
-    border-color: var(--baby-pink, #f2a6b2);
+    border-color: #6d8294;
     font-weight: bold;
 }
 
@@ -166,36 +287,45 @@
     border: 1px solid #eadecc;
     border-radius: 6px;
     overflow: hidden;
-    margin-top: 6px;
-    max-width: 110px;
+    margin-top: 4px;
+    max-width: 100px;
+    background: #fff;
 }
 .qty-btn {
-    width: 32px;
-    height: 30px;
+    width: 28px;
+    height: 26px;
     background-color: #faf6f0;
     border: none;
-    font-size: 16px;
+    font-size: 14px;
     cursor: pointer;
 }
 .qty-num {
     flex-grow: 1;
     text-align: center;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: bold;
 }
 
-/* 暫存追加動作面板 */
+/* 🌟 當漢堡卡片被點擊激活（展開）時 */
+.product-card.is-expanded .card-hamburger-specs {
+    display: block; /* 秀出核心規格餡料 */
+}
+
+/* 🌟 當雙規格都選齊，觸發反色高亮魔法狀態 */
 .product-card.active-highlight {
     border-color: var(--baby-pink, #f2a6b2);
-    box-shadow: 0 4px 15px rgba(242, 166, 178, 0.15);
+    background-color: #fffafb;
+    box-shadow: 0 4px 15px rgba(242, 166, 178, 0.12);
 }
+
+/* 暫存追加動作面板（高亮時才隨之浮現） */
 .card-save-panel {
     display: none;
     flex-direction: column;
     gap: 6px;
-    padding: 10px;
-    background-color: #fff8f9;
-    border-top: 1px dashed var(--baby-pink, #f2a6b2);
+    padding-top: 10px;
+    margin-top: 10px;
+    border-top: 1px solid #fcecee;
 }
 .product-card.active-highlight .card-save-panel {
     display: flex;
@@ -211,14 +341,15 @@
     background-color: var(--baby-pink, #f2a6b2);
     color: white;
     border: none;
-    padding: 9px 0;
+    padding: 8px 0;
     border-radius: 6px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: bold;
     cursor: pointer;
 }
 .btn-save-pending:disabled { background-color: #ccc; }
 
+/* 讀取小圈圈 */
 .loading-status {
     display: flex;
     flex-direction: column;
@@ -238,8 +369,8 @@
     margin-bottom: 12px;
 }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-.hidden { display: none !important; }
 
+/* 底部捷徑列 */
 .sticky-footer {
     position: fixed;
     bottom: 0;
@@ -263,4 +394,5 @@
     font-size: 13px;
     font-weight: bold;
     cursor: pointer;
+    font-family: 'Noto Sans KR', sans-serif !important;
 }

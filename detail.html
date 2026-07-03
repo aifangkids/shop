@@ -10,21 +10,31 @@
 </head>
 <body>
 
+    <!-- 手機響應式專用：滾動隱藏後浮現在左上角的 ︙ 控制按鈕 -->
+    <button id="mobile-menu-trigger" class="mobile-menu-btn">︙</button>
+
     <!-- 頂部高雅品牌列 -->
     <header class="menu-header">
         <h1 class="brand-logo">Aifang kids</h1>
-        <div class="order-uid-badge">專屬單號: <span id="display-afid">連線中...</span></div>
+        <div class="order-uid-badge">專屬訂單編號: <span id="display-afid">連線中...</span></div>
     </header>
 
-    <!-- 韓系橫向滾動分類導航 -->
-    <nav class="category-nav">
-        <button class="cat-btn active" data-cat="ALL">全部商品</button>
-        <button class="cat-btn" data-cat="TOP">TOP</button>
-        <button class="cat-btn" data-cat="BOTTOM">BOTTOM</button>
-        <button class="cat-btn" data-cat="SET">SET</button>
-        <button class="cat-btn" data-cat="BEBE">BEBE</button>
-        <button class="cat-btn" data-cat="ACC">ACC</button>
-    </nav>
+    <!-- 雙層聯動分類導航包裹盒 -->
+    <div id="navigation-wrapper" class="navigation-wrapper">
+        <!-- 第一層：品牌切換列 -->
+        <div class="brand-nav-container">
+            <div id="brand-nav-list" class="scroll-nav-row">
+                <span class="nav-loading-text">品牌讀取中...</span>
+            </div>
+        </div>
+        
+        <!-- 第二層：該品牌旗下對應擁有的 Category 大分類列（預設隱藏） -->
+        <div id="category-nav-container" class="category-nav-container hidden">
+            <div id="category-nav-list" class="scroll-nav-row">
+                <!-- 由 JS 根據選定的品牌動態彈出分類 -->
+            </div>
+        </div>
+    </div>
 
     <!-- 主要商品展示網格區 -->
     <main class="menu-container">
@@ -46,7 +56,5 @@
 
     <!-- 確保 DOM 載入完畢才執行大腦 -->
     <script src="js/detail.js"></script>
-    <script src="js/articles.js"></script>
-
 </body>
 </html>
