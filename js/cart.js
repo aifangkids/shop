@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const idBadge = document.getElementById("display-afid");
     if (idBadge) idBadge.innerText = currentAfid;
 
-    // STREAMING_CHUNK:Latching fetch cart item queue...
+    // 🎯 後端補齊 apiGetCartItems 後，此處就能成功讀取試算表內容！
     fetchCartItems();
     setupPhoneFormatter();
 
@@ -73,7 +73,6 @@ function renderCartList() {
 
     if (btnSubmit) btnSubmit.disabled = false;
 
-    // STREAMING_CHUNK:Looping through active cart item array...
     cartItems.forEach(item => {
         totalSum += Number(item.total || 0);
 
@@ -127,7 +126,6 @@ function setupPhoneFormatter() {
     });
 }
 
-// STREAMING_CHUNK:Submitting clean order form to GAS...
 async function handleOrderSubmit(e) {
     e.preventDefault();
 
