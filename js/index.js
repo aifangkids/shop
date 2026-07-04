@@ -7,9 +7,31 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnGenerate) {
         btnGenerate.addEventListener("click", generateShoppingId);
     }
+
+    // 🌟 防呆捕鼠夾：一進首頁，自動檢查手機 localStorage 是否有未結帳單號
+    checkPreviousSession();
 });
 
 let clientAfid = "";
+
+/**
+ * 🎯 檢查是否有未結帳的歷史專屬單號
+ */
+function checkPreviousSession() {
+    // 讀取手機瀏覽器的保險箱
+    const savedAfid = localStorage.getItem("aifang_current_afid");
+    const returnBanner = document.getElementById("return-hint-banner");
+    
+    if (savedAfid && returnBanner) {
+        // 如果手機裡有記憶單號，就顯示這塊高質感奶油粉小提示
+        returnBanner.classList.remove("hidden");
+        
+        // 客人點擊提示框，立刻帶著記憶的單號飛回選單頁繼續買！
+        returnBanner.addEventListener("click", () => {
+            window.location.href = `detail.html?afid=${savedAfid}`;
+        });
+    }
+}
 
 /**
  * 前端極速生成：af + 月日4碼 + 隨機4碼 (100%防撞、完全對齊後台 afid 欄位版)
@@ -20,6 +42,10 @@ async function generateShoppingId() {
     const stepSuccess = document.getElementById("step-success");
     const uidDisplay = document.getElementById("uid-display"); // HTML標籤ID維持不變
     const btnGoDetail = document.getElementById("btn-go-detail");
+    const returnBanner = document.getElementById("return-hint-banner");
+
+    // 生成新單號時，先將回流提示框隱藏
+    if (returnBanner) returnBanner.classList.add("hidden");
 
     stepInit.classList.add("hidden");
     stepLoading.classList.remove("hidden");
@@ -36,6 +62,9 @@ async function generateShoppingId() {
             
             // 完美組合出老闆娘的 afid（例：af07028816）
             clientAfid = `af${mm}${dd}${randNum}`;
+
+            // 🌟 核心防呆機制：生成新單號的同時，立刻存入手機的 localStorage 中！
+            localStorage.setItem("aifang_current_afid", clientAfid);
 
             if (uidDisplay) {
                 uidDisplay.innerText = clientAfid;

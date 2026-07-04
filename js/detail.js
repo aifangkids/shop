@@ -1,5 +1,5 @@
 /**
- * 🧸 璦坊童裝 AiFang Studio —— 菜單大腦驅動器 (detail.js)
+ * 🧸 璦坊童裝 AiFang Studio —— 菜單大腦驅動器 (detail.js) - 樂觀更新極速版
  */
 
 const GLOBAL_GAS_URL = "https://script.google.com/macros/s/AKfycbwrIptncgsBt4hAiRDniddghritIT8U9SXRvu8rTSY-t-LWYk4HoC7iQ_hGtaJLYIl5/exec";
@@ -22,10 +22,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const idBadge = document.getElementById("display-afid");
     if (idBadge) idBadge.innerText = currentAfid;
 
-    // 1. 下載商品大庫
-    fetchProductCatalog();
+    // 1. ⚡ 智慧緩存下載商品大庫 (0.1秒秒開)
+    fetchProductCatalogWithCache();
 
-    // 2. 📲 核心修正：網頁一打開，立刻同步撈取該單號在試算表已有的暫存內容，顯示在底部！
+    // 2. 📲 讀取底部預覽並初始化 (優先讀取一次)
     fetchAndRenderBottomPreview();
 
     setupMobileScrollMenu();
@@ -35,7 +35,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const btnGoCart = document.getElementById("btn-go-cart");
     if (btnGoCart) {
-        // 固定為 前往結帳 ➔ 跳轉
         btnGoCart.addEventListener("click", () => {
             window.location.href = `cart.html?afid=${currentAfid}`;
         });
@@ -108,7 +107,7 @@ function renderModalItemList() {
         return;
     }
 
-    currentPendingCartItems.forEach((item) => {
+    currentPendingCartItems.forEach((item, index) => {
         const itemPrice = Number(item.price || 0);
         const itemQty = Number(item.qty || 1);
         const itemTotal = Number(item.total || (itemPrice * itemQty));
@@ -125,12 +124,18 @@ function renderModalItemList() {
             <div class="btn-delete-preview-item" title="刪除此商品">☒</div>
         `;
 
-        // 綁定單品 ☒ 刪除鈕點擊事件 (連動 API 與前台渲染)
+        // 綁定單品 ☒ 刪除鈕點擊事件 (🚀 樂觀更新：點選後畫面立刻刪除，免等待後台)
         const delBtn = row.querySelector(".btn-delete-preview-item");
         delBtn.addEventListener("click", async () => {
-            delBtn.style.pointerEvents = "none";
-            delBtn.innerText = "⏳";
+            // 1. 🚀【樂觀更新黑科技】先把該筆資料從當前記憶體陣列拿掉
+            const originalBackup = [...currentPendingCartItems]; // 備份以防萬一連線失敗
+            currentPendingCartItems.splice(index, 1);
+            
+            // 2. ⚡ 立刻重新繪製畫面（不等待 Google 的 10 秒延遲！）
+            renderBottomOnlyUI(); 
+            renderModalItemList();
 
+            // 3. 背景默默去跟 Google 試算表做刪除
             const payload = {
                 action: "deletePendingItem",
                 afid: currentAfid,
@@ -148,20 +153,19 @@ function renderModalItemList() {
                 });
                 const resData = await response.json();
 
-                if (resData.success) {
-                    // 實時重新加載底下留白與 Modal 明細
-                    await fetchAndRenderBottomPreview();
-                    renderModalItemList(); 
-                } else {
-                    alert("刪除失敗：" + resData.message);
-                    delBtn.style.pointerEvents = "auto";
-                    delBtn.innerText = "☒";
+                if (!resData.success) {
+                    // 如果後台真的刪除失敗，悄悄把資料回填並警告
+                    currentPendingCartItems = originalBackup;
+                    renderBottomOnlyUI();
+                    renderModalItemList();
+                    alert("後端同步失敗，請再試一次：" + resData.message);
                 }
             } catch (err) {
                 console.error("刪除連線異常:", err);
-                alert("連線超時，請再試一次！");
-                delBtn.style.pointerEvents = "auto";
-                delBtn.innerText = "☒";
+                currentPendingCartItems = originalBackup;
+                renderBottomOnlyUI();
+                renderModalItemList();
+                alert("連線超時，已還原項目，請檢查網路！");
             }
         });
 
@@ -174,91 +178,118 @@ function renderModalItemList() {
 }
 
 /**
- * 🎯 智慧連動：非同步撈取試算表並即時將資料填入底下留白預覽區 (動態呈現、不跑版)
+ * 純前端繪製底部留白預覽區 (不重新連線，極速回饋)
  */
-async function fetchAndRenderBottomPreview() {
+function renderBottomOnlyUI() {
     const previewContainer = document.querySelector(".footer-hint");
     const btnGoCart = document.getElementById("btn-go-cart");
     if (!previewContainer) return;
 
+    if (currentPendingCartItems.length > 0) {
+        const items = currentPendingCartItems;
+        
+        if (items.length <= 2) {
+            // 🔹 暫存商品在 2 個以內：完整顯示純文字明細，中間用「、」串接
+            let htmlContent = "";
+            items.forEach(item => {
+                const price = Number(item.price || 0);
+                const total = Number(item.total || (price * item.qty));
+                htmlContent += `
+                    <div class="preview-item-text" style="font-size: 11px; color: #5a4b41; margin-bottom: 2px; line-height: 1.3;">
+                        ${item.code}、NT$ ${price.toLocaleString()}、${item.color}、${item.size}、${item.qty}件、NT$ ${total.toLocaleString()}
+                    </div>
+                `;
+            });
+            previewContainer.innerHTML = htmlContent;
+            if (btnGoCart) btnGoCart.innerHTML = "前往結帳 ➔";
+        } else {
+            // 🔹 暫存商品超過 2 個：左側顯示 🛒
+            previewContainer.innerHTML = `
+                <div class="preview-cart-badge" id="btn-trigger-preview-modal" style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
+                    <span style="font-size: 22px; cursor: pointer; animation: bounce 1s infinite alternate;">🛒</span>
+                    <span style="font-size: 13px; font-weight: bold; color: var(--baby-pink, #f2a6b2); text-decoration: underline;">
+                        點擊查看選擇的商品資訊 (${items.length} 件)
+                    </span>
+                </div>
+            `;
+            
+            const triggerBadge = document.getElementById("btn-trigger-preview-modal");
+            if (triggerBadge) {
+                triggerBadge.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    showCartPreviewModal();
+                });
+            }
+
+            if (btnGoCart) btnGoCart.innerHTML = "前往結帳 ➔";
+        }
+    } else {
+        previewContainer.innerHTML = `
+            <span class="summary-label" style="font-size: 12px; color: #888;">
+                選擇商品資料即可加入暫存追加區
+            </span>
+        `;
+        if (btnGoCart) btnGoCart.innerHTML = "🛒 前往我的暫存車";
+        const backdrop = document.getElementById("cart-preview-backdrop");
+        if (backdrop) backdrop.classList.remove("is-active");
+    }
+}
+
+/**
+ * 🎯 智慧連動：向伺服器拉取最新的追加清單，並重繪畫面
+ */
+async function fetchAndRenderBottomPreview() {
     try {
         const targetUrl = `${GLOBAL_GAS_URL}?action=getCartItems&afid=${encodeURIComponent(currentAfid)}`;
         const response = await fetch(targetUrl);
         if (!response.ok) return;
         const result = await response.json();
 
-        // 寫入全域資料包
         currentPendingCartItems = (result.success && result.data) ? result.data : [];
-
-        if (currentPendingCartItems.length > 0) {
-            const items = currentPendingCartItems;
-            
-            if (items.length <= 2) {
-                // 🔹 暫存商品在 2 個以內（包含 2 個）：完整顯示純文字明細（無圖片），中間用「、」串接
-                let htmlContent = "";
-                items.forEach(item => {
-                    const price = Number(item.price || 0);
-                    const total = Number(item.total || (price * item.qty));
-                    htmlContent += `
-                        <div class="preview-item-text" style="font-size: 11px; color: #5a4b41; margin-bottom: 2px; line-height: 1.3;">
-                            ${item.code}、NT$ ${price.toLocaleString()}、${item.color}、${item.size}、${item.qty}件、NT$ ${total.toLocaleString()}
-                        </div>
-                    `;
-                });
-                previewContainer.innerHTML = htmlContent;
-                if (btnGoCart) {
-                    btnGoCart.innerHTML = "前往結帳 ➔";
-                }
-            } else {
-                // 🔹 暫存商品超過 2 個（3 件以上）：隱藏純文字，左側顯示一個可愛的 🛒 按鈕指示
-                previewContainer.innerHTML = `
-                    <div class="preview-cart-badge" id="btn-trigger-preview-modal" style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
-                        <span style="font-size: 22px; cursor: pointer; animation: bounce 1s infinite alternate;">🛒</span>
-                        <span style="font-size: 13px; font-weight: bold; color: var(--baby-pink, #f2a6b2); text-decoration: underline;">
-                            點擊查看選擇的商品資訊 (${items.length} 件)
-                        </span>
-                    </div>
-                `;
-                
-                // 點選左側 🛒 彈出抽屜預覽 (不跳轉)
-                const triggerBadge = document.getElementById("btn-trigger-preview-modal");
-                if (triggerBadge) {
-                    triggerBadge.addEventListener("click", (e) => {
-                        e.stopPropagation();
-                        showCartPreviewModal();
-                    });
-                }
-
-                if (btnGoCart) {
-                    btnGoCart.innerHTML = "前往結帳 ➔";
-                }
-            }
-        } else {
-            // 沒商品時的預設留白提示文字
-            previewContainer.innerHTML = `
-                <span class="summary-label" style="font-size: 12px; color: #888;">
-                    選擇商品資料即可加入暫存追加區
-                </span>
-            `;
-            if (btnGoCart) {
-                btnGoCart.innerHTML = "🛒 前往我的暫存車";
-            }
-            // 若商品已被清空，自動收拢 Modal 視窗
-            const backdrop = document.getElementById("cart-preview-backdrop");
-            if (backdrop) backdrop.classList.remove("is-active");
-        }
+        renderBottomOnlyUI();
     } catch (err) {
         console.error("讀取底部預覽清單發生異常:", err);
     }
 }
 
 /**
- * 從 GAS 後台安全下載商品大庫
+ * ⚡ 雙重保障：利用 LocalStorage 緩存商品大庫，防止每次切換都等 10 秒
  */
-async function fetchProductCatalog() {
+async function fetchProductCatalogWithCache() {
     const loadingBox = document.getElementById("catalog-loading");
     const grid = document.getElementById("products-grid");
 
+    const CACHE_KEY = "aifang_catalog_data";
+    const CACHE_TIME_KEY = "aifang_catalog_time";
+    const FIVE_MINUTES = 5 * 60 * 1000; // 5分鐘內不重覆抓取 (可視需求調整)
+
+    const cachedData = localStorage.getItem(CACHE_KEY);
+    const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
+
+    // 🚀 如果手機本地有緩存，且在5分鐘內，直接 0.1 秒秒開渲染！
+    if (cachedData && cachedTime && (Date.now() - Number(cachedTime) < FIVE_MINUTES)) {
+        try {
+            allProductsRaw = JSON.parse(cachedData);
+            buildBrandAndCategoryNav();
+            renderProducts(allProductsRaw);
+            if (loadingBox) loadingBox.classList.add("hidden");
+            
+            // 背景默默去更新最新資料，不阻礙客人看衣服的體驗 (非同步靜態更新)
+            silentUpdateProductCatalog(CACHE_KEY, CACHE_TIME_KEY);
+            return;
+        } catch (e) {
+            console.error("解析緩存失敗，將向伺服器重新取得", e);
+        }
+    }
+
+    // 否則，乖乖等待 Google 第一次開啟
+    await fetchProductCatalogFromServer(CACHE_KEY, CACHE_TIME_KEY, loadingBox, grid);
+}
+
+/**
+ * 從伺服器下載商品大庫，並存入快取
+ */
+async function fetchProductCatalogFromServer(cacheKey, timeKey, loadingBox, grid) {
     try {
         const targetUrl = `${GLOBAL_GAS_URL}?action=getProductCatalog`;
         const response = await fetch(targetUrl);
@@ -267,6 +298,11 @@ async function fetchProductCatalog() {
         const result = await response.json();
         if (result.success && result.data) {
             allProductsRaw = result.data;
+            
+            // 寫入本地存儲，下次秒開！
+            localStorage.setItem(cacheKey, JSON.stringify(allProductsRaw));
+            localStorage.setItem(timeKey, String(Date.now()));
+
             buildBrandAndCategoryNav();
             renderProducts(allProductsRaw);
         } else {
@@ -277,6 +313,25 @@ async function fetchProductCatalog() {
         grid.innerHTML = `<p style="padding:20px; color:red;">無法與後端資料庫連線，請檢查網路並重新整理！</p>`;
     } finally {
         if (loadingBox) loadingBox.classList.add("hidden");
+    }
+}
+
+/**
+ * 默默在背景同步最新商品，不打擾客人點選
+ */
+async function silentUpdateProductCatalog(cacheKey, timeKey) {
+    try {
+        const targetUrl = `${GLOBAL_GAS_URL}?action=getProductCatalog`;
+        const response = await fetch(targetUrl);
+        if (response.ok) {
+            const result = await response.json();
+            if (result.success && result.data) {
+                localStorage.setItem(cacheKey, JSON.stringify(result.data));
+                localStorage.setItem(timeKey, String(Date.now()));
+            }
+        }
+    } catch (e) {
+        console.warn("背景更新產品大庫失敗，繼續使用舊版快取", e);
     }
 }
 
@@ -542,21 +597,54 @@ function renderProducts(products) {
             }
         }
 
+        // 🚀【確認暫存追加——極速樂觀更新版】
         btnSave.addEventListener("click", async () => {
             if (!selectedColor || !selectedSize) {
                 alert("請選好顏色與尺寸規格唷 🧸");
                 return;
             }
-            btnSave.disabled = true;
-            btnSave.innerText = "正在寫入暫存車...";
 
+            // 🌟【關鍵修正】先將選取的規格暫存備份起來，防止下一行 resetBtn.click() 提前清空它們！
+            const savedColor = selectedColor;
+            const savedSize = selectedSize;
+            const savedQty = Number(currentQty);
+
+            // A. 🚀【樂觀更新】立刻在前端虛擬一筆暫存項目
+            const newItem = {
+                code: item.code,
+                color: savedColor,
+                size: savedSize,
+                qty: savedQty,
+                price: Number(item.price || 0),
+                total: Number(item.price || 0) * savedQty,
+                imagemain: item.imagemain || ""
+            };
+
+            const originalBackup = [...currentPendingCartItems]; // 備份防連線失敗
+            
+            // 檢查是否已有相同規格商品，有的話直接加數量，沒有就推入
+            const existingIndex = currentPendingCartItems.findIndex(i => i.code === newItem.code && i.color === newItem.color && i.size === newItem.size);
+            if (existingIndex > -1) {
+                currentPendingCartItems[existingIndex].qty += newItem.qty;
+                currentPendingCartItems[existingIndex].total = currentPendingCartItems[existingIndex].qty * currentPendingCartItems[existingIndex].price;
+            } else {
+                currentPendingCartItems.push(newItem);
+            }
+
+            // B. ⚡ 立刻在 0.1 秒內更新底部留白區，客人完全不用等轉圈圈！
+            renderBottomOnlyUI();
+
+            // 還原商品卡片成未展開狀態 (這會把全域 selectedColor, selectedSize 重置為 "")
+            resetBtn.click();
+
+            // C. 背景默默去和試算表同步
             const payload = {
                 action: "addPending",
                 afid: currentAfid,
                 code: item.code,
-                color: selectedColor,
-                size: selectedSize,
-                qty: Number(currentQty)
+                color: savedColor, // 🌟 這裡改用剛才備份好的規格，安全送出！
+                size: savedSize,   // 🌟 這裡改用剛才備份好的規格，安全送出！
+                qty: savedQty      // 🌟 這裡改用剛才備份好的數量
             };
 
             try {
@@ -568,21 +656,17 @@ function renderProducts(products) {
                 });
 
                 const resData = await response.json();
-                if (resData.success) {
-                    // 🎯 核心修正：移除原先的追加成功提示 Alert (徹底靜音追加)
-                    resetBtn.click();
-                    
-                    // 🌟 核心聯動：成功寫入資料庫後，立刻呼叫刷新底部的留白區！
-                    fetchAndRenderBottomPreview();
-                } else {
-                    alert("後台拒絕寫入：" + resData.message);
+                if (!resData.success) {
+                    // 同步失敗就還原資料並提示
+                    currentPendingCartItems = originalBackup;
+                    renderBottomOnlyUI();
+                    alert("後端同步失敗：" + resData.message);
                 }
             } catch (err) {
                 console.error("發送暫存失敗:", err);
-                alert("連線失敗！請再試一次。");
-            } finally {
-                btnSave.disabled = false;
-                btnSave.innerText = "確認暫存追加";
+                currentPendingCartItems = originalBackup;
+                renderBottomOnlyUI();
+                alert("連線不穩定，暫存同步失敗！已還原狀態，請檢查網路。");
             }
         });
 

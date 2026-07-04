@@ -137,6 +137,36 @@
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
 }
+        /* 🌟 韓系奶油粉回流提示框專屬樣式 (寫在 head 中確保最快載入) */
+        .return-hint-banner {
+            background-color: var(--baby-pink, #f2a6b2);
+            color: #fff;
+            text-align: center;
+            padding: 14px 15px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            font-size: 13px;
+            line-height: 1.6;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(242, 166, 178, 0.4);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            animation: popDown 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        .return-hint-banner:active {
+            transform: scale(0.97);
+        }
+        .return-hint-banner .click-text {
+            display: inline-block;
+            font-weight: bold;
+            margin-top: 6px;
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+        @keyframes popDown {
+            from { opacity: 0; transform: translateY(-15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
 /* ==========================================================================
    手機端額外響應式例外增強 (RWD)
