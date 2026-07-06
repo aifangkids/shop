@@ -19,7 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const idBadge = document.getElementById("display-afid");
     if (idBadge) idBadge.innerText = currentAfid;
 
-    // 🎯 後端補齊 apiGetCartItems 後，此處就能成功讀取試算表內容！
     fetchCartItems();
     setupPhoneFormatter();
 
@@ -66,8 +65,8 @@ function renderCartList() {
     if (cartItems.length === 0) {
         cartList.innerHTML = `<div class="empty-cart">您的購物車目前空空如也唷 🧸</div>`;
         if (btnSubmit) btnSubmit.disabled = true;
-        txtSubtotal.innerText = "0";
-        txtGrandTotal.innerText = "0";
+        if (txtSubtotal) txtSubtotal.innerText = "0";
+        if (txtGrandTotal) txtGrandTotal.innerText = "0";
         return;
     }
 
@@ -78,35 +77,23 @@ function renderCartList() {
 
         const itemCard = document.createElement("div");
         itemCard.className = "cart-item-card";
-
-        const imgBox = document.createElement("div");
-        imgBox.className = "item-img-box";
-        const img = document.createElement("img");
-        img.src = item.imagemain || "images/products/default.jpg";
-        img.alt = item.code;
-        imgBox.appendChild(img);
-
-        const infoBox = document.createElement("div");
-        infoBox.className = "item-details";
-        infoBox.innerHTML = `
-            <div class="item-code">${item.code}</div>
-            <div class="item-spec">規格：${item.color} / ${item.size}</div>
-            <div class="item-price">單價：NT$ ${Number(item.price).toLocaleString()}</div>
-            <div class="item-qty">數量：${item.qty} 件</div>
+        itemCard.innerHTML = `
+            <div class="item-img-box">
+                <img src="${item.imagemain || 'images/products/default.jpg'}" alt="${item.code}">
+            </div>
+            <div class="item-details">
+                <div class="item-code">${item.code}</div>
+                <div class="item-spec">規格：${item.color} / ${item.size}</div>
+                <div class="item-price">單價：NT$ ${Number(item.price).toLocaleString()}</div>
+                <div class="item-qty">數量：${item.qty} 件</div>
+            </div>
+            <div class="item-total-box">NT$ ${Number(item.total).toLocaleString()}</div>
         `;
-
-        const totalBox = document.createElement("div");
-        totalBox.className = "item-total-box";
-        totalBox.innerHTML = `NT$ ${Number(item.total).toLocaleString()}`;
-
-        itemCard.appendChild(imgBox);
-        itemCard.appendChild(infoBox);
-        itemCard.appendChild(totalBox);
         cartList.appendChild(itemCard);
     });
 
-    txtSubtotal.innerText = totalSum.toLocaleString();
-    txtGrandTotal.innerText = totalSum.toLocaleString();
+    if (txtSubtotal) txtSubtotal.innerText = totalSum.toLocaleString();
+    if (txtGrandTotal) txtGrandTotal.innerText = totalSum.toLocaleString();
 }
 
 function setupPhoneFormatter() {
@@ -135,16 +122,19 @@ async function handleOrderSubmit(e) {
         return;
     }
 
-    const lineVal = document.getElementById("input-line").value.trim();
-    const nameVal = document.getElementById("input-name").value.trim();
-    const phoneRaw = document.getElementById("input-phone").value.trim();
-    const emailVal = document.getElementById("input-email").value.trim();
-    const shippingVal = document.getElementById("select-shipping").value;
-    const storeVal = document.getElementById("input-store").value.trim();
-    
-    const lastfiveVal = document.getElementById("ipt-lastFive").value.trim();
+    const payload = {
+        action: "submitOrder",
+        afid: currentAfid,
+        line: document.getElementById("input-line").value.trim(),
+        name: document.getElementById("input-name").value.trim(),
+        phone: document.getElementById("input-phone").value.trim(),
+        email: document.getElementById("input-email").value.trim(),
+        shipping: document.getElementById("select-shipping").value,
+        store: document.getElementById("input-store").value.trim(),
+        lastfive: document.getElementById("ipt-lastFive").value.trim()
+    };
 
-    const purePhone = phoneRaw.replace(/\D/g, "");
+    const purePhone = payload.phone.replace(/\D/g, "");
     if (purePhone.length !== 10 || !purePhone.startsWith("09")) {
         alert("⚠️ 請填寫正確的 10 位數手機號碼（格式如：0912345678）");
         return;
@@ -152,18 +142,6 @@ async function handleOrderSubmit(e) {
 
     btnSubmit.disabled = true;
     btnSubmit.innerText = "正在為您向韓國追加登記中...";
-
-    const payload = {
-        action: "submitOrder",
-        afid: currentAfid,
-        line: lineVal,
-        name: nameVal,
-        phone: phoneRaw,
-        email: emailVal,
-        shipping: shippingVal,
-        store: storeVal,
-        lastfive: lastfiveVal
-    };
 
     try {
         const response = await fetch(GLOBAL_GAS_URL, {
@@ -177,9 +155,12 @@ async function handleOrderSubmit(e) {
 
         if (resData.success) {
             alert(`🧸 恭喜您！訂單順利成立！\n\n為您排入追加排程。後續您可以利用專屬單號【${currentAfid}】至查詢頁面追蹤進度與補填匯款後五碼`);
-            cartItems = [];
-            renderCartList();
-            document.getElementById("order-form").reset();
+            
+            // 核心修正：結帳成功後，清除快取中的單號標記
+            localStorage.removeItem("aifang_current_afid");
+
+            // 引導至首頁，下次點選時必須重新生成
+            window.location.href = "index.html";
         } else {
             alert("結帳失敗，請聯繫 LINE 官方客服協助處理：" + resData.message);
         }
