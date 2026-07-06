@@ -1,7 +1,3 @@
-/**
- * 🧸 璦坊童裝 AiFang Studio —— 購物車結帳大腦 (cart.js)
- */
-
 const GLOBAL_GAS_URL = "https://script.google.com/macros/s/AKfycbwrIptncgsBt4hAiRDniddghritIT8U9SXRvu8rTSY-t-LWYk4HoC7iQ_hGtaJLYIl5/exec";
 
 let currentAfid = "";
@@ -12,7 +8,8 @@ document.addEventListener("DOMContentLoaded", () => {
     currentAfid = urlParams.get('afid') || urlParams.get('uid');
 
     if (!currentAfid) {
-        alert("🧸 偵測不到您的專屬單號，請由商品選單頁面的購物車按鈕進入");
+        alert("沒有專屬訂單編號，將帶您回首頁重新製作");
+        window.location.href = "index.html";
         return;
     }
 
@@ -47,7 +44,7 @@ async function fetchCartItems() {
         }
     } catch (error) {
         console.error("讀取購物車失敗:", error);
-        cartList.innerHTML = `<p class="error-msg">無法連線至資料庫，請確認網路連線狀態！</p>`;
+        cartList.innerHTML = `<p class="error-msg">無法連線，請確認網路連線狀態！</p>`;
     } finally {
         if (loadingBox) loadingBox.style.display = "none";
     }
@@ -63,7 +60,7 @@ function renderCartList() {
     let totalSum = 0;
 
     if (cartItems.length === 0) {
-        cartList.innerHTML = `<div class="empty-cart">您的購物車目前空空如也唷 🧸</div>`;
+        cartList.innerHTML = `<div class="empty-cart">購物車沒有預購商品</div>`;
         if (btnSubmit) btnSubmit.disabled = true;
         if (txtSubtotal) txtSubtotal.innerText = "0";
         if (txtGrandTotal) txtGrandTotal.innerText = "0";
@@ -118,7 +115,7 @@ async function handleOrderSubmit(e) {
 
     const btnSubmit = document.getElementById("btn-submit-order");
     if (!currentAfid) {
-        alert("專屬單號遺失，無法完成結帳。");
+        alert("專屬訂單編號遺失，無法完成結帳。");
         return;
     }
 
@@ -141,7 +138,7 @@ async function handleOrderSubmit(e) {
     }
 
     btnSubmit.disabled = true;
-    btnSubmit.innerText = "正在為您向韓國追加登記中...";
+    btnSubmit.innerText = "訂單傳送至系統";
 
     try {
         const response = await fetch(GLOBAL_GAS_URL, {
@@ -154,12 +151,12 @@ async function handleOrderSubmit(e) {
         const resData = await response.json();
 
         if (resData.success) {
-            alert(`🧸 恭喜您！訂單順利成立！\n\n為您排入追加排程。後續您可以利用專屬單號【${currentAfid}】至查詢頁面追蹤進度與補填匯款後五碼`);
+            alert(` 訂單順利成立！\n\n會盡速處理訂單預購商品。後續將專屬訂單編號【${currentAfid}】至查詢訂單查看或是補填匯款帳號後五碼`);
             
             // 核心修正：結帳成功後，清除快取中的單號標記
             localStorage.removeItem("aifang_current_afid");
 
-            // 引導至首頁，下次點選時必須重新生成
+            // 引導至首頁，下次點選時必須重新製作
             window.location.href = "index.html";
         } else {
             alert("結帳失敗，請聯繫 LINE 官方客服協助處理：" + resData.message);
@@ -169,6 +166,6 @@ async function handleOrderSubmit(e) {
         alert("連線發生錯誤，請檢查網路狀態後再試一次！");
     } finally {
         btnSubmit.disabled = false;
-        btnSubmit.innerText = "🛒 確認完成訂單";
+        btnSubmit.innerText = "💗 完成訂單";
     }
 }

@@ -1,14 +1,10 @@
-// ==========================================================
-// 🧸 Aifangkids 璦坊微型電商 - 首頁前端串接大腦 (index.js)
-// ==========================================================
-
 document.addEventListener("DOMContentLoaded", () => {
     const btnGenerate = document.getElementById("btn-generate");
     if (btnGenerate) {
         btnGenerate.addEventListener("click", generateShoppingId);
     }
 
-    // 🌟 防呆捕鼠夾：一進首頁，自動檢查手機 localStorage 是否有未結帳單號
+    // 🌟 防呆：一進首頁，自動檢查手機 localStorage 是否有未結帳單號
     checkPreviousSession();
 });
 
@@ -74,7 +70,7 @@ async function generateShoppingId() {
                 const newBtnGoDetail = btnGoDetail.cloneNode(true);
                 btnGoDetail.parentNode.replaceChild(newBtnGoDetail, btnGoDetail);
                 
-                // 📌 關鍵修正：網址參數全面改為 afid=，完美交棒給 detail.html
+                //網址參數全面改為 afid=，完美交棒給 detail.html
                 newBtnGoDetail.addEventListener("click", () => {
                     window.location.href = `detail.html?afid=${clientAfid}`;
                 });
@@ -84,7 +80,7 @@ async function generateShoppingId() {
             stepSuccess.classList.remove("hidden");
 
         } catch (error) {
-            console.error("生成編號發生異常:", error);
+            console.error("製作訂單編號發生異常:", error);
             alert("系統判定異常，請重新點擊一次。");
             resetToInit();
         }

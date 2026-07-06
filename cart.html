@@ -14,7 +14,7 @@
         <!-- 頂部品牌暖心抬頭 -->
         <header class="cart-header">
             <h1>Aifang kids</h1>
-            <p class="subtitle">專屬編號：<span id="display-afid">載入中...</span></p>
+            <p class="subtitle">專屬編號：<span id="display-afid">載入中</span></p>
         </header>
 
         <!-- 主要內容區塊 -->
@@ -22,13 +22,13 @@
             
             <!-- 左側/上方：暫存購物車商品清單 -->
             <section class="cart-items-section">
-                <h2>📋 您的暫存追加清單</h2>
-                <div id="cart-loading" class="loading-text">正在撈取您的商品</div>
+                <h2>🛒 預購商品</h2>
+                <div id="cart-loading" class="loading-text">讀取購物車</div>
                 
                 <!-- 商品清單容器 -->
                 <div id="cart-list"></div>
 
-                <!-- 結帳總金額 (不含運費) -->
+                <!-- 結帳總金額 -->
                 <div class="cart-summary-box">
                     <div class="summary-row">
                         <span>商品小計：</span>
@@ -54,7 +54,7 @@
                     <div class="form-group">
                         <label for="input-name">收件人姓名 <span class="required">*</span></label>
                         <input type="text" id="input-name" placeholder="請務必填寫與【身分證件】相符之真實姓名" required>
-                        <small class="form-note">⚠️ 超商取貨不付款需核對身分證件唷</small>
+                        <small class="form-note">⚠️ 超商取貨不付款需核對身分證件</small>
                     </div>
 
                     <div class="form-group">
@@ -93,15 +93,15 @@
                                 <strong>分行：</strong>0675 斗六分行<br>
                                 <strong>帳號：</strong>0675101004736
                             </div>
-                            <div class="bank-deadline-alert">📌 請於 24 小時之內完成匯款，逾時視同放棄訂單</div>
+                            <div class="bank-deadline-alert"> 請於 24 小時之內完成匯款，逾時視同放棄訂單</div>
                         </div>
 
                         <!-- 填寫後五碼輸入框 -->
                         <input type="text" id="ipt-lastFive" class="form-input" placeholder="例如：12345 (已匯款再填寫)" maxlength="5">
-                        <small class="form-note">💡 若尚未匯款可先留空，後續可至進度查詢頁面補填</small>
+                        <small class="form-note">💡 若尚未匯款可先留白，後續請至【查詢訂單】完成匯款</small>
                     </div>
 
-                    <!-- 📜 璦坊小條款政策清單 -->
+                    <!-- 小條款政策清單 -->
                     <ul class="shop-policy-list">
                         <li class="shop-policy-item">商品金額已含營業稅</li>
                         <li class="shop-policy-item">取貨時請務必攜帶與收件人姓名相同的證件</li>
@@ -110,7 +110,7 @@
                     </ul>
 
                     <!-- 提交按鈕 -->
-                    <button type="submit" id="btn-submit-order" class="btn-submit">🛒 確認完成訂單</button>
+                    <button type="submit" id="btn-submit-order" class="btn-submit">💗完成訂單</button>
                 </form>
             </section>
 
@@ -118,5 +118,6 @@
     </div>
 
     <script src="js/cart.js"></script>
+    <script src="js/articles.js"></script>
 </body>
 </html>

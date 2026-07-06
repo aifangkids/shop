@@ -1,7 +1,3 @@
-/**
- * 🧸 璦坊童裝 AiFang Studio —— 菜單大腦驅動器 (detail.js) - 樂觀更新極速版
- */
-
 const GLOBAL_GAS_URL = "https://script.google.com/macros/s/AKfycbwrIptncgsBt4hAiRDniddghritIT8U9SXRvu8rTSY-t-LWYk4HoC7iQ_hGtaJLYIl5/exec";
 
 let currentAfid = "";
@@ -14,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
     currentAfid = urlParams.get('uid') || urlParams.get('afid'); 
 
     if (!currentAfid) {
-        alert("🧸 偵測不到您的專屬單號，系統將帶您回首頁重新配發編號唷！");
+        alert("沒有專屬訂單編號，將帶您回首頁重新製作");
         window.location.href = "index.html";
         return;
     }
@@ -30,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     setupMobileScrollMenu();
 
-    // 3. 初始化動態寫入 🛒 暫存明細懸浮抽屜 (Modal) 結構
+    // 3. 初始化動態寫入 🛒 購物車明細懸浮抽屜 (Modal) 結構
     initCartPreviewModal();
 
     const btnGoCart = document.getElementById("btn-go-cart");
@@ -42,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /**
- * 🎯 動態注入並初始化 🛒 暫存明細預覽懸浮窗 HTML 結構
+ * 🎯 動態注入並初始化 🛒 購物車明細預覽懸浮窗 HTML 結構
  */
 function initCartPreviewModal() {
     if (document.getElementById("cart-preview-backdrop")) return;
@@ -54,11 +50,11 @@ function initCartPreviewModal() {
     backdrop.innerHTML = `
         <div class="cart-preview-modal" id="cart-preview-modal">
             <div class="modal-header">
-                <div class="modal-title">🧸 暫存追加明細</div>
+                <div class="modal-title">購物車明細</div>
                 <div class="modal-close-btn" id="modal-close-btn">☒</div>
             </div>
             <div class="modal-item-list" id="modal-item-list">
-                <!-- 暫存商品項目將動態渲染於此 -->
+                <!-- 購物車商品項目將動態渲染於此 -->
             </div>
             <div class="modal-total-section">
                 <span><b>全部商品總額：</b></span>
@@ -79,7 +75,7 @@ function initCartPreviewModal() {
 }
 
 /**
- * 展開暫存明細預覽彈窗
+ * 展開購物車明細預覽彈窗
  */
 function showCartPreviewModal() {
     const backdrop = document.getElementById("cart-preview-backdrop");
@@ -91,7 +87,7 @@ function showCartPreviewModal() {
 }
 
 /**
- * 渲染預覽彈窗內部的純文字暫存列表 (包含實時 ☒ 刪除連動與全部商品總額計量)
+ * 渲染預覽彈窗內部的純文字購物車列表 (包含實時 ☒ 刪除連動與全部商品總額計量)
  */
 function renderModalItemList() {
     const listContainer = document.getElementById("modal-item-list");
@@ -102,7 +98,7 @@ function renderModalItemList() {
     let grandTotal = 0;
 
     if (currentPendingCartItems.length === 0) {
-        listContainer.innerHTML = `<div style="text-align:center; padding:20px; color:#baa38f; font-size:13px;">暫存追加內空空如也 🧸</div>`;
+        listContainer.innerHTML = `<div style="text-align:center; padding:20px; color:#baa38f; font-size:13px;">購物車沒有預購商品</div>`;
         if (grandTotalSpan) grandTotalSpan.innerText = "0";
         return;
     }
@@ -119,15 +115,15 @@ function renderModalItemList() {
         // 純文字呈現：編號、單價、顏色、尺寸、數量、小計 (無圖片)
         row.innerHTML = `
             <div class="modal-item-text">
-                📌 <b>${item.code}</b> | NT$ ${itemPrice.toLocaleString()} | ${item.color} | ${item.size} | ${itemQty}件 | 小計: NT$ ${itemTotal.toLocaleString()}
+                 <b>${item.code}</b> | NT$ ${itemPrice.toLocaleString()} | ${item.color} | ${item.size} | ${itemQty}件 | 小計: NT$ ${itemTotal.toLocaleString()}
             </div>
             <div class="btn-delete-preview-item" title="刪除此商品">☒</div>
         `;
 
-        // 綁定單品 ☒ 刪除鈕點擊事件 (🚀 樂觀更新：點選後畫面立刻刪除，免等待後台)
+        // 綁定單品 ☒ 刪除鈕點擊事件 
         const delBtn = row.querySelector(".btn-delete-preview-item");
         delBtn.addEventListener("click", async () => {
-            // 1. 🚀【樂觀更新黑科技】先把該筆資料從當前記憶體陣列拿掉
+            // 1. 🚀【先把該筆資料從當前記憶體陣列拿掉
             const originalBackup = [...currentPendingCartItems]; // 備份以防萬一連線失敗
             currentPendingCartItems.splice(index, 1);
             
@@ -189,7 +185,7 @@ function renderBottomOnlyUI() {
         const items = currentPendingCartItems;
         
         if (items.length <= 2) {
-            // 🔹 暫存商品在 2 個以內：完整顯示純文字明細，中間用「、」串接
+            // 🔹 購物車在 2 個以內：完整顯示純文字明細，中間用「、」串接
             let htmlContent = "";
             items.forEach(item => {
                 const price = Number(item.price || 0);
@@ -203,12 +199,12 @@ function renderBottomOnlyUI() {
             previewContainer.innerHTML = htmlContent;
             if (btnGoCart) btnGoCart.innerHTML = "前往結帳 ➔";
         } else {
-            // 🔹 暫存商品超過 2 個：左側顯示 🛒
+            // 🔹 購物車超過 2 個：左側顯示 🛒
             previewContainer.innerHTML = `
                 <div class="preview-cart-badge" id="btn-trigger-preview-modal" style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
                     <span style="font-size: 22px; cursor: pointer; animation: bounce 1s infinite alternate;">🛒</span>
                     <span style="font-size: 13px; font-weight: bold; color: var(--baby-pink, #f2a6b2); text-decoration: underline;">
-                        點擊查看選擇的商品資訊 (${items.length} 件)
+                        選擇的預購商品 (${items.length} 件)
                     </span>
                 </div>
             `;
@@ -226,10 +222,10 @@ function renderBottomOnlyUI() {
     } else {
         previewContainer.innerHTML = `
             <span class="summary-label" style="font-size: 12px; color: #888;">
-                選擇商品資料即可加入暫存追加區
+                購物車沒有預購商品
             </span>
         `;
-        if (btnGoCart) btnGoCart.innerHTML = "🛒 前往我的暫存車";
+        if (btnGoCart) btnGoCart.innerHTML = "🛒 結帳";
         const backdrop = document.getElementById("cart-preview-backdrop");
         if (backdrop) backdrop.classList.remove("is-active");
     }
@@ -306,7 +302,7 @@ async function fetchProductCatalogFromServer(cacheKey, timeKey, loadingBox, grid
             buildBrandAndCategoryNav();
             renderProducts(allProductsRaw);
         } else {
-            grid.innerHTML = `<p style="padding:20px; color:red;">商品大庫讀取失敗：${result.message}</p>`;
+            grid.innerHTML = `<p style="padding:20px; color:red;">商品讀取失敗：${result.message}</p>`;
         }
     } catch (error) {
         console.error("連線發生異常:", error);
@@ -331,7 +327,7 @@ async function silentUpdateProductCatalog(cacheKey, timeKey) {
             }
         }
     } catch (e) {
-        console.warn("背景更新產品大庫失敗，繼續使用舊版快取", e);
+        console.warn("更新商品失敗，繼續使用舊版快取", e);
     }
 }
 
@@ -426,7 +422,7 @@ function renderProducts(products) {
     grid.innerHTML = "";
 
     if (products.length === 0) {
-        grid.innerHTML = `<p style="grid-column:span 4; text-align:center; padding:40px; color:#999;">該分類目前沒有上架商品唷 🧸</p>`;
+        grid.innerHTML = `<p style="grid-column:span 4; text-align:center; padding:40px; color:#999;">該分類目前沒有上架商品</p>`;
         return;
     }
 
@@ -540,7 +536,7 @@ function renderProducts(products) {
 
         const lblQty = document.createElement("div");
         lblQty.className = "spec-label";
-        lblQty.innerText = "追加數量";
+        lblQty.innerText = "數量";
         hamburgerSpecs.appendChild(lblQty);
 
         const rowQty = document.createElement("div");
@@ -580,7 +576,7 @@ function renderProducts(products) {
         savePanel.innerHTML = `
             <div class="summary-line">已選：<span class="txt-sum">--</span></div>
             <div class="summary-line">小計：NT$ <span class="txt-subtotal">0</span></div>
-            <button class="btn-save-pending">確認暫存追加</button>
+            <button class="btn-save-pending">放入購物車</button>
         `;
 
         const txtSum = savePanel.querySelector(".txt-sum");
@@ -597,10 +593,10 @@ function renderProducts(products) {
             }
         }
 
-        // 🚀【確認暫存追加——極速樂觀更新版】
+        // 🚀【確認購物車追加——極速樂觀更新版】
         btnSave.addEventListener("click", async () => {
             if (!selectedColor || !selectedSize) {
-                alert("請選好顏色與尺寸規格唷 🧸");
+                alert("請選好顏色與尺寸");
                 return;
             }
 
@@ -663,10 +659,10 @@ function renderProducts(products) {
                     alert("後端同步失敗：" + resData.message);
                 }
             } catch (err) {
-                console.error("發送暫存失敗:", err);
+                console.error("發送購物車失敗:", err);
                 currentPendingCartItems = originalBackup;
                 renderBottomOnlyUI();
-                alert("連線不穩定，暫存同步失敗！已還原狀態，請檢查網路。");
+                alert("連線不穩定，購物車同步失敗！已還原狀態，請檢查網路");
             }
         });
 

@@ -16,7 +16,7 @@
     <!-- 頂部高雅品牌列 -->
     <header class="menu-header">
         <h1 class="brand-logo">Aifang kids</h1>
-        <div class="order-uid-badge">專屬訂單編號: <span id="display-afid">連線中...</span></div>
+        <div class="order-uid-badge">專屬訂單編號: <span id="display-afid">連線中</span></div>
     </header>
 
     <!-- 雙層聯動分類導航包裹盒 -->
@@ -41,7 +41,7 @@
         <!-- 讀取狀態圈圈 -->
         <div id="catalog-loading" class="loading-status">
             <div class="spinner"></div>
-            <p>🐾 正在讀取商品資料...</p>
+            <p>🐾 正在讀取預購商品</p>
         </div>
         
         <!-- 商品卡片動態注入地基 -->
@@ -50,11 +50,13 @@
 
     <!-- 底部固定購物車捷徑列 -->
     <div class="sticky-footer">
-        <div class="footer-hint">選擇商品資料即可加入暫存追加區</div>
-        <button class="btn-cart-main" id="btn-go-cart">🛒 前往我的暫存車</button>
+        <div class="footer-hint">選擇中的預購商品</div>
+        <button class="btn-cart-main" id="btn-go-cart">🛒 前往購物車</button>
     </div>
 
     <!-- 確保 DOM 載入完畢才執行大腦 -->
     <script src="js/detail.js"></script>
+    <script src="js/articles.js"></script>
+
 </body>
 </html>
