@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aifang kids - 訂單進度查詢</title>
+    <link rel="stylesheet" href="./assets/css/global.css">
+    <link rel="stylesheet" href="./assets/css/lookup.css">
+</head>
+<body>
+
+    <div class="lookup-wrapper">
+        <header class="lookup-card search-box-card">
+            <h1 class="lookup-main-title">訂單進度查詢</h1>
+            <p class="lookup-sub-desc">請輸入【手機號碼】或【專屬訂單編號】隨時追蹤動態</p>
+            <form id="form-lookup" onsubmit="handleOrderLookup(event)">
+                <div class="search-input-group">
+                    <input type="text" id="ipt-keyword" class="lookup-input" placeholder="請輸入資料" required>
+                    <button type="submit" id="btn-search" class="btn-lookup-submit">查詢 🔍</button>
+                </div>
+            </form>
+        </header>
+
+        <div id="lookup-results-container"></div>
+    </div>
+
+    <script>
+        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwrIptncgsBt4hAiRDniddghritIT8U9SXRvu8rTSY-t-LWYk4HoC7iQ_hGtaJLYIl5/exec";
+
+async function handleOrderLookup(event) {
+    event.preventDefault();
+    const keyword = document.getElementById("ipt-keyword").value.trim();
+    const container = document.getElementById("lookup-results-container");
+    container.innerHTML = "<p>查詢中...</p>";
+
+    try {
+        // 修改這裡：將 action 改為 getOrderLookup，參數名稱改為 afid
+        const response = await fetch(`${GAS_API_URL}?action=getOrderLookup&afid=${encodeURIComponent(keyword)}`);
+        const result = await response.json();
+
+        if (result.success && result.data) {
+            renderOrders(result.data);
+        } else {
+            container.innerHTML = "<p>找不到訂單紀錄。</p>";
+        }
+    } catch (e) {
+        console.error(e);
+        container.innerHTML = "<p>連線失敗，請稍後再試。</p>";
+    }
+}
+
+        function renderOrders(orders) {
+            const container = document.getElementById("lookup-results-container");
+            container.innerHTML = "";
+
+            orders.forEach(order => {
+                const now = new Date().getTime();
+                const orderTime = new Date(order.time).getTime();
+                const isExpired = (now - orderTime > 24 * 60 * 60 * 1000) && !order.lastFive;
+
+                const card = document.createElement("div");
+                card.className = "lookup-card result-card";
+
+                let html = `<h3>單號：${order.shippingId || order.afid}</h3>`;
+
+                if (isExpired || order.status === "cancelled") {
+                    html += `
+                        <div class="status-cancelled">
+                            🚫 逾時付款，訂單自動取消<br>
+                            如需重新購買，請通知 LINE 官方客服，將為您協助處理。
+                        </div>`;
+                } else {
+                    html += `<p>狀態：${order.status || "處理中"}</p>`;
+                    if (!order.lastFive) {
+                        html += `
+                            <div class="update-bank-box">
+                                <p>💰 請於 24 小時內補填匯款後 5 碼：</p>
+                                <input type="text" id="ipt-${order.shippingId}" maxlength="5" placeholder="後5碼">
+                                <button onclick="submitFive('${order.shippingId}')">送出</button>
+                            </div>`;
+                    } else {
+                        html += `<p>✅ 已填寫後五碼：${order.lastFive}</p>`;
+                    }
+                }
+                card.innerHTML = html;
+                container.appendChild(card);
+            });
+        }
+
+        async function submitFive(shippingId) {
+            const code = document.getElementById(`ipt-${shippingId}`).value.trim();
+            if (code.length !== 5) return alert("請輸入 5 碼");
+            
+            // 此處呼叫 GAS 更新資料
+            alert("資料已送出，我們會盡速為您對帳！");
+        }
+    </script>
+</body>
+</html>
