@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     setupMobileScrollMenu();
 
-    // 3. 初始化動態寫入 🛒 購物車明細懸浮抽屜 (Modal) 結構
+    // 3. 初始化動態寫入 🛒 暫存明細懸浮抽屜 (Modal) 結構
     initCartPreviewModal();
 
     const btnGoCart = document.getElementById("btn-go-cart");
@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /**
- * 🎯 動態注入並初始化 🛒 購物車明細預覽懸浮窗 HTML 結構
+ * 🎯 動態注入並初始化 🛒 暫存明細預覽懸浮窗 HTML 結構
  */
 function initCartPreviewModal() {
     if (document.getElementById("cart-preview-backdrop")) return;
@@ -54,10 +54,10 @@ function initCartPreviewModal() {
                 <div class="modal-close-btn" id="modal-close-btn">☒</div>
             </div>
             <div class="modal-item-list" id="modal-item-list">
-                <!-- 購物車商品項目將動態渲染於此 -->
+                <!--  購物車商品項目將動態渲染於此 -->
             </div>
             <div class="modal-total-section">
-                <span><b>全部商品總額：</b></span>
+                <span><b>預購商品總額：</b></span>
                 <span class="modal-total-price">NT$ <span id="modal-grand-total">0</span></span>
             </div>
         </div>
@@ -75,19 +75,65 @@ function initCartPreviewModal() {
 }
 
 /**
- * 展開購物車明細預覽彈窗
+ * 展開收據
  */
-function showCartPreviewModal() {
-    const backdrop = document.getElementById("cart-preview-backdrop");
-    if (!backdrop) return;
+function showReceipt(orderData) {
+    const modal = document.getElementById('receipt-modal');
+    document.getElementById('receipt-date').innerText = "日期: " + new Date().toLocaleDateString();
     
-    // 即時繪製清單內容
-    renderModalItemList();
-    backdrop.classList.add("is-active");
+    document.getElementById('receipt-customer-info').innerHTML = `
+        <p><strong>專屬訂單編號:</strong> ${orderData.afid}</p>
+        <p><strong>姓名:</strong> ${orderData.name}</p>
+        <p><strong>電話:</strong> ${orderData.phone}</p>
+        <p><strong>配送:</strong> ${orderData.shipping}</p>
+    `;
+
+    document.getElementById('receipt-items-body').innerHTML = orderData.items.map(item => `
+        <tr>
+            <td style="padding:8px;">${item.code}</td>
+            <td style="padding:8px;">${item.color}/${item.size}</td>
+            <td style="padding:8px;">${item.qty}</td>
+        </tr>
+    `).join('');
+
+    document.getElementById('receipt-total').innerText = "總計: NT$ " + orderData.total;
+    modal.style.display = 'block';
 }
 
 /**
- * 渲染預覽彈窗內部的純文字購物車列表 (包含實時 ☒ 刪除連動與全部商品總額計量)
+ * 展開收據 2 (相容模式)
+ */
+function goToReceipt(afid) {
+    const orderData = allOrders.find(o => o.afid === afid);
+    if (orderData) {
+        showReceipt(orderData);
+    } else {
+        alert("找不到購物車明細");
+    }
+}
+
+/**
+ * 展開暫存明細預覽彈窗
+ */
+function showCartPreviewModal() {
+    const backdrop = document.getElementById('receipt-modal') || document.getElementById('cart-preview-backdrop');
+    if (!backdrop) return;
+    
+    // 如果是舊有的 receipt-modal 邏輯，可安全避開或轉移
+    if (backdrop.id === "receipt-modal") {
+        const customBackdrop = document.getElementById("cart-preview-backdrop");
+        if (customBackdrop) {
+            renderModalItemList();
+            customBackdrop.classList.add("is-active");
+        }
+    } else {
+        renderModalItemList();
+        backdrop.classList.add("is-active");
+    }
+}
+
+/**
+ * 渲染預覽視窗中的品項 (自動套用 SALE 計算完後的單價)
  */
 function renderModalItemList() {
     const listContainer = document.getElementById("modal-item-list");
@@ -98,7 +144,7 @@ function renderModalItemList() {
     let grandTotal = 0;
 
     if (currentPendingCartItems.length === 0) {
-        listContainer.innerHTML = `<div style="text-align:center; padding:20px; color:#baa38f; font-size:13px;">購物車沒有預購商品</div>`;
+        listContainer.innerHTML = `<div style="text-align:center; padding:20px; color:#5a4b41; font-size:13px;">購物車沒有商品</div>`;
         if (grandTotalSpan) grandTotalSpan.innerText = "0";
         return;
     }
@@ -112,7 +158,6 @@ function renderModalItemList() {
         const row = document.createElement("div");
         row.className = "modal-item-row";
 
-        // 純文字呈現：編號、單價、顏色、尺寸、數量、小計 (無圖片)
         row.innerHTML = `
             <div class="modal-item-text">
                  <b>${item.code}</b> | NT$ ${itemPrice.toLocaleString()} | ${item.color} | ${item.size} | ${itemQty}件 | 小計: NT$ ${itemTotal.toLocaleString()}
@@ -120,18 +165,14 @@ function renderModalItemList() {
             <div class="btn-delete-preview-item" title="刪除此商品">☒</div>
         `;
 
-        // 綁定單品 ☒ 刪除鈕點擊事件 
         const delBtn = row.querySelector(".btn-delete-preview-item");
         delBtn.addEventListener("click", async () => {
-            // 1. 🚀【先把該筆資料從當前記憶體陣列拿掉
-            const originalBackup = [...currentPendingCartItems]; // 備份以防萬一連線失敗
+            const originalBackup = [...currentPendingCartItems];
             currentPendingCartItems.splice(index, 1);
             
-            // 2. ⚡ 立刻重新繪製畫面（不等待 Google 的 10 秒延遲！）
             renderBottomOnlyUI(); 
             renderModalItemList();
 
-            // 3. 背景默默去跟 Google 試算表做刪除
             const payload = {
                 action: "deletePendingItem",
                 afid: currentAfid,
@@ -150,7 +191,6 @@ function renderModalItemList() {
                 const resData = await response.json();
 
                 if (!resData.success) {
-                    // 如果後台真的刪除失敗，悄悄把資料回填並警告
                     currentPendingCartItems = originalBackup;
                     renderBottomOnlyUI();
                     renderModalItemList();
@@ -185,7 +225,6 @@ function renderBottomOnlyUI() {
         const items = currentPendingCartItems;
         
         if (items.length <= 2) {
-            // 🔹 購物車在 2 個以內：完整顯示純文字明細，中間用「、」串接
             let htmlContent = "";
             items.forEach(item => {
                 const price = Number(item.price || 0);
@@ -199,7 +238,6 @@ function renderBottomOnlyUI() {
             previewContainer.innerHTML = htmlContent;
             if (btnGoCart) btnGoCart.innerHTML = "前往結帳 ➔";
         } else {
-            // 🔹 購物車超過 2 個：左側顯示 🛒
             previewContainer.innerHTML = `
                 <div class="preview-cart-badge" id="btn-trigger-preview-modal" style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
                     <span style="font-size: 22px; cursor: pointer; animation: bounce 1s infinite alternate;">🛒</span>
@@ -225,7 +263,7 @@ function renderBottomOnlyUI() {
                 購物車沒有預購商品
             </span>
         `;
-        if (btnGoCart) btnGoCart.innerHTML = "🛒 結帳";
+        if (btnGoCart) btnGoCart.innerHTML = "結帳";
         const backdrop = document.getElementById("cart-preview-backdrop");
         if (backdrop) backdrop.classList.remove("is-active");
     }
@@ -257,12 +295,11 @@ async function fetchProductCatalogWithCache() {
 
     const CACHE_KEY = "aifang_catalog_data";
     const CACHE_TIME_KEY = "aifang_catalog_time";
-    const FIVE_MINUTES = 5 * 60 * 1000; // 5分鐘內不重覆抓取 (可視需求調整)
+    const FIVE_MINUTES = 5 * 60 * 1000; 
 
     const cachedData = localStorage.getItem(CACHE_KEY);
     const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
 
-    // 🚀 如果手機本地有緩存，且在5分鐘內，直接 0.1 秒秒開渲染！
     if (cachedData && cachedTime && (Date.now() - Number(cachedTime) < FIVE_MINUTES)) {
         try {
             allProductsRaw = JSON.parse(cachedData);
@@ -270,7 +307,6 @@ async function fetchProductCatalogWithCache() {
             renderProducts(allProductsRaw);
             if (loadingBox) loadingBox.classList.add("hidden");
             
-            // 背景默默去更新最新資料，不阻礙客人看衣服的體驗 (非同步靜態更新)
             silentUpdateProductCatalog(CACHE_KEY, CACHE_TIME_KEY);
             return;
         } catch (e) {
@@ -278,7 +314,6 @@ async function fetchProductCatalogWithCache() {
         }
     }
 
-    // 否則，乖乖等待 Google 第一次開啟
     await fetchProductCatalogFromServer(CACHE_KEY, CACHE_TIME_KEY, loadingBox, grid);
 }
 
@@ -295,7 +330,6 @@ async function fetchProductCatalogFromServer(cacheKey, timeKey, loadingBox, grid
         if (result.success && result.data) {
             allProductsRaw = result.data;
             
-            // 寫入本地存儲，下次秒開！
             localStorage.setItem(cacheKey, JSON.stringify(allProductsRaw));
             localStorage.setItem(timeKey, String(Date.now()));
 
@@ -313,7 +347,7 @@ async function fetchProductCatalogFromServer(cacheKey, timeKey, loadingBox, grid
 }
 
 /**
- * 默默在背景同步最新商品，不打擾客人點選
+ * 默默在背景同步最新商品
  */
 async function silentUpdateProductCatalog(cacheKey, timeKey) {
     try {
@@ -416,13 +450,16 @@ function filterAndRenderGrid() {
     renderProducts(filteredProducts);
 }
 
+/**
+ * 🎨 渲染商品清單 (新增：SALE 30% OFF 折扣邏輯判定)
+ */
 function renderProducts(products) {
     const grid = document.getElementById("products-grid");
     if (!grid) return;
     grid.innerHTML = "";
 
     if (products.length === 0) {
-        grid.innerHTML = `<p style="grid-column:span 4; text-align:center; padding:40px; color:#999;">該分類目前沒有上架商品</p>`;
+        grid.innerHTML = `<p style="grid-column:span 4; text-align:center; padding:40px; color:#999;">該分類沒有上架商品</p>`;
         return;
     }
 
@@ -437,19 +474,43 @@ function renderProducts(products) {
         const arrColors = item.color ? String(item.color).split(",").map(s => s.trim()).filter(s => s) : [];
         const arrSizes = item.size ? String(item.size).split(",").map(s => s.trim()).filter(s => s) : [];
 
+        // 🎯 核心特調：判定是否為折扣 SALE 商品 (不區分大小寫)
+        const isSale = (item.category && String(item.category).trim().toUpperCase() === "SALE");
+        const originalPrice = Number(item.price || 0);
+        // 7折四捨五入計算
+        const displayPrice = isSale ? Math.round(originalPrice * 0.7) : originalPrice;
+
         const imgBox = document.createElement("div");
         imgBox.className = "card-img-box";
         const img = document.createElement("img");
         img.src = item.imagemain || "images/products/default.jpg";
         img.alt = item.code;
         imgBox.appendChild(img);
+
+        // 🎯 如果是 SALE 折扣商品，動態塞入極簡黑白「30% OFF」標籤
+        if (isSale) {
+            const saleBadge = document.createElement("div");
+            saleBadge.className = "sale-badge-overlay";
+            saleBadge.innerText = "30% OFF";
+            imgBox.appendChild(saleBadge);
+        }
         card.appendChild(imgBox);
 
+        // 🎯 價格顯示邏輯：SALE 顯示原價刪除線 + 驚喜打折價
         const infoBox = document.createElement("div");
         infoBox.className = "card-info";
+        
+        let priceHtml = `NT$ ${displayPrice.toLocaleString()}`;
+        if (isSale) {
+            priceHtml = `
+                <span class="original-price-strikethrough">NT$ ${originalPrice.toLocaleString()}</span>
+                <span class="sale-price-highlight">NT$ ${displayPrice.toLocaleString()}</span>
+            `;
+        }
+
         infoBox.innerHTML = `
             <div class="info-code"> ${item.code || ""}</div>
-            <div class="info-price">NT$ ${Number(item.price || 0).toLocaleString()}</div>
+            <div class="info-price">${priceHtml}</div>
         `;
 
         if (item.stylingnote && item.stylingnote.trim() !== "") {
@@ -462,7 +523,6 @@ function renderProducts(products) {
 
         const hamburgerSpecs = document.createElement("div");
         hamburgerSpecs.className = "card-hamburger-specs";
-        
         hamburgerSpecs.addEventListener("click", (e) => e.stopPropagation());
 
         const specHeaderRow = document.createElement("div");
@@ -576,49 +636,48 @@ function renderProducts(products) {
         savePanel.innerHTML = `
             <div class="summary-line">已選：<span class="txt-sum">--</span></div>
             <div class="summary-line">小計：NT$ <span class="txt-subtotal">0</span></div>
-            <button class="btn-save-pending">放入購物車</button>
+            <button class="btn-save-pending">放進購物車</button>
         `;
 
         const txtSum = savePanel.querySelector(".txt-sum");
         const txtSubtotal = savePanel.querySelector(".txt-subtotal");
         const btnSave = savePanel.querySelector(".btn-save-pending");
 
+        // 🎯 確保選取完畢後，小計是以「折價後的單價」去計算
         function checkCardStatus() {
             if (selectedColor && selectedSize) {
                 card.classList.add("active-highlight");
                 if (txtSum) txtSum.innerText = `${selectedColor} / ${selectedSize} / ${currentQty}件`;
-                if (txtSubtotal) txtSubtotal.innerText = (Number(item.price || 0) * currentQty).toLocaleString();
+                if (txtSubtotal) txtSubtotal.innerText = (displayPrice * currentQty).toLocaleString();
             } else {
                 card.classList.remove("active-highlight");
             }
         }
 
-        // 🚀【確認購物車追加——極速樂觀更新版】
+        // 🚀【確認暫存追加——極速樂觀更新版】
         btnSave.addEventListener("click", async () => {
             if (!selectedColor || !selectedSize) {
-                alert("請選好顏色與尺寸");
+                alert("請選好顏色與尺寸規格");
                 return;
             }
 
-            // 🌟【關鍵修正】先將選取的規格暫存備份起來，防止下一行 resetBtn.click() 提前清空它們！
             const savedColor = selectedColor;
             const savedSize = selectedSize;
             const savedQty = Number(currentQty);
 
-            // A. 🚀【樂觀更新】立刻在前端虛擬一筆暫存項目
+            // A. 🚀【樂觀更新】立刻在前端虛擬一筆打折後的暫存項目
             const newItem = {
                 code: item.code,
                 color: savedColor,
                 size: savedSize,
                 qty: savedQty,
-                price: Number(item.price || 0),
-                total: Number(item.price || 0) * savedQty,
+                price: displayPrice, // 🎯 帶入打折後單價
+                total: displayPrice * savedQty, // 🎯 帶入打折後小計
                 imagemain: item.imagemain || ""
             };
 
-            const originalBackup = [...currentPendingCartItems]; // 備份防連線失敗
+            const originalBackup = [...currentPendingCartItems]; 
             
-            // 檢查是否已有相同規格商品，有的話直接加數量，沒有就推入
             const existingIndex = currentPendingCartItems.findIndex(i => i.code === newItem.code && i.color === newItem.color && i.size === newItem.size);
             if (existingIndex > -1) {
                 currentPendingCartItems[existingIndex].qty += newItem.qty;
@@ -627,20 +686,17 @@ function renderProducts(products) {
                 currentPendingCartItems.push(newItem);
             }
 
-            // B. ⚡ 立刻在 0.1 秒內更新底部留白區，客人完全不用等轉圈圈！
             renderBottomOnlyUI();
-
-            // 還原商品卡片成未展開狀態 (這會把全域 selectedColor, selectedSize 重置為 "")
             resetBtn.click();
 
-            // C. 背景默默去和試算表同步
+            // B. 背景默默去和試算表同步
             const payload = {
                 action: "addPending",
                 afid: currentAfid,
                 code: item.code,
-                color: savedColor, // 🌟 這裡改用剛才備份好的規格，安全送出！
-                size: savedSize,   // 🌟 這裡改用剛才備份好的規格，安全送出！
-                qty: savedQty      // 🌟 這裡改用剛才備份好的數量
+                color: savedColor, 
+                size: savedSize,   
+                qty: savedQty      
             };
 
             try {
@@ -653,7 +709,6 @@ function renderProducts(products) {
 
                 const resData = await response.json();
                 if (!resData.success) {
-                    // 同步失敗就還原資料並提示
                     currentPendingCartItems = originalBackup;
                     renderBottomOnlyUI();
                     alert("後端同步失敗：" + resData.message);
@@ -662,7 +717,7 @@ function renderProducts(products) {
                 console.error("發送購物車失敗:", err);
                 currentPendingCartItems = originalBackup;
                 renderBottomOnlyUI();
-                alert("連線不穩定，購物車同步失敗！已還原狀態，請檢查網路");
+                alert("連線不穩定，暫存同步失敗！已還原狀態，請檢查網路。");
             }
         });
 
