@@ -10,43 +10,53 @@
 </head>
 <body>
 
-    <div id="falling-container"></div>
+    <!-- 手機響應式專用：滾動隱藏後浮現在左上角的 ︙ 控制按鈕 -->
+    <button id="mobile-menu-trigger" class="mobile-menu-btn">︙</button>
 
-    <div class="index-wrapper">
-        <div class="welcome-box">
-            
-            <!-- 🌟 溫馨回流捕鼠夾提示框 (預設隱藏，由 JS 控制顯示) -->
-            <div id="return-hint-banner" class="return-hint-banner hidden">
-                Hello！ 訂單中還有一些尚未完成的預購商品<br>
-                <span class="click-text">點擊此處繼續挑選/結帳 ➔</span>
+    <!-- 頂部高雅品牌列 -->
+    <header class="menu-header">
+        <h1 class="brand-logo">Aifang kids</h1>
+        <div class="order-uid-badge">Childhood should always feel this beautiful.</div>
+    </header>
+
+    <!-- 雙層聯動分類導航包裹盒 -->
+    <div id="navigation-wrapper" class="navigation-wrapper">
+        <!-- 第一層：品牌切換列 -->
+        <div class="brand-nav-container">
+            <div id="brand-nav-list" class="scroll-nav-row">
+                <span class="nav-loading-text">品牌讀取中...</span>
             </div>
-
-            <div class="brand-logo">Aifangkids</div>
-            <p class="brand-intro">
-                <span>Childhood should always feel this beautiful.</span>
-            </p>
-
-            <div class="action-divider"></div>
-
-            <div id="step-init">
-                <button id="btn-generate" class="btn-common btn-action">製作專屬訂單編號</button>
-            </div>
-
-            <div id="step-loading" class="status-layer hidden">
-                <div class="spinner"></div>
-                <p class="loading-text">🐾 正在為您連線，製作訂單編號</p>
-            </div>
-
-            <div id="step-success" class="status-layer hidden">
-                <p class="success-alert">🎉 專屬訂單編號製作完畢</p>
-                <div id="uid-display" class="uid-highlight">----</div>
-                <p class="next-hint">請記住您的專屬訂單編號，並點擊下方進入：</p>
-                <button id="btn-go-detail" class="btn-common btn-next">童裝預購商品 ➔</button>
+        </div>
+        
+        <!-- 第二層：該品牌旗下對應擁有的 Category 大分類列（預設隱藏） -->
+        <div id="category-nav-container" class="category-nav-container hidden">
+            <div id="category-nav-list" class="scroll-nav-row">
+                <!-- 由 JS 根據選定的品牌動態彈出分類 -->
             </div>
         </div>
     </div>
 
+    <!-- 主要商品展示網格區 -->
+    <main class="menu-container">
+        <!-- 讀取狀態圈圈 -->
+        <div id="catalog-loading" class="loading-status">
+            <div class="spinner"></div>
+            <p>🐾 正在讀取預購商品</p>
+        </div>
+        
+        <!-- 商品卡片動態注入地基 -->
+        <div id="products-grid" class="products-grid"></div>
+    </main>
+
+    <!-- 底部固定購物車捷徑列 -->
+    <div class="sticky-footer">
+        <div class="footer-hint">選擇中的預購商品</div>
+        <button class="btn-cart-main" id="btn-go-cart">🛒 前往購物車</button>
+    </div>
+
+    <!-- 確保 DOM 載入完畢才執行大腦 -->
     <script src="js/index.js"></script>
     <script src="js/articles.js"></script>
+
 </body>
 </html>
