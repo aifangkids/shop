@@ -1,6 +1,6 @@
 const GLOBAL_GAS_URL = "https://script.google.com/macros/s/AKfycbwrIptncgsBt4hAiRDniddghritIT8U9SXRvu8rTSY-t-LWYk4HoC7iQ_hGtaJLYIl5/exec";
 
-let currentAfid = "";
+let currentAfid = ""; // 保持空字串，不進行初始化讀取與寫入
 let allProductsRaw = [];
 let currentSelectedBrand = "ALL";
 let currentPendingCartItems = []; // 儲存當前購物車內的最新資料，與 modal 及 ☒ 共享
@@ -30,38 +30,7 @@ function getStandardCategoryKey(rawCat) {
 
 // 網頁載入完成後執行
 document.addEventListener("DOMContentLoaded", () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    
-    // 🛠️ 核心修改：優先嘗試從網址抓單號，抓不到就去客人的手機瀏覽器暫存（localStorage）撈取
-    currentAfid = urlParams.get('uid') || urlParams.get('afid') || localStorage.getItem("aifang_afid"); 
-
-    // 🛠️ 核心修改：如果沒有單號，或是仍保留舊款「AF」開頭、長度不等於 8 的單號，就在背景悄悄生成全新 8 位數格式！
-    if (!currentAfid || currentAfid.startsWith("AF") || currentAfid.length !== 8) {
-        const now = new Date();
-        const mm = String(now.getMonth() + 1).padStart(2, '0');
-        const dd = String(now.getDate()).padStart(2, '0');
-        const rand = String(Math.floor(1000 + Math.random() * 9000)); // 產生 1000 到 9999 的 4 位隨機數
-        currentAfid = mm + dd + rand; // 格式如 07121234
-        localStorage.setItem("aifang_afid", currentAfid); // 存入瀏覽器，下次進站自動沿用
-    } else {
-        // 確保網址沒帶但 localStorage 有的時候，也同步更新快取，安全保險
-        localStorage.setItem("aifang_afid", currentAfid);
-    }
-
-    // 🛠️ 核心修改：為了不讓客人看見編號，不論有沒有抓到，都強制把網頁上的單號標籤隱藏
-    const idBadge = document.getElementById("display-afid");
-    if (idBadge) {
-        idBadge.innerText = currentAfid;
-        idBadge.style.display = "none"; // 💡 畫面完全隱藏，不干擾視覺
-    }
-    
-    // 如果有包裹編號的整個外層區塊（例如 block/div），也可以在這裡一併隱藏
-    const idBadgeContainer = document.getElementById("afid-container"); // 視您的 HTML 結構而定
-    if (idBadgeContainer) {
-        idBadgeContainer.style.display = "none";
-    }
-
-    // 1. ⚡ 智慧緩存下載商品大庫 (0.1秒秒開)
+    // 1. ⚡ 智慧緩存下載商品大庫 (0.1秒秒開) - 讀取「商品總表」
     fetchProductCatalogWithCache();
 
     // 2. 📲 讀取底部預覽並初始化 (優先讀取一次)
@@ -75,8 +44,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnGoCart = document.getElementById("btn-go-cart");
     if (btnGoCart) {
         btnGoCart.addEventListener("click", () => {
-            // 前往結帳頁面時，依然把這個 afid 帶過去給 cart.html 讀取
-            window.location.href = `cart.html?afid=${currentAfid}`;
+            // 單純跳轉，不夾帶任何 afid 參數
+            window.location.href = "cart.html";
         });
     }
 });
@@ -147,7 +116,6 @@ function initCartPreviewModal() {
 function showCartPreviewModal() {
     const backdrop = document.getElementById('receipt-modal') || document.getElementById('cart-preview-backdrop');
     if (!backdrop) return;
-    // 如果是舊有的 receipt-modal 邏輯，可安全避開或轉移
     if (backdrop.id === "receipt-modal") {
         const customBackdrop = document.getElementById("cart-preview-backdrop");
         if (customBackdrop) {
@@ -161,7 +129,7 @@ function showCartPreviewModal() {
 }
 
 /**
- * 渲染預覽視窗中的品項 (自動套用 SALE 計算完後的單價)
+ * 渲染預覽視窗中的品項 (功能更新：加入商品圖片、特價原價刪除線雙金額顯示)
  */
 function renderModalItemList() {
     const listContainer = document.getElementById("modal-item-list");
@@ -182,14 +150,51 @@ function renderModalItemList() {
         const itemTotal = Number(item.total || (itemPrice * itemQty));
         grandTotal += itemTotal;
 
+        const rawProduct = allProductsRaw.find(p => p.code === item.code);
+        const isSale = rawProduct ? (getStandardCategoryKey(rawProduct.category) === "SALE") : false;
+        const saleHint = isSale ? ` <span style="font-size: 11px; color: #ff4d4f; font-weight: bold; margin-left: 2px;">30% OFF</span>` : "";
+
+        // 🎯【功能 2】智慧安全取得主圖網址，若無則套用預設圖
+        const imgUrl = (rawProduct && rawProduct.imagemain) ? rawProduct.imagemain : (item.imagemain || "images/products/default.jpg");
+
+        // 🎯【功能 1】處理金額顯示邏輯 (原價與特價連動)
+        let priceText = `NT$ ${itemPrice.toLocaleString()}`;
+        let totalText = `NT$ ${itemTotal.toLocaleString()}`;
+        
+        if (isSale && rawProduct) {
+            const rawPrice = Number(rawProduct.price || 0); // 試算表原始大庫金額
+            const rawTotal = rawPrice * itemQty;
+            
+            // 轉化為：原價(刪除線) + 紅字特價 樣式
+            priceText = `<span style="text-decoration: line-through; color: #999; font-size: 11px; margin-right: 4px;">NT$ ${rawPrice.toLocaleString()}</span><span style="color: #ff4d4f; font-weight: bold;">NT$ ${itemPrice.toLocaleString()}</span>`;
+            totalText = `<span style="text-decoration: line-through; color: #999; font-size: 11px; margin-right: 4px;">NT$ ${rawTotal.toLocaleString()}</span><span style="color: #ff4d4f; font-weight: bold;">NT$ ${itemTotal.toLocaleString()}</span>`;
+        }
+
         const row = document.createElement("div");
         row.className = "modal-item-row";
+        
+        // 額外微調彈窗單列佈局，確保小圖、換行文字與刪除鈕排列整齊美觀
+        row.style.display = "flex";
+        row.style.alignItems = "center";
+        row.style.gap = "10px";
+        row.style.justifyContent = "space-between";
+        row.style.padding = "8px 0";
+        row.style.borderBottom = "1px dashed #eee";
 
         row.innerHTML = `
-            <div class="modal-item-text">
-                 <b>${item.code}</b> | NT$ ${itemPrice.toLocaleString()} | ${item.color} | ${item.size} | ${itemQty}件 | 小計: NT$ ${itemTotal.toLocaleString()}
+            <div style="display: flex; align-items: center; gap: 10px; flex-grow: 1;">
+                <!-- 圖片小圖區塊 -->
+                <div class="modal-item-img-box" style="width: 45px; height: 45px; flex-shrink: 0; border-radius: 4px; overflow: hidden; background: #f5f5f5;">
+                    <img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="${item.code}">
+                </div>
+                <!-- 詳細文字明細區塊 -->
+                <div class="modal-item-text" style="font-size: 12px; line-height: 1.5; color: #5a4b41; flex-grow: 1;">
+                     <b>${item.code}</b>${saleHint}<br>
+                     規格: ${item.color} / ${item.size} / ${itemQty}件<br>
+                     單價: ${priceText} | 小計: ${totalText}
+                </div>
             </div>
-            <div class="btn-delete-preview-item" title="刪除此商品">☒</div>
+            <div class="btn-delete-preview-item" title="刪除此商品" style="cursor: pointer; padding: 0 4px; font-size: 16px; color: #999; user-select: none;">☒</div>
         `;
 
         const delBtn = row.querySelector(".btn-delete-preview-item");
@@ -239,7 +244,7 @@ function renderModalItemList() {
 }
 
 /**
- * 🛠️ 核心修改：只要暫存追加件數大於 0，100% 轉為預覽懸浮窗 Modal 觸發結構，不採用纯文字顯示
+ * 核心修改：只要暫存追加件數大於 0，100% 轉為預覽懸浮窗 Modal 觸發結構
  */
 function renderBottomOnlyUI() {
     const previewContainer = document.querySelector(".footer-hint");
@@ -248,11 +253,13 @@ function renderBottomOnlyUI() {
 
     if (currentPendingCartItems.length > 0) {
         const items = currentPendingCartItems;
+        const totalQty = items.reduce((sum, item) => sum + Number(item.qty || 0), 0);
+
         previewContainer.innerHTML = `
             <div class="preview-cart-badge" id="btn-trigger-preview-modal" style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
                 <span style="font-size: 22px; cursor: pointer; animation: bounce 1s infinite alternate;">🛒</span>
                 <span style="font-size: 13px; font-weight: bold; color: var(--baby-pink, #f2a6b2); text-decoration: underline;">
-                    選擇的預購商品 (${items.length} 件)
+                    選擇的預購商品 (${totalQty} 件)
                 </span>
             </div>
         `;
@@ -311,7 +318,7 @@ async function fetchProductCatalogWithCache() {
         try {
             allProductsRaw = JSON.parse(cachedData);
             buildBrandAndCategoryNav();
-            checkAndSetupSaleBanner(); // 載入緩存後立刻檢查特價公告欄
+            checkAndSetupSaleBanner(); 
             renderProducts(allProductsRaw);
             if (loadingBox) loadingBox.classList.add("hidden");
             
@@ -341,7 +348,7 @@ async function fetchProductCatalogFromServer(cacheKey, timeKey, loadingBox, grid
             localStorage.setItem(timeKey, String(Date.now()));
 
             buildBrandAndCategoryNav();
-            checkAndSetupSaleBanner(); // 下載成功後立刻檢查特價公告欄
+            checkAndSetupSaleBanner(); 
             renderProducts(allProductsRaw);
         } else {
             if (grid) grid.innerHTML = `<p style="padding:20px; color:red;">商品讀取失敗：${result.message}</p>`;
@@ -374,7 +381,7 @@ async function silentUpdateProductCatalog(cacheKey, timeKey) {
 }
 
 /**
- * 🛠️ 核心修改：將品牌按照 A-Z 順序升序排列
+ * 🛠️ 將品牌按照 A-Z 順序升序排列
  */
 function buildBrandAndCategoryNav() {
     const brandNavList = document.getElementById("brand-nav-list");
@@ -387,7 +394,6 @@ function buildBrandAndCategoryNav() {
         }
     });
     
-    // 進行 A 到 Z 排序（英文與拼音通用）
     const sortedBrands = Array.from(uniqueBrands).sort((a, b) => String(a).localeCompare(String(b), 'en', { sensitivity: 'base' }));
     const brandArray = ["ALL", ...sortedBrands];
     brandNavList.innerHTML = "";
@@ -410,19 +416,16 @@ function buildBrandAndCategoryNav() {
 }
 
 /**
- * 🛠️ 核心修改：不管後台試算表如何隨機排序，前台分類選單之順序將永遠嚴格為：
- * {"SALE" (有才在第一位，無則隱藏) ➔ "上衣" ➔ "下著" ➔ "套裝" ➔ "寶寶" ➔ "配件飾品" }
+ * 🛠️ 前台分類選單之順序將永遠嚴格為特定排列
  */
 function updateCategoryNavRow(brand) {
     const catContainer = document.getElementById("category-nav-container");
     const catNavList = document.getElementById("category-nav-list");
     if (!catContainer || !catNavList) return;
     
-    // 依據選定的品牌過濾，生成可用分類
     const catArray = [{ key: "ALL", display: "全部商品" }];
     
     FIX_CAT_MAP.forEach(mapObj => {
-        // 偵測大庫中是否存有當前品牌標準化後等於該 key 的商品
         const exists = allProductsRaw.some(item => {
             const matchBrand = (brand === "ALL" || String(item.brand).trim() === brand);
             return matchBrand && getStandardCategoryKey(item.category) === mapObj.key;
@@ -432,7 +435,6 @@ function updateCategoryNavRow(brand) {
         }
     });
     
-    // 如果可用分類只有 ALL (等於沒有其餘特定商品分類)，直接隱藏
     if (catArray.length <= 1) {
         catContainer.classList.add("hidden");
         filterAndRenderGrid();
@@ -461,7 +463,7 @@ function updateCategoryNavRow(brand) {
 }
 
 /**
- * 🎯 智慧連動過濾：利用 getStandardCategoryKey 對照，使篩選 100% 精確
+ * 🎯 智慧連動過濾
  */
 function filterAndRenderGrid() {
     const activeCatBtn = document.querySelector(".cat-btn.active");
@@ -475,7 +477,7 @@ function filterAndRenderGrid() {
 }
 
 /**
- * 🎨 渲染商品清單 (新增：SALE 30% OFF 折扣邏輯判定)
+ * 🎨 渲染商品清單 (包含寫入動作至「待核對商品表」之發送邏輯)
  */
 function renderProducts(products) {
     const grid = document.getElementById("products-grid");
@@ -498,10 +500,8 @@ function renderProducts(products) {
         const arrColors = item.color ? String(item.color).split(",").map(s => s.trim()).filter(s => s) : [];
         const arrSizes = item.size ? String(item.size).split(",").map(s => s.trim()).filter(s => s) : [];
 
-        // 🎯 核心特調：判定是否為折扣 SALE 商品 (不區分大小寫)
         const isSale = (getStandardCategoryKey(item.category) === "SALE");
         const originalPrice = Number(item.price || 0);
-        // 7折四捨五入計算
         const displayPrice = isSale ? Math.round(originalPrice * 0.7) : originalPrice;
 
         const imgBox = document.createElement("div");
@@ -511,7 +511,6 @@ function renderProducts(products) {
         img.alt = item.code;
         imgBox.appendChild(img);
 
-        // 🎯 如果是 SALE 折扣商品，動態塞入極簡黑白「30% OFF」標籤
         if (isSale) {
             const saleBadge = document.createElement("div");
             saleBadge.className = "sale-badge-overlay";
@@ -520,7 +519,6 @@ function renderProducts(products) {
         }
         card.appendChild(imgBox);
 
-        // 🎯 價格顯示邏輯：SALE 顯示原價刪除線 + 驚喜打折價
         const infoBox = document.createElement("div");
         infoBox.className = "card-info";
         let priceHtml = `NT$ ${displayPrice.toLocaleString()}`;
@@ -659,7 +657,6 @@ function renderProducts(products) {
         const txtSubtotal = savePanel.querySelector(".txt-subtotal");
         const btnSave = savePanel.querySelector(".btn-save-pending");
 
-        // 🎯 確保選取完畢後，小計是以「折價後的單價」去計算
         function checkCardStatus() {
             if (selectedColor && selectedSize) {
                 card.classList.add("active-highlight");
@@ -670,7 +667,7 @@ function renderProducts(products) {
             }
         }
 
-        // 🚀【確認暫存追加——極速樂觀更新版】
+        // 🚀【確認暫存追加——發送至待核對商品表】
         btnSave.addEventListener("click", async () => {
             if (!selectedColor || !selectedSize) {
                 alert("請選好顏色與尺寸規格");
@@ -681,14 +678,13 @@ function renderProducts(products) {
             const savedSize = selectedSize;
             const savedQty = Number(currentQty);
 
-            // A. 🚀【樂觀更新】立刻在前端虛擬一筆打折後的暫存項目
             const newItem = {
                 code: item.code,
                 color: savedColor,
                 size: savedSize,
                 qty: savedQty,
-                price: displayPrice, // 🎯 帶入打折後單價
-                total: displayPrice * savedQty, // 🎯 帶入打折後小計
+                price: displayPrice, 
+                total: displayPrice * savedQty, 
                 imagemain: item.imagemain || ""
              };
 
@@ -705,10 +701,10 @@ function renderProducts(products) {
             renderBottomOnlyUI();
             resetBtn.click();
 
-            // B. 背景默默去和試算表同步
+            // 寫入「待核對商品表」的網路要求
             const payload = {
                 action: "addPending",
-                afid: currentAfid,
+                afid: currentAfid, // 此處為空字串，完全不帶單號
                 code: item.code,
                 color: savedColor, 
                 size: savedSize,   

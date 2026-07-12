@@ -50,7 +50,7 @@
             color: var(--text-main);
             background-color: var(--bg-main);
             line-height: 1.6;
-            overflow-x: hidden; /* 防止動態粒子造成的水平捲軸 */
+            overflow-x: hidden;
             padding: 20px 10px;
         }
 
@@ -68,49 +68,6 @@
 
         .btn-common:hover {
             opacity: 0.8;
-        }
-
-        /* ==========================================================================
-           3. 動態粒子飄落系統 
-           ========================================================================== */
-        #falling-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-            pointer-events: none; 
-            z-index: -1;          
-        }
-
-        .particle {
-            position: absolute;
-            top: -60px; /* 從視窗上方外面開始掉落 */
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            pointer-events: none;
-            opacity: 0;
-            animation: slowFall linear forwards;
-        }
-
-        @keyframes slowFall {
-            0% {
-                transform: translateY(0) translateX(0) rotate(0deg);
-                opacity: 0;
-            }
-            10% {
-                opacity: 0.65; /* 漸漸浮現，避免太突兀，維持背景柔和感 */
-            }
-            90% {
-                opacity: 0.65;
-            }
-            100% {
-                /* 掉落到視窗下方，並帶有隨機的左右物理飄移與旋轉 */
-                transform: translateY(108vh) translateX(var(--drift-x)) rotate(var(--drift-rotate));
-                opacity: 0;
-            }
         }
 
         /* ==========================================================================
@@ -259,37 +216,6 @@
             outline: none;
         }
 
-        /* 💰 匯款資訊卡專屬微調（溫馨粉嫩奶油排版） */
-        .bank-info-card {
-            background-color: #faf4ee;
-            border: 1px dashed #d9c5b6;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 12px;
-            margin-top: 6px;
-            text-align: left;
-        }
-
-        .bank-title-text {
-            font-weight: bold;
-            font-size: 1rem;
-            color: #735d4c;
-            margin-bottom: 8px;
-        }
-
-        .bank-detail-text {
-            font-size: 0.9rem;
-            color: #615043;
-            line-height: 1.6;
-        }
-
-        .bank-deadline-alert {
-            margin-top: 10px;
-            color: #b3563e; /* 溫和的警示紅褐色 */
-            font-weight: bold;
-            font-size: 0.85rem;
-        }
-
         /* 📜 店鋪條款政策清單樣式 */
         .shop-policy-list {
             margin: 15px 0;
@@ -343,13 +269,10 @@
 </head>
 <body>
 
-    <!-- 🌸 浪漫粒子背景容器 -->
-    <div id="falling-container"></div>
-
     <div class="lookup-wrapper">
         <header class="lookup-card search-box-card">
             <h1 class="lookup-main-title">Aifang kids</h1>
-            <p class="lookup-sub-desc">請輸入專屬訂單編號 (例如: af95294390)</p>
+            <p class="lookup-sub-desc">請輸入專屬訂單編號</p>
             <p class="lookup-sub-desc">忘記編號，可以聯繫 LINE 官方客服協助處理</p>
 
             <form id="form-lookup" onsubmit="handleOrderLookup(event)">
@@ -365,7 +288,7 @@
     </div>
 
     <!-- ==========================================================================
-         🌸 6. 整合大腦 JavaScript 邏輯 ( lookup.js + 動態粒子 )
+         🌸 6. 整合大腦 JavaScript 邏輯 ( lookup.js )
          ========================================================================== */ -->
     <script>
         // 對接老闆娘最新發布的後台網址 (完美使用儲存的 api_url 紀錄)
@@ -382,9 +305,6 @@
                     executeLookup(urlAfid);
                 }
             }
-
-            // 2. 啟動櫻花飄落粒子系統
-            initFallingParticles();
         });
 
         /**
@@ -392,7 +312,6 @@
          */
         function parseDateSafe(dateStr) {
             if (!dateStr) return new Date();
-            // 將 "2026-07-06 10:17:00" 轉為 "2026/07/06 10:17:00" 避免 iOS 系統解析返回 NaN 導致倒數功能壞掉
             const formatted = String(dateStr).replace(/-/g, "/");
             return new Date(formatted);
         }
@@ -420,7 +339,6 @@
             `;
 
             try {
-                // 使用 POST 請求，確保參數透過 payload 精準發送給 GAS 
                 const response = await fetch(GLOBAL_GAS_URL, {
                     method: "POST",
                     mode: "cors",
@@ -460,34 +378,21 @@
             container.innerHTML = "";
 
             // 1. 進行 24 小時付款時間差計算
-            const orderTime = parseDateSafe(order.time).getTime(); // 訂單成立時間戳記
-            const nowTime = new Date().getTime(); // 當前時間戳記
-            const timeDiffMs = nowTime - orderTime; // 時間差毫秒數
-            const timeDiffHrs = timeDiffMs / (1000 * 60 * 60); // 轉換為小時
+            const orderTime = parseDateSafe(order.time).getTime(); 
+            const nowTime = new Date().getTime(); 
+            const timeDiffMs = nowTime - orderTime; 
+            const timeDiffHrs = timeDiffMs / (1000 * 60 * 60); 
 
-            let displayStatus = order.orderstatus; // 預設使用後台傳回的狀態
-            let showExpiredWarning = false;
-            let countdownText = "";
-
-            // 判斷是否屬於已核對付款/後續流程狀態 (paid, shipped, completed, refunded)
+            let displayStatus = order.orderstatus; 
             const isPaymentResolved = ["paid", "shipped", "completed", "refunded"].includes(displayStatus);
 
-            // 2. 判斷是否付款逾期：未填寫後五碼，且目前狀態還不是任何付款完成、出貨、完成或退款狀態
+            // 2. 判斷是否付款逾期
             if (!order.lastfive && !isPaymentResolved) {
                 if (timeDiffHrs > 24) {
-                    // 已經超時，直接強制前台顯示為已取消
                     displayStatus = "cancelled";
-                    showExpiredWarning = true;
-                    
-                    // 🌟 樂觀背景自動同步：前台計算出逾期，自動發送更新請求，把 K 欄自動改為 cancelled，免去人工補點！
                     if (order.orderstatus !== "cancelled") {
                         silentlyCancelOrder(order.afid);
                     }
-                } else {
-                    // 尚未超時，計算剩餘小時與分鐘，展示倒數計時提醒客人
-                    const hoursLeft = Math.floor(24 - timeDiffHrs);
-                    const minutesLeft = Math.floor((60 - ((timeDiffMs / (1000 * 60)) % 60)) % 60);
-                    countdownText = `⏳ 剩餘付款時間：${hoursLeft} 小時 ${minutesLeft} 分鐘`;
                 }
             }
 
@@ -526,7 +431,7 @@
                     break;
             }
 
-            // 4. 生成預購衣服明細 HTML 
+            // 4. 生成預購衣服明細 HTML (加入商品主圖 imagemain)
             let itemsHtml = "";
             if (details && details.length > 0) {
                 itemsHtml = `
@@ -535,88 +440,15 @@
                         <ul style="list-style: none; padding-left: 0; margin-top: 6px; font-size: 12.5px; color: #5a4b41; display:flex; flex-direction:column; gap:6px;">
                             ${details.map(item => `
                                 <li style="border-bottom: 1px dashed #f2eae4; padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
-                                    <span> <b>${item.code}</b> | ${item.color} | ${item.size}</span>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        ${item.imagemain ? `<img src="${item.imagemain}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;" alt="商品圖片">` : ''}
+                                        <span> <b>${item.code}</b> | ${item.color} | ${item.size}</span>
+                                    </div>
                                     <span>${item.qty}件 · NT$ ${Number(item.total).toLocaleString()}</span>
                                 </li>
                             `).join('')}
                         </ul>
                     </div>
-                `;
-            }
-
-            // 5. 處理補填區、匯款卡、條款政策之分流顯示
-            let bankActionHtml = "";
-            if (displayStatus === "cancelled" || showExpiredWarning) {
-                bankActionHtml = `
-                    <div style="background-color: #fff5f5; border: 1px solid #d9534f; border-radius: 10px; padding: 15px; margin-top: 15px; font-size: 13px; color: #d9534f; line-height: 1.6; text-align: center;">
-                        🚫 逾時付款，訂單自動取消<br>
-                        <small style="color: #a94442; font-size: 12px; display:block; margin-top:4px;">逾時付款，訂單自動取消，如需重新購買，請通知 LINE 官方客服，將為您協助處理</small>
-                    </div>
-                `;
-            } else if (displayStatus === "refunded") {
-                // 已退款狀態：隱藏填寫框，但帶出退款說明與條款提醒
-                bankActionHtml = `
-                    <div style="background-color: #faf2f5; border: 1px solid #9b59b6; border-radius: 10px; padding: 15px; margin-top: 15px; font-size: 13px; color: #8e44ad; line-height: 1.6; text-align: center; margin-bottom: 15px;">
-                        ℹ️ 此訂單已完成退款<br>
-                        <small style="color: #7d3c98; font-size: 12px; display:block; margin-top:4px;">退款金額已返還至您的指定帳戶，若有對帳需求，請聯繫 LINE 官方客服</small>
-                    </div>
-
-                    <!-- 小條款政策清單 -->
-                    <ul class="shop-policy-list">
-                        <li class="shop-policy-item">商品金額已含營業稅</li>
-                        <li class="shop-policy-item">取貨時請務必攜帶與收件人姓名相同的證件</li>
-                        <li class="shop-policy-item">依《消費者保護法》規範，享有七天鑑賞期退換貨服務</li>
-                        <li class="shop-policy-item">退換貨商品須保持全新、未剪標且完整包裝</li>
-                    </ul>
-                `;
-            } else if (!isPaymentResolved) {
-                // 還沒付款 (new / 未付款)，顯示補填框、公司匯款卡、倒數計時與條款
-                bankActionHtml = `
-                    <!-- 匯款資訊卡 -->
-                    <div class="bank-info-card">
-                        <div class="bank-title-text">匯款資訊</div>
-                        <div class="bank-detail-text">
-                            <strong>戶名：</strong>璦坊童裝<br>
-                            <strong>銀行：</strong>103 臺灣新光商業銀行<br>
-                            <strong>分行：</strong>0675 斗六分行<br>
-                            <strong>帳號：</strong>0675101004736
-                        </div>
-                        <div class="bank-deadline-alert">請於 24 小時之內完成匯款，逾時視同放棄訂單</div>
-                    </div>
-
-                    <div class="update-bank-box">
-                        <div style="font-weight: bold; color: #735d4c; font-size: 13px; margin-bottom: 6px;">填寫匯款帳號後五碼</div>
-                        <div style="font-size: 11px; color: #e06c75; font-weight: bold; margin-bottom: 8px;">${countdownText}</div>
-                        <div style="display: flex; gap: 8px;">
-                            <input type="text" id="ipt-update-lastfive" class="lookup-input-mini" placeholder="請輸入匯款帳號後 5 碼" maxlength="5">
-                            <button onclick="window.updateLastFive('${order.afid}')" id="btn-five-${order.afid}" class="btn-lookup-mini">確認送出</button>
-                        </div>
-                        <small style="display:block; margin-top:6px; font-size: 11px; color: #baa38f;">💡 給予對方的備註請勿填寫，以免不利核對帳號與金額</small>
-                    </div>
-
-                    <!-- 小條款政策清單 -->
-                    <ul class="shop-policy-list">
-                        <li class="shop-policy-item">商品金額已含營業稅</li>
-                        <li class="shop-policy-item">取貨時請務必攜帶與收件人姓名相同的證件</li>
-                        <li class="shop-policy-item">依《消費者保護法》規範，享有七天鑑賞期退換貨服務</li>
-                        <li class="shop-policy-item">退換貨商品須保持全新、未剪標且完整包裝</li>
-                    </ul>
-                `;
-            } else {
-                // 已確認付款狀態 (paid, shipped, completed)：隱藏匯款卡與填寫框，但依闆娘要求，卡片下方「直接帶出小政策條款」
-                const verifiedCode = order.lastfive ? ` (後五碼: <strong>${order.lastfive}</strong>)` : "";
-                bankActionHtml = `
-                    <div style="background-color: #f4f9f4; border: 1px solid #3c763d; border-radius: 10px; padding: 12px; margin-top: 15px; font-size: 12px; color: #3c763d; text-align: center; margin-bottom: 15px;">
-                        ✅ 訂單已核對付款狀態${verifiedCode}
-                    </div>
-
-                    <!-- 小條款政策清單 -->
-                    <ul class="shop-policy-list">
-                        <li class="shop-policy-item">商品金額已含營業稅</li>
-                        <li class="shop-policy-item">取貨時請務必攜帶與收件人姓名相同的證件</li>
-                        <li class="shop-policy-item">依《消費者保護法》規範，享有七天鑑賞期退換貨服務</li>
-                        <li class="shop-policy-item">退換貨商品須保持全新、未剪標且完整包裝</li>
-                    </ul>
                 `;
             }
 
@@ -638,7 +470,6 @@
                     <p style="margin-top: 6px; font-size: 14px;"><strong>合計金額：</strong><span style="color:#b06249; font-weight:bold; font-size:16px;">NT$ ${Number(order.total).toLocaleString()}</span></p>
                     
                     ${itemsHtml}
-                    ${bankActionHtml}
                 </div>
             `;
 
@@ -665,61 +496,6 @@
             }
         }
 
-        /**
-         * 提交匯款後五碼並更新試算表（掛載於 window 確保行內 onclick 可完美呼叫）
-         */
-        window.updateLastFive = async function(afid) {
-            const inputField = document.getElementById("ipt-update-lastfive");
-            const btn = document.getElementById(`btn-five-${afid}`);
-            if (!inputField) return;
-
-            const code = inputField.value.trim();
-            if (!code || code.length !== 5 || isNaN(code)) {
-                alert("請輸入匯款帳號後 5 碼");
-                return;
-            }
-
-            if (btn) {
-                btn.disabled = true;
-                btn.innerText = "⏳";
-            }
-
-            try {
-                const response = await fetch(GLOBAL_GAS_URL, {
-                    method: "POST",
-                    mode: "cors",
-                    headers: { "Content-Type": "text/plain;charset=utf-8" },
-                    body: JSON.stringify({
-                        action: "updateLastFive",
-                        afid: afid,
-                        lastfive: code
-                    })
-                });
-
-                const resData = await response.json();
-
-                if (resData.success) {
-                    alert("🎉 匯款帳號後五碼已更新！會立刻幫您對帳");
-                    // 重新執行查詢，即時刷新畫面
-                    executeLookup(afid);
-                } else {
-                    alert("更新失敗：" + resData.message);
-                    if (btn) {
-                        btn.disabled = false;
-                        btn.innerText = "確認匯款帳號後五碼";
-                    }
-                }
-            } catch (err) {
-                console.error("更新後五碼連線失敗:", err);
-                alert("訂單系統連線不穩，請稍候再試");
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerText = "確認匯款帳號後五碼";
-                }
-            }
-        };
-
     </script>
-    <script src="js/articles.js"></script>
 </body>
 </html>

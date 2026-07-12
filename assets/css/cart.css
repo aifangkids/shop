@@ -240,8 +240,8 @@ section h2 {
 }
 
 /* ==========================================================================
-   🎯 Error 3 核心修正：徹底消除左側金額下方及條款政策項目符號原點 (Bullets)
-   ========================================================================== */
+    🎯 功能 3 核心優化：縮小條款政策字體、微調溫柔顏色，消除原點項目符號 (Bullets)
+    ========================================================================== */
 .left-policy-list, 
 ul.left-policy-list, 
 ol.left-policy-list {
@@ -249,6 +249,10 @@ ol.left-policy-list {
     list-style-type: none !important;
     padding-left: 0 !important;
     margin-left: 0 !important;
+    font-size: 0.8rem !important; /* 🎯 成功讓政策說明文字縮小，看起來極精緻專業 */
+    color: #8a7a71 !important;    /* 調淡為優雅的可可灰色 */
+    line-height: 1.5;
+    margin-top: 15px;
 }
 
 .policy-item-left, 
@@ -256,7 +260,35 @@ li.policy-item-left {
     list-style: none !important;
     list-style-type: none !important;
     padding-left: 0 !important;
-    background-image: none !important; /* 防止部分瀏覽器以圖片當作預設原點 */
+    background-image: none !important; /* 防止個別瀏覽器自帶小原點 */
+    margin-bottom: 6px; /* 增加小段落間距 */
+}
+
+/* ==========================================================================
+    🎯 功能 2 核心追加：同步大庫特價品之雙金額刪除線與 30% OFF 專用 CSS 樣式
+    ========================================================================== */
+.price-original {
+    text-decoration: line-through !important;
+    color: #a89482 !important; /* 灰色原價 */
+    font-size: 11px !important;
+    margin-right: 5px;
+    font-weight: normal !important;
+}
+
+.price-sale {
+    color: #ff4d4f !important; /* 亮眼紅字特價 */
+    font-weight: bold !important;
+}
+
+.sale-tag {
+    font-size: 11px;
+    color: #ff4d4f;
+    font-weight: bold;
+    margin-left: 6px;
+    background: #fff0f6;
+    padding: 1px 4px;
+    border-radius: 4px;
+    border: 1px solid #ffccc7;
 }
 
 /* 完美高亮結帳按鈕 */
