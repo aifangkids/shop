@@ -39,7 +39,7 @@ body {
 
 .cart-header h1 {
     font-family: 'CutieStar', sans-serif !important;
-    font-size: 35px;
+    font-size: 50px;
     color: #f2a6b2;
     font-weight: 600;
     letter-spacing: 1px;
@@ -239,50 +239,24 @@ section h2 {
     margin-top: 5px;
 }
 
-/* 💰 匯款資訊卡專屬微調（溫馨粉嫩奶油排版） */
-.bank-info-card {
-    background-color: #faf4ee;
-    border: 1px dashed #d9c5b6;
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 12px;
-    margin-top: 6px;
+/* ==========================================================================
+   🎯 Error 3 核心修正：徹底消除左側金額下方及條款政策項目符號原點 (Bullets)
+   ========================================================================== */
+.left-policy-list, 
+ul.left-policy-list, 
+ol.left-policy-list {
+    list-style: none !important;
+    list-style-type: none !important;
+    padding-left: 0 !important;
+    margin-left: 0 !important;
 }
 
-.bank-title-text {
-    font-weight: bold;
-    font-size: 1rem;
-    color: #735d4c;
-    margin-bottom: 8px;
-}
-
-.bank-detail-text {
-    font-size: 0.9rem;
-    color: #615043;
-    line-height: 1.6;
-}
-
-.bank-deadline-alert {
-    margin-top: 10px;
-    color: #b3563e; /* 溫和的警示紅褐色 */
-    font-weight: bold;
-    font-size: 0.85rem;
-}
-
-/* 📜 店鋪條款政策清單樣式 */
-.shop-policy-list {
-    margin: 22px 0;
-    padding-top: 16px;
-    border-top: 1px solid #f2eae4;
-    list-style-position: inside;
-}
-
-.shop-policy-item {
-    font-size: 0.85rem;
-    color: #8c7769;
-    margin-bottom: 6px;
-    position: relative;
-    padding-left: 5px;
+.policy-item-left, 
+li.policy-item-left {
+    list-style: none !important;
+    list-style-type: none !important;
+    padding-left: 0 !important;
+    background-image: none !important; /* 防止部分瀏覽器以圖片當作預設原點 */
 }
 
 /* 完美高亮結帳按鈕 */

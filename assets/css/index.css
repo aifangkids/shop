@@ -14,20 +14,17 @@ body, input, select, button, textarea, span, div, p, h2, h3, h4, li, label, opti
 }
 .brand-logo {
     font-family: 'CutieStar', sans-serif !important;
-    font-size: 35px;
+    font-size: 50px;
     color: var(--baby-pink, #f2a6b2);
     margin-bottom: 6px;
     letter-spacing: 1px;
 }
 .order-uid-badge {
     display: inline-block;
-    background-color: var(--bg-main, #faf6f0);
     padding: 5px 14px;
-    border-radius: 20px;
     font-size: 13px;
     font-weight: bold;
     color: #666;
-    border: 1px solid #eadecc;
 }
 
 /* 📲 手機版左上角 ︙ 懸浮觸發按鈕 */
@@ -555,4 +552,41 @@ body, input, select, button, textarea, span, div, p, h2, h3, h4, li, label, opti
     font-size: 1.2rem;
     font-weight: 800;
     color: #b06249; 
+}
+
+/* 頂部特價公告欄樣式 */
+.top-sale-banner {
+    background-color: #111111; /* 極簡高質感黑，與粉色網頁形成強烈對比 */
+    color: #ffffff;            /* 純白字 */
+    text-align: center;
+    padding: 10px 15px;
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    cursor: pointer;           /* 讓滑鼠移上去變成小手圖示，暗示可以點擊 */
+    transition: all 0.3s ease;
+    z-index: 9999;
+    position: relative;
+}
+
+.top-sale-banner:hover {
+    background-color: #222222; /* 滑鼠移上去微變色 */
+    text-decoration: underline; /* 出現底線 */
+}
+
+/* 讓 CSS 的 hidden 類別能精準隱藏區塊 */
+.top-sale-banner.hidden {
+    display: none !important;
+}
+
+/* 幫分類列的 SALE 按鈕穿上特殊粉嫩外衣，讓它在分類裡最顯眼 */
+.cat-btn[data-cat-value="SALE"] {
+    background-color: #ffeef0 !important;
+    color: #f2a6b2 !important;
+    border: 1px solid #f2a6b2 !important;
+    font-weight: bold;
+}
+.cat-btn[data-cat-value="SALE"].active {
+    background-color: #f2a6b2 !important;
+    color: #ffffff !important;
 }

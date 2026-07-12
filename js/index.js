@@ -1,10 +1,32 @@
-// 🎯 已自動校正為老闆娘最新的 GAS 正式後端網址
 const GLOBAL_GAS_URL = "https://script.google.com/macros/s/AKfycbwrIptncgsBt4hAiRDniddghritIT8U9SXRvu8rTSY-t-LWYk4HoC7iQ_hGtaJLYIl5/exec";
 
 let currentAfid = "";
 let allProductsRaw = [];
 let currentSelectedBrand = "ALL";
-let currentPendingCartItems = []; // 儲存當前暫存車內的最新資料，與 modal 及 ☒ 共享
+let currentPendingCartItems = []; // 儲存當前購物車內的最新資料，與 modal 及 ☒ 共享
+
+// 🎯 標準化分類對應表
+const FIX_CAT_MAP = [
+    { key: "SALE", display: "SALE" },
+    { key: "TOP", display: "上衣" },
+    { key: "BOTTOM", display: "下著" },
+    { key: "SET", display: "套裝" },
+    { key: "BABY", display: "寶寶" },
+    { key: "ACC", display: "配件飾品" }
+];
+
+ // 🎯 智慧分類標準化轉換器
+function getStandardCategoryKey(rawCat) {
+    if (!rawCat) return "";
+    const cat = String(rawCat).trim().toUpperCase();
+    if (cat === "SALE" || cat === "SALE商品" || cat === "特價" || cat === "出清") return "SALE";
+    if (cat === "TOP" || cat === "上衣" || cat === "上衣類") return "TOP";
+    if (cat === "BOTTOM" || cat === "下裝" || cat === "下裝類" || cat === "下著" || cat === "BOTTOMS") return "BOTTOM";
+    if (cat === "SET" || cat === "套裝" || cat === "套裝類" || cat === "OUTER" || cat === "外套" || cat === "外套類") return "SET";
+    if (cat === "BABY" || cat === "寶寶" || cat === "寶寶類") return "BABY";
+    if (cat === "ACC" || cat === "配件" || cat === "配件/鞋襪類" || cat === "配件飾品" || cat === "鞋襪" || cat === "鞋襪類") return "ACC";
+    return cat; // 預設回傳原字
+}
 
 // 網頁載入完成後執行
 document.addEventListener("DOMContentLoaded", () => {
@@ -13,9 +35,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // 🛠️ 核心修改：優先嘗試從網址抓單號，抓不到就去客人的手機瀏覽器暫存（localStorage）撈取
     currentAfid = urlParams.get('uid') || urlParams.get('afid') || localStorage.getItem("aifang_afid"); 
 
-    // 🛠️ 核心修改：如果連瀏覽器都沒有（代表是全新客人第一次進站），就在背景自動悄悄生成一個！
-    if (!currentAfid) {
-        currentAfid = "AF" + new Date().getTime(); // 利用時間戳記生成絕對不重複的編號
+    // 🛠️ 核心修改：如果沒有單號，或是仍保留舊款「AF」開頭、長度不等於 8 的單號，就在背景悄悄生成全新 8 位數格式！
+    if (!currentAfid || currentAfid.startsWith("AF") || currentAfid.length !== 8) {
+        const now = new Date();
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        const rand = String(Math.floor(1000 + Math.random() * 9000)); // 產生 1000 到 9999 的 4 位隨機數
+        currentAfid = mm + dd + rand; // 格式如 07121234
         localStorage.setItem("aifang_afid", currentAfid); // 存入瀏覽器，下次進站自動沿用
     } else {
         // 確保網址沒帶但 localStorage 有的時候，也同步更新快取，安全保險
@@ -55,6 +81,35 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+ // 🎯 新增功能：檢查大庫中是否有 SALE 商品，並控制頂部公告欄
+function checkAndSetupSaleBanner() {
+    const topBanner = document.getElementById("top-sale-banner");
+    if (!topBanner) return;
+
+    // 檢查有沒有任何一件商品的 category 是 SALE
+    const hasSaleItems = allProductsRaw.some(item => getStandardCategoryKey(item.category) === "SALE");
+
+    if (hasSaleItems) {
+        topBanner.classList.remove("hidden"); // 秀出公告欄
+        
+        // 綁定點擊事件：點擊公告欄，自動幫客人點擊「SALE」分類按鈕！
+        topBanner.onclick = function(e) {
+            e.preventDefault();
+            const saleBtn = document.querySelector('.cat-btn[data-cat-value="SALE"]');
+            if (saleBtn) {
+                saleBtn.click(); // 模擬點擊
+                // 順便平滑滾動到商品區，讓客人的手機畫面自動對準衣服
+                const grid = document.getElementById("products-grid");
+                if (grid) {
+                    grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        };
+    } else {
+        topBanner.classList.add("hidden"); // 後台沒特價品，自動隱藏公告欄
+    }
+}
+
 /**
  * 🎯 動態注入並初始化 🛒 暫存明細預覽懸浮窗 HTML 結構
  */
@@ -69,8 +124,7 @@ function initCartPreviewModal() {
                 <div class="modal-title">購物車明細</div>
                 <div class="modal-close-btn" id="modal-close-btn">☒</div>
             </div>
-            <div class="modal-item-list" id="modal-item-list">
-                </div>
+            <div class="modal-item-list" id="modal-item-list"></div>
             <div class="modal-total-section">
                 <span><b>預購商品總額：</b></span>
                 <span class="modal-total-price">NT$ <span id="modal-grand-total">0</span></span>
@@ -185,7 +239,7 @@ function renderModalItemList() {
 }
 
 /**
- * 純前端繪製底部留白預覽區 (不重新連線，極速回饋)
+ * 🛠️ 核心修改：只要暫存追加件數大於 0，100% 轉為預覽懸浮窗 Modal 觸發結構，不採用纯文字顯示
  */
 function renderBottomOnlyUI() {
     const previewContainer = document.querySelector(".footer-hint");
@@ -194,38 +248,23 @@ function renderBottomOnlyUI() {
 
     if (currentPendingCartItems.length > 0) {
         const items = currentPendingCartItems;
-        if (items.length <= 2) {
-            let htmlContent = "";
-            items.forEach(item => {
-                const price = Number(item.price || 0);
-                const total = Number(item.total || (price * item.qty));
-                htmlContent += `
-                    <div class="preview-item-text" style="font-size: 11px; color: #5a4b41; margin-bottom: 2px; line-height: 1.3;">
-                         ${item.code}、NT$ ${price.toLocaleString()}、${item.color}、${item.size}、${item.qty}件、NT$ ${total.toLocaleString()}
-                    </div>
-                `;
+        previewContainer.innerHTML = `
+            <div class="preview-cart-badge" id="btn-trigger-preview-modal" style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
+                <span style="font-size: 22px; cursor: pointer; animation: bounce 1s infinite alternate;">🛒</span>
+                <span style="font-size: 13px; font-weight: bold; color: var(--baby-pink, #f2a6b2); text-decoration: underline;">
+                    選擇的預購商品 (${items.length} 件)
+                </span>
+            </div>
+        `;
+        const triggerBadge = document.getElementById("btn-trigger-preview-modal");
+        if (triggerBadge) {
+            triggerBadge.addEventListener("click", (e) => {
+                e.stopPropagation();
+                showCartPreviewModal();
             });
-            previewContainer.innerHTML = htmlContent;
-            if (btnGoCart) btnGoCart.innerHTML = "前往結帳 ➔";
-        } else {
-            previewContainer.innerHTML = `
-                <div class="preview-cart-badge" id="btn-trigger-preview-modal" style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
-                    <span style="font-size: 22px; cursor: pointer; animation: bounce 1s infinite alternate;">🛒</span>
-                    <span style="font-size: 13px; font-weight: bold; color: var(--baby-pink, #f2a6b2); text-decoration: underline;">
-                        選擇的預購商品 (${items.length} 件)
-                    </span>
-                </div>
-            `;
-            const triggerBadge = document.getElementById("btn-trigger-preview-modal");
-            if (triggerBadge) {
-                triggerBadge.addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    showCartPreviewModal();
-                });
-            }
-
-            if (btnGoCart) btnGoCart.innerHTML = "前往結帳 ➔";
         }
+
+        if (btnGoCart) btnGoCart.innerHTML = "前往結帳 ➔";
     } else {
         previewContainer.innerHTML = `
             <span class="summary-label" style="font-size: 12px; color: #888;">
@@ -272,6 +311,7 @@ async function fetchProductCatalogWithCache() {
         try {
             allProductsRaw = JSON.parse(cachedData);
             buildBrandAndCategoryNav();
+            checkAndSetupSaleBanner(); // 載入緩存後立刻檢查特價公告欄
             renderProducts(allProductsRaw);
             if (loadingBox) loadingBox.classList.add("hidden");
             
@@ -301,6 +341,7 @@ async function fetchProductCatalogFromServer(cacheKey, timeKey, loadingBox, grid
             localStorage.setItem(timeKey, String(Date.now()));
 
             buildBrandAndCategoryNav();
+            checkAndSetupSaleBanner(); // 下載成功後立刻檢查特價公告欄
             renderProducts(allProductsRaw);
         } else {
             if (grid) grid.innerHTML = `<p style="padding:20px; color:red;">商品讀取失敗：${result.message}</p>`;
@@ -332,6 +373,9 @@ async function silentUpdateProductCatalog(cacheKey, timeKey) {
     }
 }
 
+/**
+ * 🛠️ 核心修改：將品牌按照 A-Z 順序升序排列
+ */
 function buildBrandAndCategoryNav() {
     const brandNavList = document.getElementById("brand-nav-list");
     if (!brandNavList) return;
@@ -342,7 +386,10 @@ function buildBrandAndCategoryNav() {
             uniqueBrands.add(String(item.brand).trim());
         }
     });
-    const brandArray = ["ALL", ...Array.from(uniqueBrands)];
+    
+    // 進行 A 到 Z 排序（英文與拼音通用）
+    const sortedBrands = Array.from(uniqueBrands).sort((a, b) => String(a).localeCompare(String(b), 'en', { sensitivity: 'base' }));
+    const brandArray = ["ALL", ...sortedBrands];
     brandNavList.innerHTML = "";
 
     brandArray.forEach(brand => {
@@ -362,32 +409,44 @@ function buildBrandAndCategoryNav() {
     updateCategoryNavRow("ALL");
 }
 
+/**
+ * 🛠️ 核心修改：不管後台試算表如何隨機排序，前台分類選單之順序將永遠嚴格為：
+ * {"SALE" (有才在第一位，無則隱藏) ➔ "上衣" ➔ "下著" ➔ "套裝" ➔ "寶寶" ➔ "配件飾品" }
+ */
 function updateCategoryNavRow(brand) {
     const catContainer = document.getElementById("category-nav-container");
     const catNavList = document.getElementById("category-nav-list");
     if (!catContainer || !catNavList) return;
-    const availableCategories = new Set();
-    allProductsRaw.forEach(item => {
-        const matchBrand = (brand === "ALL" || String(item.brand).trim() === brand);
-        if (matchBrand && item.category && String(item.category).trim() !== "") {
-            availableCategories.add(String(item.category).trim().toUpperCase());
+    
+    // 依據選定的品牌過濾，生成可用分類
+    const catArray = [{ key: "ALL", display: "全部商品" }];
+    
+    FIX_CAT_MAP.forEach(mapObj => {
+        // 偵測大庫中是否存有當前品牌標準化後等於該 key 的商品
+        const exists = allProductsRaw.some(item => {
+            const matchBrand = (brand === "ALL" || String(item.brand).trim() === brand);
+            return matchBrand && getStandardCategoryKey(item.category) === mapObj.key;
+        });
+        if (exists) {
+            catArray.push(mapObj);
         }
     });
-    if (availableCategories.size === 0) {
+    
+    // 如果可用分類只有 ALL (等於沒有其餘特定商品分類)，直接隱藏
+    if (catArray.length <= 1) {
         catContainer.classList.add("hidden");
         filterAndRenderGrid();
         return;
     }
 
     catContainer.classList.remove("hidden");
-    const catArray = ["ALL", ...Array.from(availableCategories)];
     catNavList.innerHTML = "";
 
     catArray.forEach(cat => {
         const btn = document.createElement("button");
-        btn.className = `cat-btn ${cat === "ALL" ? "active" : ""}`;
-        btn.innerText = cat === "ALL" ? "全部商品" : cat;
-        btn.setAttribute("data-cat-value", cat);
+        btn.className = `cat-btn ${cat.key === "ALL" ? "active" : ""}`;
+        btn.innerText = cat.display;
+        btn.setAttribute("data-cat-value", cat.key);
 
         btn.addEventListener("click", () => {
             document.querySelectorAll(".cat-btn").forEach(b => b.classList.remove("active"));
@@ -401,12 +460,15 @@ function updateCategoryNavRow(brand) {
     filterAndRenderGrid();
 }
 
+/**
+ * 🎯 智慧連動過濾：利用 getStandardCategoryKey 對照，使篩選 100% 精確
+ */
 function filterAndRenderGrid() {
     const activeCatBtn = document.querySelector(".cat-btn.active");
     const currentSelectedCat = activeCatBtn ? activeCatBtn.getAttribute("data-cat-value") : "ALL";
     const filteredProducts = allProductsRaw.filter(item => {
         const brandMatch = (currentSelectedBrand === "ALL" || String(item.brand).trim() === currentSelectedBrand);
-        const catMatch = (currentSelectedCat === "ALL" || String(item.category).trim().toUpperCase() === currentSelectedCat.toUpperCase());
+        const catMatch = (currentSelectedCat === "ALL" || getStandardCategoryKey(item.category) === currentSelectedCat);
         return brandMatch && catMatch;
     });
     renderProducts(filteredProducts);
@@ -437,7 +499,7 @@ function renderProducts(products) {
         const arrSizes = item.size ? String(item.size).split(",").map(s => s.trim()).filter(s => s) : [];
 
         // 🎯 核心特調：判定是否為折扣 SALE 商品 (不區分大小寫)
-        const isSale = (item.category && String(item.category).trim().toUpperCase() === "SALE");
+        const isSale = (getStandardCategoryKey(item.category) === "SALE");
         const originalPrice = Number(item.price || 0);
         // 7折四捨五入計算
         const displayPrice = isSale ? Math.round(originalPrice * 0.7) : originalPrice;
