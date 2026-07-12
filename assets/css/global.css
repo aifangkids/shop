@@ -52,50 +52,7 @@ body {
 }
 
 /* ==========================================================================
-   3. 動態粒子飄落系統 
-   ========================================================================== */
-#falling-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-    pointer-events: none; 
-    z-index: -1;          
-}
-
-.particle {
-    position: absolute;
-    top: -60px; /* 從視窗上方外面開始掉落 */
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    pointer-events: none;
-    opacity: 0;
-    animation: slowFall linear forwards;
-}
-
-@keyframes slowFall {
-    0% {
-        transform: translateY(0) translateX(0) rotate(0deg);
-        opacity: 0;
-    }
-    10% {
-        opacity: 0.65; /* 漸漸浮現，避免太突兀，維持背景柔和感 */
-    }
-    90% {
-        opacity: 0.65;
-    }
-    100% {
-        /* 掉落到視窗下方，並帶有隨機的左右物理飄移與旋轉 */
-        transform: translateY(108vh) translateX(var(--drift-x)) rotate(var(--drift-rotate));
-        opacity: 0;
-    }
-}
-
-/* ==========================================================================
-   4. 手機響應式通用微調 (RWD)
+   3. 手機響應式通用微調 (RWD)
    ========================================================================== */
 @media (max-width: 480px) {
     body { padding: 15px 10px; }
