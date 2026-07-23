@@ -45,10 +45,12 @@ body {
     letter-spacing: 1px;
 }
 
-.cart-header .subtitle {
-    margin-top: 8px;
-    font-size: 0.95rem;
-    color: #a89482;
+.order-uid-badge {
+    display: inline-block;
+    padding: 5px 14px;
+    font-size: 8px;
+    font-weight: bold;
+    color: #666;
 }
 
 #display-afid {
