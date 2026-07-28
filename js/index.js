@@ -5,26 +5,32 @@ let allProductsRaw = [];
 let currentSelectedBrand = "ALL";
 let currentPendingCartItems = []; // 儲存當前購物車內的最新資料，與 modal 及 ☒ 共享
 
-// 🎯 標準化分類對應表
+// 🎯 標準化分類對應表（最新版：包含外套、成人與最新名稱）
 const FIX_CAT_MAP = [
-    { key: "SALE", display: "SALE" },
     { key: "TOP", display: "上衣" },
     { key: "BOTTOM", display: "下著" },
     { key: "SET", display: "套裝" },
+    { key: "OUTER", display: "外套" },
     { key: "BABY", display: "寶寶" },
-    { key: "ACC", display: "配件飾品" }
+    { key: "ADULT", display: "成人" },
+    { key: "ACC", display: "飾品配件" },
+    { key: "SALE", display: "SALE" }
 ];
 
- // 🎯 智慧分類標準化轉換器
+// 🎯 智慧分類標準化轉換器
 function getStandardCategoryKey(rawCat) {
     if (!rawCat) return "";
     const cat = String(rawCat).trim().toUpperCase();
+    
     if (cat === "SALE" || cat === "SALE商品" || cat === "特價" || cat === "出清") return "SALE";
     if (cat === "TOP" || cat === "上衣" || cat === "上衣類") return "TOP";
     if (cat === "BOTTOM" || cat === "下裝" || cat === "下裝類" || cat === "下著" || cat === "BOTTOMS") return "BOTTOM";
-    if (cat === "SET" || cat === "套裝" || cat === "套裝類" || cat === "OUTER" || cat === "外套" || cat === "外套類") return "SET";
+    if (cat === "SET" || cat === "套裝" || cat === "套裝類") return "SET";
+    if (cat === "OUTER" || cat === "外套" || cat === "外套類") return "OUTER";
     if (cat === "BABY" || cat === "寶寶" || cat === "寶寶類") return "BABY";
-    if (cat === "ACC" || cat === "配件" || cat === "配件/鞋襪類" || cat === "配件飾品" || cat === "鞋襪" || cat === "鞋襪類") return "ACC";
+    if (cat === "ADULT" || cat === "成人" || cat === "成人類" || cat === "大人") return "ADULT";
+    if (cat === "ACC" || cat === "飾品配件" || cat === "配件飾品" || cat === "配件" || cat === "配件/鞋襪類" || cat === "鞋襪" || cat === "鞋襪類") return "ACC";
+    
     return cat; // 預設回傳原字
 }
 
